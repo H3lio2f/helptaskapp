@@ -1,0 +1,100 @@
+{
+	"tasks": [
+		{
+			"id": 1,
+			"name": "ut",
+			"description": "Qui ad ducimus eos temporibus maxime dolores.",
+			"user_name": "Hélio Fila",
+			"user": {
+				"id": 1,
+				"name": "Hélio Fila",
+				"email": "heliofila@gmail.com",
+				"email_verified_at": null,
+				"role": "admin",
+				"country": "Brasil",
+				"phone": "+55 11 99999-9999",
+				"photo": "https:\/\/avatars0.githubusercontent.com\/u\/46090900?s=460&v=4",
+				"created_at": "2022-06-07T09:02:23.000000Z",
+				"updated_at": "2022-06-07T09:02:23.000000Z"
+			},
+			"agent": "Mr. Hollis Harvey",
+			"agent_id": {
+				"id": 8,
+				"name": "Mr. Hollis Harvey",
+				"city": "Georgettehaven",
+				"country": "Belgium",
+				"phone": "+1-573-891-4764",
+				"group_id": 1,
+				"user_id": 3
+			},
+			"client": {
+				"id": 3,
+				"reference": "HTJAIBFYE14VI",
+				"name": "Mrs. Bridget Mayer",
+				"address": "918 Baumbach Ways Suite 457\nOsinskitown, WY 89046-1174",
+				"country": "Honduras",
+				"city": "Batztown",
+				"email1": "nhuel@hotmail.com",
+				"email2": "parisian.ethel@hotmail.com",
+				"phone1": "(651) 217-7372",
+				"phone2": "772-741-9763",
+				"active": 0,
+				"photo": "https:\/\/via.placeholder.com\/640x480.png\/00aaee?text=repudiandae",
+				"created_at": "2022-06-07T09:02:23.000000Z",
+				"updated_at": "2022-06-07T09:02:23.000000Z"
+			},
+			"client_name": "Mrs. Bridget Mayer",
+			"type": {
+				"id": 2,
+				"name": "Incidente",
+				"description": "Ipsam porro praesentium rem eum sunt ut enim ut.",
+				"active": 0
+			},
+			"type_name": "Incidente",
+			"statusColor": "#e74c3c",
+			"group_name": "Vendas",
+			"group": {
+				"id": 2,
+				"name": "Vendas",
+				"description": "Aliquam commodi tempore sequi.",
+				"user_id": 3
+			},
+			"area": {
+				"id": 2,
+				"name": "Recursos Humanos",
+				"description": "Reprehenderit dolores sapiente aut alias at exercitationem.",
+				"group": "Marketing",
+				"active": 1
+			},
+			"status": {
+				"id": 4,
+				"name": "Por atribuir",
+				"description": "Non autem enim doloremque vel illum perspiciatis consequatur.",
+				"color": "#e74c3c"
+			},
+			"status_name": "Por atribuir",
+			"dueDate": "2013-03-11",
+			"remain_hour": "0 hora",
+			"remain_day": "0 dia",
+			"remain_minute": "0 minuto",
+			"remain_second": "0 segundo",
+			"remain_percent": 100,
+			"replies": [],
+			"files": [
+				"https:\/\/helptask-api.herokuapp.com\/\/app\/tasks\/incidunt",
+				"https:\/\/helptask-api.herokuapp.com\/\/app\/tasks\/autem"
+			],
+			"channel": {
+				"id": 3,
+				"name": "Web",
+				"description": "Debitis nihil quos dolor magnam corporis asperiores."
+			},
+			"channel_name": "Web",
+			"active": 1,
+			"created_at": "2022-06-07T09:02:23.000000Z",
+			"updated_at": "2022-06-07T09:02:23.000000Z",
+			"status_control": "",
+			"notification_status": ""
+		}
+	]
+}

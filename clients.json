@@ -1,0 +1,21 @@
+{
+	"clients": [
+		{
+			"id": 1,
+			"reference": "HTGOVYPDF21MF",
+			"slug": "HT-HTGOVYPDF21MF",
+			"name": "Kellie Braun",
+			"address": "7609 Natalie Mission Apt. 622\nDestiniborough, IA 80574-0782",
+			"country": "Ghana",
+			"city": "Sandrinefurt",
+			"email1": "keagan55@grady.net",
+			"email2": "eunice36@hotmail.com",
+			"phone1": "+1 (850) 479-9729",
+			"phone2": "+1 (434) 758-4676",
+			"active": 0,
+			"photo": "https:\/\/helptask-api.herokuapp.com\/\/app\/clients\/https:\/\/via.placeholder.com\/640x480.png\/008800?text=et",
+			"created_at": "2022-06-07T09:02:23.000000Z",
+			"tasks": []
+		}
+	]
+}
