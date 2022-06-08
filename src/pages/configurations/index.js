@@ -14,52 +14,26 @@ const GroupConfig = dynamic(() => import("../../components/AddCard/GroupConfig")
 const TaskConfig = dynamic(() => import("../../components/AddCard/TaskConfig"));
 const TypeConfig = dynamic(() => import("../../components/AddCard/TypeConfig"));
 const UserConfig = dynamic(() => import("../../components/AddCard/UserConfig"));
-
 const Loader = dynamic(() => import("../../components/LoadingSpinner"));
 
+export default function Configurations() {
+    const {
+      setShowClientConfig,
+      setShowUserConfig,
+      setShowChannelConfig,
+      setShowGroupConfig,
+      setShowTypeConfig
+    } = useGlobal();
 
-export default function Configurations({
-  tasks,
-  users,
-  status,
-  userLogged }) {
-  const {
-    refresh,
-    setShowTaskConfig,
-    setShowChannelConfig,
-    setShowGroupConfig,
-    setShowTypeConfig,
-    setShowUserConfig,
-    setShowClientConfig,
-    setUser,
-    setUsers,
-    setStatus,
-    actionDone,
-    setFilteredLate
-  } = useGlobal();
+    const [loading, setLoading] = useState(true);
 
-  const [loading, setLoading] = useState(true);
-
-  const fetchFilteredLate = async () => {
-    const filteredLate = tasks.filter(task => task.status_control === "late");
-    setFilteredLate(filteredLate.length);
-  }
-
-  useEffect(() => {
-    setUser(userLogged);
-    fetchFilteredLate();
-    setUsers(users);
-    setStatus(status);
-    setLoading(false);
-  }, []);
-
-  useEffect(() => {
-    fetchFilteredLate();
-  }, [actionDone]);
+    useEffect(() => {
+      setLoading(false);
+    }, []);
 
   return (
     <>
-    {loading === true && (
+    {loading && (
       <Loader />
     )}
       <Head>
@@ -202,78 +176,3 @@ export default function Configurations({
     </>
   );
 }
-
-
-export async function getServerSideProps(context){
-
-  const { token } = context.req.cookies;
-
-  if (!token) {
-    return {
-      redirect: {
-        destination: "/auth/login",
-        permanent: false,
-      },
-    };
-  }
-
-  const {data: tasks} = await api.get('tasks', {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
-  const { data: clients } = await api.get("/clients", {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
-  const { data: users } = await api.get("/users", {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
-  const { data: status } = await api.get("/status", {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
-  const { data: user} = await api.get("/user/me", {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
-  const { data: types } = await api.get("/types", {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
-  const { data: channels } = await api.get("/channels", {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
-  const { data: groups } = await api.get("/groups", {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
-  const { data: areas } = await api.get("/areas", {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
-
-  return {
-    props: {
-      tasks: tasks.data,
-      userLogged: user.user,
-      clients: clients.data,
-      users: users.data,
-      types: types.data,
-      status: status.data,
-      channels: channels.data,
-      groups: groups.data,
-      areas: areas.data
-    },
-  };
-};

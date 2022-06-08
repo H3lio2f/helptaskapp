@@ -13,32 +13,37 @@ import TableClient from "../TableClient";
 const NewClient = dynamic(() => import("../AddCard/NewClient"));
 
 export default function Clients({ clients }) {
-  const { showNewClient, setShowNewClient, actionDone, refresh, setLoading, setActionDone } = useGlobal();
-  const [open, setOpen] = useState(false);
+  const { setShowNewClient, refresh } = useGlobal();
   const [allClients, setAllClients] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
 
   const fetchClients = async () => {
-    const clients = await fetchAllClients();
     if (!searchQuery) {
-      setAllClients(clients.data);
+      setAllClients(clients);
     } else {
       const dataFiltered = clients.filter((client) => client.name.toLowerCase().includes(searchQuery.toLowerCase()) || client.reference.toLowerCase().includes(searchQuery.toLowerCase()) || client.country.toLowerCase().includes(searchQuery.toLowerCase()) || client.email1.toLowerCase().includes(searchQuery.toLowerCase()) || client.phone1.toLowerCase().includes(searchQuery.toLowerCase()));
       setAllClients(dataFiltered);
     }
-    
   }
 
   useEffect(() => {
     fetchClients();
-  }, [refresh])
+  }, [searchQuery])
 
   useEffect(() => {
-    setAllClients(clients);
-  }, []);
+    fetchAllClients().then(data => {
+      setAllClients(data.data);
+    });
+  },[refresh]);
+
+  useEffect(() => {
+    fetchAllClients().then(data => {
+      setAllClients(data.data);
+    });
+  },[]);
+
 
   const handleKeyDown = async(e) => {
-    //const clients = await fetchAllClients();
     if (e.keyCode === 13) {
       if (!searchQuery) {
         setAllClients(clients);

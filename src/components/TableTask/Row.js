@@ -101,16 +101,15 @@ export default function Row({ row, labelId }) {
     status,
     setStatus
   } = useGlobal();
-  const [user, setUser] = React.useState('');
 
-  const fetchStatus = async () => {
+  const fetchStatus = React.useCallback(async () => {
     const { data} = await fetchAllStatus();
     setStatus(data);
-  }
+  }, [refresh])
 
   React.useEffect(() => {
     fetchStatus();
-  }, []);
+  }, [fetchStatus]);
 
   /*Menu Option */
   const [anchorEl, setAnchorEl] = React.useState(null);
@@ -135,7 +134,7 @@ export default function Row({ row, labelId }) {
   React.useEffect(() => {
     let newSet = new Set();
     users.map((user) => {
-      if (userAuthenticated.id === user.id) {
+      if (userAuthenticated?.id === user.id) {
         newSet.add({ label: "(EU)", value: user.id });
       } else {
         newSet.add({ label: user.name, value: user.id });
@@ -270,8 +269,6 @@ export default function Row({ row, labelId }) {
         </Box>
       </Portal>
     <TableRow
-        //hover
-        //onClick={() => router.push(`tasks/${row.id}`)}
         tabIndex={-1}
         key={row.name}
         style={{ cursor: "pointer"}}
@@ -293,7 +290,7 @@ export default function Row({ row, labelId }) {
         </TableCell>
         <TableCell align="left">{moment(row.dueDate).format("DD/MM/YYYY")}</TableCell>
         <TableCell align="left">{row.type.name}</TableCell>
-        <TableCell align="left">{userAuthenticated.id === row.user?.id ? "(Eu)" : row.user_name}</TableCell>
+        <TableCell align="left">{userAuthenticated?.id === row.user?.id ? "(Eu)" : row.user_name}</TableCell>
         <TableCell align="left">
         <>
           <Button onClick={handleClickStatus} size="small" variant="outlined" style={{textTransform: 'lowercase', color: `${row.statusColor}`, borderColor: `${row.statusColor}`, width: "120px"}}>

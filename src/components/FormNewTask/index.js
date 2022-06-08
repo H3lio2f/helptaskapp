@@ -675,20 +675,6 @@ export default function FormNewTask({ client, actionDoneFromClient }) {
               <ToolTipIcon />
             </div>
             </div>
-            <svg
-              id="svg-add-portal"
-              width="18"
-              height="18"
-              viewBox="0 0 18 18"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-              onClick={handlePortalStatus}
-            >
-              <path
-                d="M9.00008 0.666504C4.40008 0.666504 0.666748 4.39984 0.666748 8.99984C0.666748 13.5998 4.40008 17.3332 9.00008 17.3332C13.6001 17.3332 17.3334 13.5998 17.3334 8.99984C17.3334 4.39984 13.6001 0.666504 9.00008 0.666504ZM13.1667 9.83317H9.83342V13.1665H8.16675V9.83317H4.83342V8.1665H8.16675V4.83317H9.83342V8.1665H13.1667V9.83317Z"
-                fill="#3498DB"
-              />
-          </svg>
           </div>
           <Select
             styles={customStyles}

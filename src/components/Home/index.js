@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { Container } from "../../styles/pages/home";
 import { useGlobal } from "../../utils/contexts/global";
-import { tasksByStatus, fetchAllTasks } from "../../utils/fetchData";
+import { fetchAllTasks } from "../../utils/fetchData";
 import dynamic from 'next/dynamic'
-const NewTask = dynamic(() => import('../AddCard/NewTask'))
 import ButtonAdd from "../Buttons/add";
 import Filter from "../Filter/";
 import Layout from "../Layout";
@@ -11,17 +10,16 @@ import SectionTitle from "../SectionTitle";
 import TableTask from "../TableTask";
 import moment from 'moment';
 
-export default function Home({ tasks}) {
-  const {  setRefresh, refresh, showAttribueted, setShowAttribueted } = useGlobal();
+const NewTask = dynamic(() => import('../AddCard/NewTask'))
+
+export default function Home({ tasks }) {
+  const { refresh } = useGlobal();
   const [allTasks, setAllTasks] = useState([]);
   const [checked, setChecked] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [toggleFilterBy, setToogleFilterBy] = useState(false);
 
-  
-
   const fetchTasks = async () => {
-    //const tasks = await fetchAllTasks();
     if (!searchQuery) {
       if(checked === true) {
         setAllTasks(tasks);
@@ -40,51 +38,23 @@ export default function Home({ tasks}) {
     }
   }
 
-  const fetchLateTasks = async () => {
-    //const tasks = await fetchAllTasks();
-    const filterActive = tasks.filter((task) => task.status_control == "late");
-    setAllTasks(filterActive);
-  }
-
- const refreshTasks = async () => {
-  const tasks = await fetchAllTasks();
-  setAllTasks(tasks.data);
- }
-  useEffect(() => {
-    refreshTasks();
-  }, [refresh]);
-
   useEffect(() => {
     fetchTasks();
-  }, []);
-  useEffect(() => {
-    fetchTasks();
-  }, [toggleFilterBy]);
-
-  /* useEffect(() => {
-    fetchLateTasks();
-  }, [showAttribueted]); */
+  }, [searchQuery, toggleFilterBy])
 
   useEffect(() => {
-    if(checked === true){
-      setAllTasks(tasks);
-    }else {
-      const filterActive = allTasks.filter((task) => task.active === 1);
-      setAllTasks(filterActive);
-    }
-  }, [checked]);
+    fetchAllTasks().then(data => {
+      setAllTasks(data.data);
+    });
+  },[refresh]);
 
   useEffect(() => {
-    if(checked === true){
-      setAllTasks(tasks);
-    }else {
-      const filterActive = tasks.filter((task) => task.active === 1);
-      setAllTasks(filterActive);
-    }
-  });
+    fetchAllTasks().then(data => {
+      setAllTasks(data.data);
+    });
+  },[]);
 
   const handleKeyDown = async(e) => {
-    //const tasks = await fetchAllTasks();
     if (e.keyCode === 13) {
       if (!searchQuery) {
         if(checked === true) {
@@ -159,7 +129,7 @@ export default function Home({ tasks}) {
               <span>Minhas tarefas</span>
             </SectionTitle>
                 <div className="top-control" >
-                  <div className="task-visibity">
+                  <div className="task-visibity" style={allTasks.length === 0 ? { opacity: "0"} : { opacity: "1"}}>
                     <input
                       id="visibility"
                       type="checkbox"
@@ -168,14 +138,14 @@ export default function Home({ tasks}) {
                     />
                     <label htmlFor="visibility">Mostar tarefas inactivas</label>
                   </div>
-                  <div className="status" onClick={handleToAssign}>
+                  <div className="status" onClick={handleToAssign} style={allTasks.length === 0 ? { opacity: "0"} : { opacity: "1"}}>
                     <div
                       style={{ background: "#e74c3c" }}
                       className="color"
                     ></div>
                     <label>Por Atribuir</label>
                   </div>
-                  <div className="status" onClick={handleWaiting}>
+                  <div className="status" onClick={handleWaiting} style={allTasks.length === 0 ? { opacity: "0"} : { opacity: "1"}}>
                     <div
                       style={{
                         background:
@@ -186,21 +156,21 @@ export default function Home({ tasks}) {
                     ></div>
                     <label>Em Espera</label>
                   </div>
-                  <div className="status" onClick={handleInProgress}>
+                  <div className="status" onClick={handleInProgress} style={allTasks.length === 0 ? { opacity: "0"} : { opacity: "1"}}>
                     <div
                       style={{ background: "#f1c40f" }}
                       className="color"
                     ></div>
                     <label>Em Andamento</label>
                   </div>
-                  <div className="status" onClick={handleClosed}>
+                  <div className="status" onClick={handleClosed} style={allTasks.length === 0 ? { opacity: "0"} : { opacity: "1"}}>
                     <div
                       style={{ background: "#27AE60" }}
                       className="color"
                     ></div>
                     <label>Fechado</label>
                   </div>
-                  <div className="status" onClick={handleAll}>
+                  <div className="status" onClick={handleAll} style={allTasks.length === 0 ? { opacity: "0"} : { opacity: "1"}}>
                     <div
                       style={{ background: "var(--primary)" }}
                       className="color"

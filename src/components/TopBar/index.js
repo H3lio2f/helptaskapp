@@ -5,13 +5,18 @@ import { useAuth } from "../../utils/contexts/auth";
 import { Container, BouncyDiv } from "./styles";
 import { useRouter } from 'next/router';
 import { useGlobal } from "../../utils/contexts/global";
+import { fetchUserLogged, fetchAllTasks } from "../../utils/fetchData";
 
 
 export default function TopBar() {
   const router = useRouter();
-  const { showAttribueted, setShowAttribueted, setActionDone, actionDone, user, tasks, filteredLate } = useGlobal();
+  const { showAttribueted, setShowAttribueted, setActionDone, actionDone } = useGlobal();
   const [isOpen, setIsOpen] = useState(false);
   const [isOpenNoty, setIsOpenNoty] = useState(false);
+
+  const [user, setUser] = useState();
+  const [filteredLate, setFilteredLate] = useState();
+
   const handleToggle = () => {
     setIsOpenNoty(false);
     setIsOpen(!isOpen)
@@ -29,13 +34,28 @@ export default function TopBar() {
 
   const handleToAssign = () => {
     setShowAttribueted(!showAttribueted);
-    console.log(!showAttribueted);
   }
 
   const handleClose = () => {
     setIsOpen(false);
     setIsOpenNoty(false);
   }
+
+  const handleLateTasks = async () => {
+    const { data: tasks } = await fetchAllTasks();
+    const filteredLate = tasks.filter(task => task.status_control === "late");
+    setFilteredLate(filteredLate.length);
+  }
+
+  const handleUserLogged = async () => {
+    const user = await fetchUserLogged();
+    setUser(user.user);
+  }
+
+  useEffect(() => {
+    handleUserLogged();
+    handleLateTasks();
+  }, []);
 
   return (
     <Container>

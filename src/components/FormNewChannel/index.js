@@ -115,6 +115,7 @@ export default function FormNewChannel() {
         )}
       </div>
          <div className="form-button-control-divided">
+           <div> </div>
         <ButtonContainer
           type="submit"
           disabled={
