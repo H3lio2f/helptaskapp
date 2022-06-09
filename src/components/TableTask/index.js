@@ -182,7 +182,7 @@ export default function EnhancedTable({ tasks }) {
               {stableSort(tasks, getComparator(order, orderBy))
                 .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                 .map((row, index) => (
-                  <Row  key={row.id} row={row} labelId={`enhanced-table-checkbox-${index}`} />
+                  <Row  key={row.id} row={row} labelId={`enhanced-table-checkbox-${index}`}/>
                 )
                 )}
             </TableBody>

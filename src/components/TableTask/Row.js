@@ -21,7 +21,7 @@ import {
   turnTaskInactive
 } from "../../utils/persistData";
 import {
-  fetchAllStatus
+  fetchUserLogged
 } from "../../utils/fetchData";
 
 import Portal from "../Portal/Portal";
@@ -96,11 +96,26 @@ export default function Row({ row, labelId }) {
     isOpenForward,
     setIsOpenForward,
     refresh, setRefresh,
-    users,
     user: userAuthenticated,
+    users,
     status,
-    setStatus
   } = useGlobal();
+
+  
+  const [optionsUsers, setOptionsUsers] = React.useState([]);
+  const [user, setUser] = React.useState("");
+  const [loading, setLoading] = React.useState(false);
+  const [userLogged, setUserLogged] = React.useState();
+
+  
+  const handleUserLogged = async () => {
+    const user = await fetchUserLogged();
+    setUserLogged(user.user);
+  }
+
+  React.useEffect(() => {
+    handleUserLogged();
+  }, [])
 
   /*Menu Option */
   const [anchorEl, setAnchorEl] = React.useState(null);
@@ -120,8 +135,6 @@ export default function Row({ row, labelId }) {
     setAnchorElStatus(event.currentTarget);
   };
 
-  const [optionsUsers, setOptionsUsers] = React.useState([]);
-
   React.useEffect(() => {
     let newSet = new Set();
     users.map((user) => {
@@ -132,6 +145,7 @@ export default function Row({ row, labelId }) {
       }
     });
     setOptionsUsers([...newSet]);
+
   }, []);
 
     const handleInactive = (id) => {
@@ -199,7 +213,6 @@ export default function Row({ row, labelId }) {
         });
     };
 
-    const [loading, setLoading] = React.useState(false);
 
     const handleForward = () => {
       setLoading(true);
@@ -281,7 +294,7 @@ export default function Row({ row, labelId }) {
         </TableCell>
         <TableCell align="left">{moment(row.dueDate).format("DD/MM/YYYY")}</TableCell>
         <TableCell align="left">{row.type.name}</TableCell>
-        <TableCell align="left">{userAuthenticated?.id === row.user?.id ? "(Eu)" : row.user_name}</TableCell>
+        <TableCell align="left">{row.user ? userLogged?.id === row.user.id ? "(Eu)" : row.user_name : 'sem atribuição'}</TableCell>
         <TableCell align="left">
         <>
           <Button onClick={handleClickStatus} size="small" variant="outlined" style={{textTransform: 'lowercase', color: `${row.statusColor}`, borderColor: `${row.statusColor}`, width: "120px"}}>
