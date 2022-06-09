@@ -66,6 +66,17 @@ export const fetchAllClients = async () => {
   return clients.data;
 };
 
+export const fetchAllLogs = async () => {
+  const token = Cookies.get("token");
+
+  const logs = await api.get("logs", {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  return logs.data;
+};
+
 export const fetchUserLogged = async () => {
   const token = Cookies.get("token");
 
