@@ -102,15 +102,6 @@ export default function Row({ row, labelId }) {
     setStatus
   } = useGlobal();
 
-  const fetchStatus = React.useCallback(async () => {
-    const { data} = await fetchAllStatus();
-    setStatus(data);
-  }, [refresh])
-
-  React.useEffect(() => {
-    fetchStatus();
-  }, [fetchStatus]);
-
   /*Menu Option */
   const [anchorEl, setAnchorEl] = React.useState(null);
   const open = Boolean(anchorEl);
