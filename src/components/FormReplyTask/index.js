@@ -1,6 +1,8 @@
 import { useFormik } from "formik";
+import { Button } from '@mui/material';
 import { useRouter } from "next/router";
 import { useSnackbar } from "notistack";
+import { useState } from "react";
 import Swal from "sweetalert2";
 import * as yup from "yup";
 import { Container } from "../../styles/addCard";
@@ -9,14 +11,15 @@ import { addNewReply } from "../../utils/persistData";
 import { ButtonContainer } from "../Buttons/save";
 
 
-export default function FormReplyTask() {
+export default function FormReplyTask({ taskId }) {
   const { enqueueSnackbar } = useSnackbar();
   const router = useRouter();
 
   const { setActionDone, actionDone, setLoading, setOpenReply, refresh, setRefresh } = useGlobal();
-
+  const [files, setFiles] = useState();
 
   const formik = useFormik({
+    enableReinitialize: true,
     initialValues: {
       content: "",
       files: null
@@ -32,14 +35,13 @@ export default function FormReplyTask() {
       { setSubmitting, resetForm, setErrors }
     ) => {
       addNewReply({
-        taskId: router.query.id,
+        taskId,
         content,
         files
       }).then(({ data }) => {
           setSubmitting(false);
           setActionDone(!actionDone);
           resetForm({});
-          //setOpenReply(false);
           enqueueSnackbar(data.message, {
             variant: "success",
           });
@@ -88,15 +90,24 @@ export default function FormReplyTask() {
           )}
       </div>
       <div className="form-button-control-divided">
-        <input
-            id="files"
-            multiple
-            name="files"
-            type="file"
-            onChange={event => {
-              formik.setFieldValue('files', event.target.files);
-            }}
-          />
+        <div>
+          <input
+              /* style={{ display: 'none' }} */
+              id="raised-button-file"
+              multiple
+              name="files"
+              type="file"
+              onChange={event => {
+                formik.setFieldValue('files', event.target.files);
+                setFiles(event.target.files.length);
+              }}
+            />
+            <label style={{ display: 'flex', alignItems: "center"}} htmlFor="raised-button-file">
+              <Button variant="raised" component="span">
+                {files ? `${files} ${files > 0 ? 'anexos' : 'anexo'} ${files > 0 ? 'carregados' : 'carregado'}` : "Carregar anexos (Opcional)"}
+              </Button>
+            </label>
+        </div>
         <ButtonContainer
           type="submit"
           disabled={

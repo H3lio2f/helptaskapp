@@ -18,11 +18,11 @@ export default function ReplyDetails({task, taskId }) {
    setAllReplies(task.replies)
   }, [])
 
+  const fetch = async() => {
+    const task = await showTaskDetails(taskId);
+    setAllReplies(task.data.replies);
+  }
   useEffect(() => {
-    const fetch = async() => {
-      const task = await showTaskDetails(taskId);
-      setAllReplies(task.data.replies);
-    }
     fetch();
   }, [actionDone])
 
@@ -69,7 +69,6 @@ export default function ReplyDetails({task, taskId }) {
           ))}
         </div>
         <FormReplyTask taskId={task.id} />
-
       </Container>
   );
 }

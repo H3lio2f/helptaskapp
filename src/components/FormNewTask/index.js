@@ -1,4 +1,5 @@
 import moment from 'moment';
+import { Button } from '@mui/material';
 import { useFormik } from "formik";
 import { useSnackbar } from "notistack";
 import { useCallback, useEffect, useState } from "react";
@@ -70,6 +71,8 @@ export default function FormNewTask({ client, actionDoneFromClient }) {
   const [optionsAgentsGroup, setOptionsAgentsGroup] = useState([]);
   const [optionsTypes, setOptionsTypes] = useState([]);
   const [enableStatus, setEnableStatus] = useState(false);
+
+  const [files, setFiles] = useState();
 
   const handleAreasOfGroup = useCallback(
     (id) => {
@@ -353,7 +356,7 @@ export default function FormNewTask({ client, actionDoneFromClient }) {
         <div className="label-control">
           <div className="label">
             <label htmlFor="channel">Cliente</label>
-            <div className="tooltip" datatooltip="indivíduo que solicita a terefa">
+            <div className="tooltip" datatooltip="indivíduo que solicita a tarefa">
               <ToolTipIcon />
             </div>
           </div>
@@ -385,6 +388,7 @@ export default function FormNewTask({ client, actionDoneFromClient }) {
           value={formik.values.client_id}
           options={optionsClients}
           isLoading={loading}
+          noOptionsMessage={() => 'Sem clientes!'}
           onChange={(option) => {
             if (option) {
               formik.setFieldValue("client_id", option.value);
@@ -404,6 +408,7 @@ export default function FormNewTask({ client, actionDoneFromClient }) {
           instanceId="client_id"
           options={optionsClients}
           isLoading={loading}
+          noOptionsMessage={() => 'Sem clientes!'}
           onChange={(option) => {
             if (option) {
               formik.setFieldValue("client_id", option.value);
@@ -454,6 +459,7 @@ export default function FormNewTask({ client, actionDoneFromClient }) {
             options={optionsGroups}
             isLoading={loading}
             isDisabled={checked}
+            noOptionsMessage={() => 'Sem grupo de utilizadores!'}
             onChange={async (option) => {
               if (option) {
                 setRefresh(!refresh);
@@ -482,7 +488,7 @@ export default function FormNewTask({ client, actionDoneFromClient }) {
           <div className="label-control">
           <div className="label">
             <label htmlFor="channel">Área</label>
-            <div className="tooltip" datatooltip="area naqual pertence o grupo de utilizador">
+            <div className="tooltip" datatooltip="área naqual pertence o grupo de utilizador">
               <ToolTipIcon />
             </div>
             </div>
@@ -498,6 +504,7 @@ export default function FormNewTask({ client, actionDoneFromClient }) {
             isDisabled={!formik.values.group_id}
             options={optionsAreaOfGroups}
             isLoading={loading}
+            noOptionsMessage={() => 'Sem áreas!'}
             onChange={(option) => {
               if (option) {
                 formik.setFieldValue("area_id", option.value);
@@ -566,6 +573,7 @@ export default function FormNewTask({ client, actionDoneFromClient }) {
             instanceId="channel_id"
             options={optionsChannels}
             isLoading={loading}
+            noOptionsMessage={() => 'Sem canias de recepção!'}
             onChange={(option) => {
               if (option) {
                 formik.setFieldValue("channel_id", option.value);
@@ -614,6 +622,7 @@ export default function FormNewTask({ client, actionDoneFromClient }) {
             instanceId="type_id"
             options={optionsTypes}
             isLoading={loading}
+            noOptionsMessage={() => 'Sem tipos de tarefa!'}
             onChange={(option) => {
               if (option) {
                 formik.setFieldValue("type_id", option.value);
@@ -634,7 +643,7 @@ export default function FormNewTask({ client, actionDoneFromClient }) {
             <label htmlFor="client">Atribuir </label>
             <div
               className="tooltip"
-              datatooltip="pessoa indicada para execução da tarefa"
+              datatooltip="indivíduo indicado para execução da tarefa"
             >
               <ToolTipIcon />
             </div>
@@ -648,10 +657,11 @@ export default function FormNewTask({ client, actionDoneFromClient }) {
             isSearchable
             id="user_id"
             instanceId="user_id"
-            placeholder="selecione o usário"
+            placeholder="selecione o utilizador"
             //isDisabled={!formik.values.group_id || checked }
             options={optionsUsers}
             isLoading={loading}
+            noOptionsMessage={() => 'Sem utilizadores!'}
             onChange={(option) => {
               if (option) {
                 formik.setFieldValue("user_id", option.value);
@@ -688,6 +698,7 @@ export default function FormNewTask({ client, actionDoneFromClient }) {
             options={optionsStatus}
             isLoading={loading}
             isDisabled={!enableStatus && !checked}
+            noOptionsMessage={() => 'Nenhum estado para as tarefas!'}
             onChange={(option) => {
               if (option) {
                 formik.setFieldValue("status_id", option.value);
@@ -786,15 +797,24 @@ export default function FormNewTask({ client, actionDoneFromClient }) {
         )}
       </div>
         <div className="form-button-control-divided">
-          <input
-            id="files"
-            multiple
-            name="files"
-            type="file"
-            onChange={event => {
-              formik.setFieldValue('files', event.target.files);
-            }}
-          />
+          <div>
+            <input
+              style={{ display: 'none' }}
+              id="files"
+              multiple
+              name="files"
+              type="file"
+              onChange={event => {
+                formik.setFieldValue('files', event.target.files);
+                setFiles(event.target.files.length);
+              }}
+            />
+            <label style={{ display: 'flex', alignItems: "center"}} htmlFor="files">
+              <Button variant="raised" component="span" >
+                {files ? `${files} ${files > 0 ? 'anexos' : 'anexo'} ${files > 0 ? 'carregados' : 'carregado'}` : "Carregar anexos (Opcional)"}
+              </Button>
+            </label>
+          </div>
         <ButtonContainer
           type="submit"
           disabled={

@@ -34,6 +34,7 @@ export default function FormNewUser() {
   const { enqueueSnackbar } = useSnackbar();
   const { actionDone, setActionDone, setIsOpenUser } = useGlobal();
   const [passwordVisibility, setPasswordVisibility] = useState(false);
+  const [preview, setPreview] = useState();
 
   const dropdownOptions = [
     { label: 'Admninistrador', value: 'admin' },
@@ -233,18 +234,19 @@ export default function FormNewUser() {
         <div className="form-control">
           <div className="label-control">
           <div className="label">
-            <label htmlFor="subject">Funcção*</label>
+            <label htmlFor="subject">Nível de acesso*</label>
             </div>
           </div>
           <Select
             styles={customStyles}
             classNamePrefix="select"
-            label="Single select"
+            placeholder="Selecione o nível de acesso"
             isClearable
             isSearchable
             id="role"
             instanceId="role"
             options={dropdownOptions}
+            noOptionsMessage={() => 'Sem nível de acesso!'}
             onChange={async (option) => {
               if (option) {
                 const { value } = option;
@@ -262,20 +264,23 @@ export default function FormNewUser() {
 
         <div className="form-button-control-divided">
         <div>
-        <input
-          style={{ display: 'none' }}
-          onChange={event => {
-              formik.setFieldValue('photo', event.target.files[0]);
-            }}
-          name="photo"
-          id="raised-button-file"
-          type="file"
-        />
-        <label htmlFor="raised-button-file">
-          <Button variant="raised" component="span" >
-            Carregar fotografia (Opcional)
-          </Button>
-        </label>
+          <input
+            accept="image/*"
+            style={{ display: 'none' }}
+            onChange={event => {
+                formik.setFieldValue('photo', event.target.files[0]);
+                setPreview(URL.createObjectURL(event.target.files[0]));
+              }}
+            name="photo"
+            id="raised-button-file"
+            type="file"
+          />
+          <label style={{ display: 'flex', alignItems: "center"}} htmlFor="raised-button-file">
+            {preview && (<img width="22px" height="22px" src={preview} alt="image" />)}
+            <Button variant="raised" component="span" >
+              Carregar fotografia (Opcional)
+            </Button>
+          </label>
         </div>
         <ButtonContainer
           type="submit"

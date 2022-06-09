@@ -1,11 +1,9 @@
-import {Suspense} from 'react';
 import Head from "next/head";
 import dynamic from 'next/dynamic';
 import { useEffect, useState } from "react";
 import { useGlobal } from "../utils/contexts/global";
 import { fetchAllTasks, fetchAllStatus, fetchAllUsers } from '../utils/fetchData'
 
-const ClientComponent = dynamic(() => import("../components/ClientComponent"));
 const HomeComponent = dynamic(() => import("../components/Home"));
 const Loader = dynamic(() => import("../components/LoadingSpinner"));
 
@@ -48,3 +46,4 @@ export default function Home() {
     </>
   );
 }
+

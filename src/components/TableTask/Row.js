@@ -10,9 +10,9 @@ import moment from 'moment';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useSnackbar } from "notistack";
+import Swal from "sweetalert2";
 import * as React from 'react';
 import Select from "react-select";
-import Swal from "sweetalert2";
 import { useGlobal } from "../../utils/contexts/global";
 import {
   changeTaskStatus,

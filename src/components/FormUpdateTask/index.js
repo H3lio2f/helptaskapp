@@ -242,6 +242,7 @@ const FormUpdateTask = ({ task }) => {
           isDisabled={true}
           value={formik.values.client_id}
           options={optionsClients}
+          noOptionsMessage={() => 'Sem clientes!'}
           onChange={(option) => {
             if (option) {
               formik.setFieldValue("client_id", {label: option.label, value:option.value});
@@ -272,6 +273,7 @@ const FormUpdateTask = ({ task }) => {
             instanceId="group_id"
             value={formik.values.group_id}
             options={optionsGroups}
+            noOptionsMessage={() => 'Sem clientes!'}
             onChange={async (option) => {
               if (option) {
                 formik.setFieldValue("area_id", "");
@@ -309,6 +311,7 @@ const FormUpdateTask = ({ task }) => {
             instanceId="area_id"
             value={formik.values.area_id}
             options={optionsAreaOfGroups}
+            noOptionsMessage={() => 'Sem áreas!'}
             onChange={(option) => {
               if (option) {
                 formik.setFieldValue("area_id", {label: option.label, value: option.value});
