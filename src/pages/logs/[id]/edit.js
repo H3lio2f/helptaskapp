@@ -1,7 +1,6 @@
 import Head from "next/head";
 import { parseCookies } from "nookies";
 import Layout from "../../../components/Layout";
-import { getAPIClient } from "../../../services/axios";
 import { Container } from '../../../styles/pages/taskDetails';
 import FormUpdateClient from "../../../components/FormUpdateClient";
 

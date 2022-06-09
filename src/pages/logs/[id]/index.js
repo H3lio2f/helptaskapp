@@ -2,7 +2,6 @@ import Head from "next/head";
 import { parseCookies } from "nookies";
 import Layout from "../../../components/Layout";
 import ClientDetails from "../../../components/ClientDetails";
-import { getAPIClient } from "../../../services/axios";
 import { Container } from '../../../styles/pages/clientDetails';
 
 
