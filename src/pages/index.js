@@ -3,12 +3,11 @@ import dynamic from 'next/dynamic';
 import { useEffect, useState } from "react";
 import { useGlobal } from "../utils/contexts/global";
 import { fetchAllTasks, fetchAllStatus, fetchAllUsers } from '../utils/fetchData'
-import api from "../services/api";
 
 const HomeComponent = dynamic(() => import("../components/Home"));
 const Loader = dynamic(() => import("../components/LoadingSpinner"));
 
-export default function Home({  tasks, users, status }) {
+export default function Home() {
   
   const {
     refresh,
@@ -17,30 +16,21 @@ export default function Home({  tasks, users, status }) {
   } = useGlobal();
 
   const [loading, setLoading] = useState(true);
-  const [allTasks, setAllTasks] = useState([]);
+  const [tasks, setTasks] = useState([]);
 
   const handleTasks = async () => {
-    //const tasks = await fetchAllTasks();
-    setAllTasks(tasks);
-    //const status = await fetchAllStatus();
-    setStatus(status);
-    //const users = await fetchAllUsers();
-    setUsers(users);
+    const tasks = await fetchAllTasks();
+    setTasks(tasks.data);
+    const status = await fetchAllStatus();
+    setStatus(status.data);
+    const users = await fetchAllUsers();
+    setUsers(users.data);
     setLoading(false);
   }
 
   useEffect(() => {
     handleTasks();
   }, []);
-
-  const fetch = async () => {
-    const tasks = await fetchAllTasks();
-    setAllTasks(tasks.data);
-  }
-
-  useEffect(() => {
-    fetch();
-  }, [refresh]);
 
   return (
     <>
@@ -52,40 +42,8 @@ export default function Home({  tasks, users, status }) {
         <meta name="description" content="Helptask - Página Incial" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <HomeComponent tasks={allTasks} />
+      <HomeComponent tasks={tasks} />
     </>
   );
 }
 
-export async function getServerSideProps(context) {
-  const { token } = context.req.cookies;
-
-  context.res.setHeader(
-    'Cache-Control',
-    'public, s-maxage=10, stale-while-revalidate=59'
-  )
-
-  const { data: tasks } = await api.get("tasks", {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
-  const { data: users } = await api.get("/users", {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
-  const { data: status } = await api.get("/status", {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
-
-  return {
-    props: {
-      tasks: tasks.data,
-      users: users.data,
-      status: status.data,
-    },
-  };
-}
