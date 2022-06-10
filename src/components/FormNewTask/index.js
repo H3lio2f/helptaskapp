@@ -15,7 +15,7 @@ import {
   fetchAllStatus,
   fetchAllTypes,
   fetchAllUsers,
-  fetchAgentsGroup,
+  fetchUserLogged,
   fetchAreasOfGroup
 } from "../../utils/fetchData";
 
@@ -50,9 +50,8 @@ const customStyles = {
   },
 };
 
-export default function FormNewTask({ client, actionDoneFromClient }) {
+export default function FormNewTask({ client }) {
   const router = useRouter();
-  const { user: userAuthenticated } = useAuth();
   const { enqueueSnackbar } = useSnackbar();
   const { actionDone, setActionDone, setShowNewTask, setRefresh, refresh, isOpenGroup, setIsOpenGroup, isOpenChannel, setIsOpenChannel, isOpenType, setIsOpenType, isOpenClient, setIsOpenClient, isOpenStatus, setIsOpenStatus, setLoading, loading } = useGlobal();
   const [clients, setClients] = useState([]);
@@ -61,6 +60,7 @@ export default function FormNewTask({ client, actionDoneFromClient }) {
   const [checked, setChecked] = useState(false);
   const [tommorrowDay, setTommorrowDay] = useState("");
   const [today, setToday] = useState("");
+  const [groupId, setGroupId] = useState();
 
   const [optionsClients, setOptionsClients] = useState([]);
   const [optionsUsers, setOptionsUsers] = useState([]);
@@ -71,6 +71,8 @@ export default function FormNewTask({ client, actionDoneFromClient }) {
   const [optionsAgentsGroup, setOptionsAgentsGroup] = useState([]);
   const [optionsTypes, setOptionsTypes] = useState([]);
   const [enableStatus, setEnableStatus] = useState(false);
+
+  const [userLogged, setUserLogged] = useState();
 
   const [files, setFiles] = useState();
 
@@ -83,21 +85,6 @@ export default function FormNewTask({ client, actionDoneFromClient }) {
           newSet.add({ label: area.name, value: area.id });
         });
         setOptionsAreaOfGroups([...newSet]);
-        setLoading(false);
-      });
-    },
-    [actionDone, refresh]
-  );
-
-  const handleAgentsGroup = useCallback(
-    (id) => {
-      setLoading(true);
-      fetchAgentsGroup(id).then((data) => {
-        let newSet = new Set();
-        data.data.map((agent) => {
-          newSet.add({ label: agent.name, value: agent.id });
-        });
-        setOptionsAgentsGroup([...newSet]);
         setLoading(false);
       });
     },
@@ -135,11 +122,18 @@ export default function FormNewTask({ client, actionDoneFromClient }) {
     setLoading(false);
   }
 
+  const handleUserLogged = async () => {
+    const user = await fetchUserLogged();
+    setUserLogged(user.user);
+  }
+
   useEffect(() => {
     fetchStatus();
+    handleUserLogged();
   }, [])
   useEffect(() => {
     fetchStatus();
+    handleUserLogged();
   }, [refresh, actionDone])
 
 
@@ -149,8 +143,8 @@ export default function FormNewTask({ client, actionDoneFromClient }) {
     });
     let newSet = new Set();
     users.map((user) => {
-      if (userAuthenticated.id === user.id) {
-        newSet.add({ label: "(EU)", value: user.id });
+      if (userLogged.id === user.id) {
+        newSet.add({ label: "(Eu mesmo)", value: userLogged.id });
       } else {
         newSet.add({ label: user.name, value: user.id });
       }
@@ -214,7 +208,7 @@ export default function FormNewTask({ client, actionDoneFromClient }) {
 
   useEffect(() => {
     setLoading(true);
-    fetchAreasOfGroup(2).then((data) => {
+    fetchAreasOfGroup(groupId).then((data) => {
       setAreasOfGroup(data.data);
       setLoading(false);
     });
@@ -234,12 +228,12 @@ export default function FormNewTask({ client, actionDoneFromClient }) {
     initialValues: {
       name: "",
       description: "",
-      user_id: checked ? userAuthenticated.id : '',
+      user_id: "",
       client_id: router.pathname === "/clients/[id]" ? { label: `${client.name}`, value: `${client.id}`}: "",
       type_id: "",
       group_id: "",
       area_id: "",
-      status_id: "",
+      status_id: 4,
       dueDate: tommorrowDay,
       channel_id: "",
       agent_id: "",
@@ -285,14 +279,17 @@ export default function FormNewTask({ client, actionDoneFromClient }) {
         files
       })
         .then(({ data }) => {
+          resetForm({});
           setSubmitting(false);
           setActionDone(!actionDone);
+          setRefresh(!refresh);
           setShowNewTask(false);
           enqueueSnackbar(data.message, {
             variant: "success",
           });
         })
-        .catch((response) => {
+        .catch(({response}) => {
+          console.log(response);
           setSubmitting(false);
         });
     },
@@ -458,7 +455,6 @@ export default function FormNewTask({ client, actionDoneFromClient }) {
             instanceId="group_id"
             options={optionsGroups}
             isLoading={loading}
-            isDisabled={checked}
             noOptionsMessage={() => 'Sem grupo de utilizadores!'}
             onChange={async (option) => {
               if (option) {
@@ -467,8 +463,8 @@ export default function FormNewTask({ client, actionDoneFromClient }) {
                 formik.setFieldValue("area_id", "");
                 formik.setFieldValue("agent_id", "");
                 formik.setFieldValue("group_id", value);
+                setGroupId(value);
                 handleAreasOfGroup(value);
-                handleAgentsGroup(value);
                 setActionDone(!actionDone);
               } else {
                 setRefresh(!refresh);
@@ -658,17 +654,17 @@ export default function FormNewTask({ client, actionDoneFromClient }) {
             id="user_id"
             instanceId="user_id"
             placeholder="selecione o utilizador"
-            //isDisabled={!formik.values.group_id || checked }
+            isDisabled={checked}
             options={optionsUsers}
             isLoading={loading}
             noOptionsMessage={() => 'Sem utilizadores!'}
             onChange={(option) => {
-              if (option) {
+             if (option) {
                 formik.setFieldValue("user_id", option.value);
                 setEnableStatus(true);
               } else {
                 formik.setFieldValue("user_id", "");
-
+                formik.setFieldValue("status_id", 4);
               }
             }}
           />
@@ -697,7 +693,7 @@ export default function FormNewTask({ client, actionDoneFromClient }) {
             instanceId="status_id"
             options={optionsStatus}
             isLoading={loading}
-            isDisabled={!enableStatus && !checked}
+            isDisabled={!formik.values.user_id}
             noOptionsMessage={() => 'Nenhum estado para as tarefas!'}
             onChange={(option) => {
               if (option) {
@@ -737,7 +733,7 @@ export default function FormNewTask({ client, actionDoneFromClient }) {
           {formik.errors.dueDate && formik.touched.dueDate && (
             <p className="error">{formik.errors.dueDate}</p>
           )}
-        </div>
+        </div>{/* 
         <div className="form-controls">
             <SelftAttribuated htmlFor="attribuated_at">
             <input
@@ -749,11 +745,9 @@ export default function FormNewTask({ client, actionDoneFromClient }) {
               onChange={(option) => {
                 setChecked(!checked);
                 if (checked) {
-                  formik.setFieldValue("agent_id", "");
-                  formik.setFieldValue("group_id", "");
-                } else {
-                  formik.setFieldValue("user_id", "");
-                }
+                  formik.setFieldValue("user_id", userAuthenticated.id);
+                  formik.setFieldValue("status_id", 4);
+                } 
               }}
               />
             <div className="label-control">
@@ -763,7 +757,7 @@ export default function FormNewTask({ client, actionDoneFromClient }) {
             </div>
 
             </SelftAttribuated>
-        </div>
+        </div> */}
       </div>
 
       <div className="form-control first">

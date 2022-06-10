@@ -199,7 +199,7 @@ export default function Home({ tasks }) {
                     fill="#636E72"
                   />
                 </svg>
-                <span>Nenhuma tarefa no momento</span>
+                <span>Nenhuma resultado encontrado.</span>
               </div>
             )}
           </div>

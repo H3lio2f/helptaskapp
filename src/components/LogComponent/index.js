@@ -4,6 +4,7 @@ import { useGlobal } from "../../utils/contexts/global";
 import Filter from "../Filter";
 import Layout from "../Layout";
 import SectionTitle from "../SectionTitle";
+import {fetchAllLogs } from "../../utils/fetchData";
 import TableLog from "../TableLog";
 
 export default function Logs({ logs }) {
@@ -13,9 +14,8 @@ export default function Logs({ logs }) {
   const [searchQuery, setSearchQuery] = useState("");
 
   const fetchLogs = async () => {
-    //const logs = await fetchAllClients();
     if (!searchQuery) {
-      setAllLogs(logs.data);
+      setAllLogs(logs);
     } else {
       const dataFiltered = logs.filter(
         (log) =>
@@ -30,11 +30,19 @@ export default function Logs({ logs }) {
 
   useEffect(() => {
     fetchLogs();
-  }, [refresh]);
+  }, [searchQuery]);
 
   useEffect(() => {
-    setAllLogs(logs);
-  }, []);
+    fetchAllLogs().then(data => {
+      setAllLogs(data.data);
+    });
+  },[refresh]);
+
+  useEffect(() => {
+    fetchAllLogs().then(data => {
+      setAllLogs(data.data);
+    });
+  },[]);
 
   const handleKeyDown = async (e) => {
     //const logs = await fetchAllClients();
@@ -96,7 +104,7 @@ export default function Logs({ logs }) {
                     fill="#636E72"
                   />
                 </svg>
-                <span>Nenhum cliente no momento</span>
+                <span>Nenhum resultado encontrado.</span>
               </div>
             )}
           </div>

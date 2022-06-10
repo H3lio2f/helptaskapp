@@ -2,37 +2,27 @@ import Head from "next/head";
 import { useEffect, useState } from "react";
 import LogComponent from '../../components/LogComponent';
 import { useGlobal } from "../../utils/contexts/global";
-import api from '../../services/api';
 import Loader from '../../components/LoadingSpinner';
+import { fetchAllLogs } from '../../utils/fetchData'
 
-export default function Clients({ logs, tasks, users, status, userLogged }) {
+export default function Logs() {
 
   const {
-    setUser,
-    setUsers,
-    setStatus,
-    actionDone,
-    setFilteredLate
+    refresh
   } = useGlobal();
 
   const [loading, setLoading] = useState(true);
+  const [logs, setLogs] = useState([]);
 
-  const fetchFilteredLate = async () => {
-    const filteredLate = tasks.filter(task => task.status_control === "late");
-    setFilteredLate(filteredLate.length);
-  }
-
-  useEffect(() => {
-    setUser(userLogged);
-    fetchFilteredLate();
-    setUsers(users);
-    setStatus(status);
+  const handleLogs = async () => {
+    const logs = await fetchAllLogs();
+    setLogs(logs.data);
     setLoading(false);
-  }, []);
-
+  }
+  
   useEffect(() => {
-    fetchFilteredLate();
-  }, [actionDone]);
+    handleLogs();
+  }, []);
 
   return (
     <>
@@ -48,53 +38,3 @@ export default function Clients({ logs, tasks, users, status, userLogged }) {
     </>
   );
 }
-
-export async function getServerSideProps(context){
-  const { token } = context.req.cookies;
-
-  if (!token) {
-    return {
-      redirect: {
-        destination: "/auth/login",
-        permanent: false,
-      },
-    };
-  }
-
-  const { data: logs } = await api.get("/logs", {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
-
-  const {data: tasks} = await api.get('tasks', {
-   headers: {
-     Authorization: `Bearer ${token}`,
-   },
- });
-  const { data: user} = await api.get("/user/me", {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
-  const { data: users } = await api.get("/users", {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
-  const { data: status } = await api.get("/status", {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
-
-  return {
-    props: {
-      logs: logs.data,
-      tasks: tasks.data,
-      users: users.data,
-      status: status.data,
-      userLogged: user.user
-    },
-  };
-};

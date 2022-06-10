@@ -97,10 +97,10 @@ export default function Clients({ clients }) {
                     fill="#636E72"
                   />
                 </svg>
-                <span>Nenhum cliente no momento</span>
-                <a onClick={() => setShowNewClient(true)}>
+                <span>Nenhum resultado encontrado.</span>
+                {/* <a onClick={() => setShowNewClient(true)}>
                   Adicionar o primeiro cliente
-                </a>
+                </a> */}
               </div>
             )}
           </div>

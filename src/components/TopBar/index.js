@@ -10,7 +10,7 @@ import { fetchUserLogged, fetchAllTasks } from "../../utils/fetchData";
 
 export default function TopBar() {
   const router = useRouter();
-  const { showAttribueted, setShowAttribueted, setActionDone, actionDone } = useGlobal();
+  const { showAttribueted, setShowAttribueted } = useGlobal();
   const [isOpen, setIsOpen] = useState(false);
   const [isOpenNoty, setIsOpenNoty] = useState(false);
 
