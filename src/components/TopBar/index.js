@@ -43,7 +43,7 @@ export default function TopBar() {
 
   const handleLateTasks = async () => {
     const { data: tasks } = await fetchAllTasks();
-    const filteredLate = tasks.filter(task => task.status_control === "late");
+    const filteredLate = tasks.filter(task => task.status_control === "waiting");
     setFilteredLate(filteredLate.length);
   }
 
@@ -91,8 +91,16 @@ export default function TopBar() {
             }
           >
             <div className="dropdown-list">
-             <span>{filteredLate > 1 ? 'Existem': 'Existe'} {filteredLate} {filteredLate > 1 ? 'tarefas': 'tarefa'} que {filteredLate > 1 ? 'foram criadas': 'foi criada'} há mais de 2 dias, mas ainda não {filteredLate > 1 ? 'foram atribuídas': 'foi atribuída'}.</span>
-             <button onClick={handleToAssign}> {filteredLate > 1 ? 'Mostar tarefas': 'Mostar tarefa'}</button>
+             <span>{filteredLate > 1 ? 'Existem': 'Existe'} {filteredLate} {filteredLate > 1 ? 'tarefas': 'tarefa'} que {filteredLate > 1 ? 'foram criadas': 'foi criada'} há mais de 2 dias, mas ainda não {filteredLate > 1 ? 'foram atribuídas a ninguém': 'foi atribuída a ninguém'}.</span>
+             {router.pathname !== "/" ? (
+                <Link href="/">
+                  <a>
+                   <button> Ir para lista das tarefas para visualizar</button>
+                  </a>
+                </Link>
+             ) : (
+                <button onClick={handleToAssign}> {filteredLate > 1 ? 'Mostar tarefas': 'Mostar tarefa'}</button>
+             )}
             </div>
           </div>
 

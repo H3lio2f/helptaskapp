@@ -13,7 +13,7 @@ import moment from 'moment';
 const NewTask = dynamic(() => import('../AddCard/NewTask'))
 
 export default function Home({ tasks }) {
-  const { refresh } = useGlobal();
+  const { refresh, showAttribueted } = useGlobal();
   const [allTasks, setAllTasks] = useState([]);
   const [checked, setChecked] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -28,7 +28,7 @@ export default function Home({ tasks }) {
         setAllTasks(filterActive);
       }
     } else {
-      const dataFiltered = tasks.filter((task) => task.name.toLowerCase().includes(searchQuery.toLowerCase()) || task.client_name.toLowerCase().includes(searchQuery.toLowerCase()) || task.type_name.toLowerCase().includes(searchQuery.toLowerCase()) || task.user_name.toLowerCase().includes(searchQuery.toLowerCase()) || task.status_name.toLowerCase().includes(searchQuery.toLowerCase()) || task.dueDate.includes(moment(searchQuery).format('DD/MM/YYYY')));
+      const dataFiltered = tasks.filter((task) => task.name.toLowerCase().includes(searchQuery.toLowerCase()) || task.status_control.toLowerCase().includes(searchQuery.toLowerCase())  || task.client_name.toLowerCase().includes(searchQuery.toLowerCase()) || task.type_name.toLowerCase().includes(searchQuery.toLowerCase()) || task.user_name.toLowerCase().includes(searchQuery.toLowerCase()) || task.status_name.toLowerCase().includes(searchQuery.toLowerCase()) || task.dueDate.includes(moment(searchQuery).format('DD/MM/YYYY')));
       if(checked === true) {
         setAllTasks(dataFiltered);
       }else{
@@ -95,6 +95,15 @@ export default function Home({ tasks }) {
     setToogleFilterBy(!toggleFilterBy);
   };
 
+  useEffect(() => {
+    handleToAssignLate();
+  }, [showAttribueted])
+
+  const handleToAssignLate = () => {
+    setSearchQuery("waiting");
+    setToogleFilterBy(!toggleFilterBy);
+  };
+
   const handleAll = () => {
     setSearchQuery("");
     setToogleFilterBy(!toggleFilterBy);
@@ -128,7 +137,7 @@ export default function Home({ tasks }) {
               </svg>
               <span>Minhas tarefas</span>
             </SectionTitle>
-                <div className="top-control" >
+                <div className="top-control">
                   <div className="task-visibity" style={allTasks.length === 0 ? { opacity: "0"} : { opacity: "1"}}>
                     <input
                       id="visibility"
@@ -177,6 +186,7 @@ export default function Home({ tasks }) {
                     ></div>
                     <label>Todas</label>
                   </div>
+      
                   <div className="view-control"></div>
                     <ButtonAdd>Adicionar nova tarefa</ButtonAdd>
                 </div>
