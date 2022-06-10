@@ -192,7 +192,7 @@ export default function Home({ tasks }) {
                 </div>
             </div>
               <Filter handleKeyDown={handleKeyDown} searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
-
+              
             {allTasks.length > 0 ? (
               <TableTask tasks={allTasks} />
             ) : (
