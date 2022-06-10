@@ -11,42 +11,11 @@ import api from '../../../services/api';
 const FormUpdateTask = dynamic(() => import("../../../components/FormUpdateTask"));
 
 
-export default function EditTask({ task, tasks,
-  users,
-  status,
-  groups,
-  types,
-  userLogged 
-}) {
+export default function EditTask({ task}) {
 
   const {
-      setUser,
-      setUsers,
-      setStatus,
-      setGroups,
-      setTypes,
-      actionDone,
-      refresh,
-      setFilteredLate,
+      refresh
     } = useGlobal();
-
-    const fetchFilteredLate = async () => {
-      const filteredLate = tasks.filter(task => task.status_control === "late");
-      setFilteredLate(filteredLate.length);
-    }
-  
-    useEffect(() => {
-      setUser(userLogged);
-      fetchFilteredLate();
-      setUsers(users);
-      setStatus(status);
-      setGroups(groups);
-      setTypes(types);
-    }, []);
-  
-    useEffect(() => {
-      fetchFilteredLate();
-    }, [actionDone, refresh]);
     
   return (
     <>
@@ -69,50 +38,20 @@ export default function EditTask({ task, tasks,
 export async function getServerSideProps(context){
   const { token } = context.req.cookies;
 
-  if (!token) {
-    return {
-      redirect: {
-        destination: "/auth/login",
-        permanent: false,
-      },
-    };
-  }
-
   const { data: task } = await api.get(`/tasks/${context.params.id}`, {
     headers: {
       Authorization: `Bearer ${token}`,
     },
   });
 
-  const {data: tasks} = await api.get('tasks', {
-   headers: {
-     Authorization: `Bearer ${token}`,
-   },
- });
-  const { data: user} = await api.get("/user/me", {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
-  const { data: users } = await api.get("/users", {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
-  const { data: status } = await api.get("/status", {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
-
+  context.res.setHeader(
+    'Cache-Control',
+    'public, s-maxage=10, stale-while-revalidate=59'
+  )
 
   return {
     props: {
-      task: task.data,
-      tasks: tasks.data,
-      users: users.data,
-      status: status.data,
-      userLogged: user.user
+      task: task.data
     },
   };
 };

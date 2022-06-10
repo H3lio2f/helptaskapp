@@ -124,7 +124,7 @@ export default function FormUpdateType({ type }) {
             !!(formik.errors.descripion && formik.touched.descripion)
           }
         >
-          <span> {formik.isSubmitting ? "a editar..." : "Salvar mudanças"} </span>
+          <span> {formik.isSubmitting ? "a editar..." : "Guardar mudanças"} </span>
           {formik.isSubmitting === true ? (
             <svg
               width="15"

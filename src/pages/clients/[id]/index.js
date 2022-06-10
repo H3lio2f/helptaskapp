@@ -6,34 +6,11 @@ import { useGlobal } from "../../../utils/contexts/global";
 import { Container } from '../../../styles/pages/clientDetails';
 import api from '../../../services/api';
 
-export default function DetailClient({ client, otherInfo,  tasks, users, status, userLogged }) {
+export default function DetailClient({ client, otherInfo}) {
   
   const {
-    setUser,
-    setUsers,
-    setStatus,
-    actionDone,
-    setFilteredLate
+    refresh
   } = useGlobal();
-
-  const [loading, setLoading] = useState(true);
-
-
-  const fetchFilteredLate = async () => {
-    const filteredLate = tasks.filter(task => task.status_control === "late");
-    setFilteredLate(filteredLate.length);
-  }
-
-  useEffect(() => {
-    setUser(userLogged);
-    fetchFilteredLate();
-    setUsers(users);
-    setLoading(false);
-  }, []);
-
-  useEffect(() => {
-    fetchFilteredLate();
-  }, [actionDone]);
 
   return (
     <>
@@ -57,36 +34,16 @@ export async function getServerSideProps(context){
   const { id} = context.params;
   const { token } = context.req.cookies;
 
-  if (!token) {
-    return {
-      redirect: {
-        destination: "/auth/login",
-        permanent: false,
-      },
-    };
-  }
-
   const { data: client } = await api.get(`/clients/${id}`, {
     headers: {
       Authorization: `Bearer ${token}`,
     },
   });
 
-  const {data: tasks} = await api.get('tasks', {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
-  const { data: user} = await api.get("/user/me", {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
-  const { data: users } = await api.get("/users", {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
+  context.res.setHeader(
+    'Cache-Control',
+    'public, s-maxage=10, stale-while-revalidate=59'
+  )
 
   return {
     props: {
@@ -95,10 +52,7 @@ export async function getServerSideProps(context){
         opened_tasks: client.opened_tasks,
         closed_tasks: client.closed_tasks,
         recent_task_date: client.latest_task_date
-      },
-      tasks: tasks.data,
-      users: users.data,
-      userLogged: user.user
+      }
     },
   };
 };

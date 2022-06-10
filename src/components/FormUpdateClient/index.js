@@ -299,7 +299,7 @@ export default function FormUpdateClient({ client }) {
         >
           <span>
             {" "}
-            {formik.isSubmitting ? "Salvando..." : "Salvar mudanças"}{" "}
+            {formik.isSubmitting ? "Guardando..." : "Guardar mudanças"}{" "}
           </span>
           {formik.isSubmitting === true ? (
             <svg

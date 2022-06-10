@@ -138,7 +138,7 @@ export default function Home({ tasks }) {
               <span>Minhas tarefas</span>
             </SectionTitle>
                 <div className="top-control">
-                  <div className="task-visibity" style={allTasks.length === 0 ? { opacity: "0"} : { opacity: "1"}}>
+                  <div className="task-visibity" style={allTasks.length === 0 && tasks.length === 0 ? { opacity: "0"} : { opacity: "1"}}>
                     <input
                       id="visibility"
                       type="checkbox"
@@ -147,14 +147,14 @@ export default function Home({ tasks }) {
                     />
                     <label htmlFor="visibility">Mostar tarefas inactivas</label>
                   </div>
-                  <div className="status" onClick={handleToAssign} style={allTasks.length === 0 ? { opacity: "0"} : { opacity: "1"}}>
+                  <div className="status" onClick={handleToAssign} style={allTasks.length === 0 && tasks.length === 0  ? { opacity: "0"} : { opacity: "1"}}>
                     <div
                       style={{ background: "#e74c3c" }}
                       className="color"
                     ></div>
                     <label>Por Atribuir</label>
                   </div>
-                  <div className="status" onClick={handleWaiting} style={allTasks.length === 0 ? { opacity: "0"} : { opacity: "1"}}>
+                  <div className="status" onClick={handleWaiting} style={allTasks.length === 0 && tasks.length === 0  ? { opacity: "0"} : { opacity: "1"}}>
                     <div
                       style={{
                         background:
@@ -165,21 +165,21 @@ export default function Home({ tasks }) {
                     ></div>
                     <label>Em Espera</label>
                   </div>
-                  <div className="status" onClick={handleInProgress} style={allTasks.length === 0 ? { opacity: "0"} : { opacity: "1"}}>
+                  <div className="status" onClick={handleInProgress} style={allTasks.length === 0 && tasks.length === 0  ? { opacity: "0"} : { opacity: "1"}}>
                     <div
                       style={{ background: "#f1c40f" }}
                       className="color"
                     ></div>
                     <label>Em Andamento</label>
                   </div>
-                  <div className="status" onClick={handleClosed} style={allTasks.length === 0 ? { opacity: "0"} : { opacity: "1"}}>
+                  <div className="status" onClick={handleClosed} style={allTasks.length === 0 && tasks.length === 0  ? { opacity: "0"} : { opacity: "1"}}>
                     <div
                       style={{ background: "#27AE60" }}
                       className="color"
                     ></div>
                     <label>Fechado</label>
                   </div>
-                  <div className="status" onClick={handleAll} style={allTasks.length === 0 ? { opacity: "0"} : { opacity: "1"}}>
+                  <div className="status" onClick={handleAll} style={allTasks.length === 0 && tasks.length === 0  ? { opacity: "0"} : { opacity: "1"}}>
                     <div
                       style={{ background: "var(--primary)" }}
                       className="color"

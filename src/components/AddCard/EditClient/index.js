@@ -327,7 +327,7 @@ export default function EditClient({ isShown, singleClient, id }) {
             >
               <span>
                 {" "}
-                {formik.isSubmitting ? "Salvando..." : "Salvar mudanças"}{" "}
+                {formik.isSubmitting ? "Guardando..." : "Guardar mudanças"}{" "}
               </span>
               {formik.isSubmitting === true ? (
                 <svg

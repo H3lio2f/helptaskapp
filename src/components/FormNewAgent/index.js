@@ -248,7 +248,7 @@ export default function FormNewAgent() {
             !!(formik.errors.phone && formik.touched.phone)
           }
         >
-          <span> {formik.isSubmitting ? "Salvando..." : "Salvar"} </span>
+          <span> {formik.isSubmitting ? "Guardando..." : "Guardar"} </span>
           {formik.isSubmitting === true ? (
             <svg
               width="15"

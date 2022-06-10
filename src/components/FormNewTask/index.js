@@ -821,7 +821,7 @@ export default function FormNewTask({ client }) {
             !!(formik.errors.channel_id && formik.touched.channel_id)
           }
         >
-          <span> {formik.isSubmitting ? "A salvar..." : "Salvar"} </span>
+          <span> {formik.isSubmitting ? "A guardar..." : "Guardar"} </span>
           <svg
             width="15"
             height="13"

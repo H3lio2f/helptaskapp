@@ -7,33 +7,11 @@ import FormUpdateClient from "../../../components/FormUpdateClient";
 import api from '../../../services/api';
 
 
-export default function EditClient({ client, tasks, users, status, userLogged }) {
+export default function EditClient({ client }) {
   const {
-    setUser,
-    setUsers,
-    setStatus,
-    actionDone,
-    setFilteredLate
+    refresh
   } = useGlobal();
 
-  const [loading, setLoading] = useState(true);
-
-
-  const fetchFilteredLate = async () => {
-    const filteredLate = tasks.filter(task => task.status_control === "late");
-    setFilteredLate(filteredLate.length);
-  }
-
-  useEffect(() => {
-    setUser(userLogged);
-    fetchFilteredLate();
-    setUsers(users);
-    setLoading(false);
-  }, []);
-
-  useEffect(() => {
-    fetchFilteredLate();
-  }, [actionDone]);
   return (
     <>
       <Head>
@@ -44,7 +22,6 @@ export default function EditClient({ client, tasks, users, status, userLogged })
       <Layout>
       <Container>
       <div className="inner-main-container">
-        
         <FormUpdateClient client={client} />
       </div>
       </Container>
@@ -57,43 +34,20 @@ export async function getServerSideProps(context){
   const { id} = context.params;
   const { token } = context.req.cookies;
 
-  if (!token) {
-    return {
-      redirect: {
-        destination: "/auth/login",
-        permanent: false,
-      },
-    };
-  }
-
   const { data: client } = await api.get(`/clients/${id}`, {
     headers: {
       Authorization: `Bearer ${token}`,
     },
   });
 
-  const {data: tasks} = await api.get('tasks', {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
-  const { data: user} = await api.get("/user/me", {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
-  const { data: users } = await api.get("/users", {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
+  context.res.setHeader(
+    'Cache-Control',
+    'public, s-maxage=10, stale-while-revalidate=59'
+  )
 
   return {
     props: {
-      client: client.data,
-      tasks: tasks.data,
-      users: users.data,
-      userLogged: user.user
+      client: client.data
     },
   };
 };

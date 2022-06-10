@@ -152,7 +152,7 @@ export default function FormNewStatus() {
             !!(formik.errors.color && formik.touched.color)
           }
         >
-          <span> {formik.isSubmitting ? "Salvando..." : "Salvar"} </span>
+          <span> {formik.isSubmitting ? "Guardando..." : "Guardar"} </span>
           {formik.isSubmitting === true ? (
             <svg
               width="15"
