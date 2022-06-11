@@ -1,52 +1,47 @@
-import {Box, CircularProgress} from '@mui/material';
-import { useEffect, useState } from 'react';
+import { Box, CircularProgress } from '@mui/material';
+import { useEffect, useState } from "react";
 import { Container as List } from "../../../styles/addCard";
 import { useGlobal } from "../../../utils/contexts/global";
-import { fetchAllGroups } from "../../../utils/fetchData";
-import FormNewGroup from '../../FormNewGroup';
-import Portal from '../../Portal/Portal';
+import { fetchAllLogs } from "../../../utils/fetchData";
+import FormNewUser from "../../FormNewUser";
+import Portal from "../../Portal/Portal";
 import CardBase from "../CardBase";
-import Item from './Item';
+import Item from "./Item";
 import { Container } from "./styles";
-import useSWR from 'swr';
 
-async function fetcher(url) {
-  const res = await fetch(url);
-  return res.json();
-}
+export default function TaskHistoric({ task }) {
 
-export default function GroupConfig({ all }) {
-  //const { data: groups, error } = useSWR("/api/groups", fetcher, { revalidateOnMount: true});
-
-  const { showGroupConfig, setShowGroupConfig, actionDone, isOpenGroup, setIsOpenGroup } = useGlobal();
+  const {
+    showHistoricTask, setShowHistoricTask,
+    actionDone,
+    isOpenUser,
+    setIsOpenUser,
+  } = useGlobal();
+  const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [groups, setGroups] = useState([]);
-  const handlePortalGroup = () => {
-    setIsOpenGroup(true);
+
+  const handlePortalUser = () => {
+    setIsOpenUser(true);
+  };
+
+  const handleLog = async () => {
+    const logs = await fetchAllLogs();
+    const filtered = logs.data.filter((log) => log.task_id === task.id);
+    console.log(filtered);
+    setUsers(filtered);
+    setLoading(false);
   }
 
   useEffect(() => {
-    fetchAllGroups().then(data => {
-      setGroups(data.data);
-    });
-    setLoading(false);
+    handleLog();
   }, [actionDone]);
 
   useEffect(() => {
-    fetchAllGroups().then(data => {
-      setGroups(data.data);
-    });
-    setLoading(false);
+    handleLog();
   }, []);
 
   return (
-    <CardBase isShown={showGroupConfig} setIsShown={setShowGroupConfig}>
-    <Portal isOpen={isOpenGroup} setIsOpen={setIsOpenGroup}>
-      <label>
-        Adicionar novo grupo de utilizador
-      </label>
-      <FormNewGroup />
-    </Portal>
+    <CardBase isShown={showHistoricTask} setIsShown={setShowHistoricTask}>
       <Container>
         <div className="config-task-top">
           <div className="label">
@@ -63,7 +58,7 @@ export default function GroupConfig({ all }) {
               />
             </svg>
 
-            <span>Configurações de grupo de utilizadores</span>
+            <span>Histórico da tarefa</span>
           </div>
           <svg
             width="15"
@@ -71,7 +66,7 @@ export default function GroupConfig({ all }) {
             viewBox="0 0 18 17"
             fill="none"
             xmlns="http://www.w3.org/2000/svg"
-            onClick={() => setShowGroupConfig(false)}
+            onClick={() => setShowHistoricTask(false)}
           >
             <path
               d="M16.8749 0.903632C16.3874 0.4185 15.5999 0.4185 15.1124 0.903632L8.9999 6.97399L2.8874 0.891192C2.3999 0.406061 1.6124 0.406061 1.1249 0.891192C0.637402 1.37632 0.637402 2.16 1.1249 2.64513L7.2374 8.72793L1.1249 14.8107C0.637402 15.2959 0.637402 16.0795 1.1249 16.5647C1.6124 17.0498 2.3999 17.0498 2.8874 16.5647L8.9999 10.4819L15.1124 16.5647C15.5999 17.0498 16.3874 17.0498 16.8749 16.5647C17.3624 16.0795 17.3624 15.2959 16.8749 14.8107L10.7624 8.72793L16.8749 2.64513C17.3499 2.17244 17.3499 1.37632 16.8749 0.903632Z"
@@ -79,23 +74,11 @@ export default function GroupConfig({ all }) {
             />
           </svg>
         </div>
-        <List> 
+        <List>
           <div className="form-group first-group">
             <div className="config-section">
-              <label>Grupo de utilizadores</label>
-              <svg
-                width="18"
-                height="18"
-                viewBox="0 0 18 18"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-                onClick={handlePortalGroup}
-              >
-                <path
-                  d="M9.00008 0.666504C4.40008 0.666504 0.666748 4.39984 0.666748 8.99984C0.666748 13.5998 4.40008 17.3332 9.00008 17.3332C13.6001 17.3332 17.3334 13.5998 17.3334 8.99984C17.3334 4.39984 13.6001 0.666504 9.00008 0.666504ZM13.1667 9.83317H9.83342V13.1665H8.16675V9.83317H4.83342V8.1665H8.16675V4.83317H9.83342V8.1665H13.1667V9.83317Z"
-                  fill="#3498DB"
-                />
-              </svg>
+              <label>#</label>
+              
             </div>
             <div className="line"></div>
             {loading && (
@@ -104,8 +87,8 @@ export default function GroupConfig({ all }) {
                 </Box>
               )}
             <div className="config-list">
-              {groups.map((group) => (
-                <Item key={group.id} group={group} />
+              {users.map((user) => (
+                <Item key={user.id} user={user} />
               ))}
             </div>
           </div>

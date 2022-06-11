@@ -4,6 +4,7 @@ import { useFormik } from "formik";
 import { useSnackbar } from "notistack";
 import { useCallback, useEffect, useState } from "react";
 import Select from "react-select";
+import dynamic from 'next/dynamic';
 import * as yup from "yup";
 import { Container } from "../../styles/addCard";
 import { useAuth } from "../../utils/contexts/auth";
@@ -18,15 +19,17 @@ import {
   fetchUserLogged,
   fetchAreasOfGroup
 } from "../../utils/fetchData";
+import useSWR from 'swr';
 
 import { addNewTask } from "../../utils/persistData";
 import { ButtonContainer } from "../Buttons/save";
-import FormNewChannel from '../FormNewChannel';
-import FormNewClient from '../FormNewClient';
-import FormNewGroup from '../FormNewGroup';
-import FormNewType from '../FormNewType';
-import FormNewStatus from '../FormNewStatus';
-import Portal from '../Portal/Portal';
+const FormNewChannel = dynamic( () => import('../FormNewChannel'));
+const FormNewClient = dynamic( () => import('../FormNewClient'));
+const FormNewGroup = dynamic( () => import('../FormNewGroup'));
+const FormNewType = dynamic( () => import('../FormNewType'));
+const FormNewStatus = dynamic( () => import('../FormNewStatus'));
+const Portal = dynamic( () => import('../Portal/Portal'));
+
 import ToolTipIcon from "./../Icons/ToolTip";
 import { SelftAttribuated} from './styles';
 import {useRouter} from 'next/router';
@@ -50,13 +53,24 @@ const customStyles = {
   },
 };
 
+async function fetcher(url) {
+  const res = await fetch(url);
+  return res.json();
+}
+
 export default function FormNewTask({ client }) {
+  const { data: groups } = useSWR("/api/groups", fetcher, { revalidateOnInterval: 1000});
+  const { data: status } = useSWR("/api/status", fetcher, { revalidateOnInterval: 1000});
+  const { data: users } = useSWR("/api/users", fetcher, { revalidateOnInterval: 1000});
+  const { data: channels } = useSWR("/api/channels", fetcher, { revalidateOnInterval: 1000});
+  const { data: types } = useSWR("/api/types", fetcher, { revalidateOnInterval: 1000});
+  const { data: clients } = useSWR("/api/clients", fetcher, { revalidateOnInterval: 1000});
+  const { data: userLogged } = useSWR("/api/userLogged", fetcher, { revalidateOnMount: true});
+
+
   const router = useRouter();
   const { enqueueSnackbar } = useSnackbar();
   const { actionDone, setActionDone, setShowNewTask, setRefresh, refresh, isOpenGroup, setIsOpenGroup, isOpenChannel, setIsOpenChannel, isOpenType, setIsOpenType, isOpenClient, setIsOpenClient, isOpenStatus, setIsOpenStatus, setLoading, loading } = useGlobal();
-  const [clients, setClients] = useState([]);
-  const [users, setUsers] = useState([]);
-  const [areasOfGroup, setAreasOfGroup] = useState([]);
   const [checked, setChecked] = useState(false);
   const [tommorrowDay, setTommorrowDay] = useState("");
   const [today, setToday] = useState("");
@@ -68,11 +82,7 @@ export default function FormNewTask({ client }) {
   const [optionsStatus, setOptionsStatus] = useState([]);
   const [optionsGroups, setOptionsGroups] = useState([]);
   const [optionsAreaOfGroups, setOptionsAreaOfGroups] = useState([]);
-  const [optionsAgentsGroup, setOptionsAgentsGroup] = useState([]);
   const [optionsTypes, setOptionsTypes] = useState([]);
-  const [enableStatus, setEnableStatus] = useState(false);
-
-  const [userLogged, setUserLogged] = useState();
 
   const [files, setFiles] = useState();
 
@@ -92,10 +102,8 @@ export default function FormNewTask({ client }) {
   );
 
   const fetchGroups = async () => {
-    setLoading(true);
-    const allGroups = await fetchAllGroups();
     let newSet = new Set();
-    allGroups.data.map((group) => {
+    groups?.data.map((group) => {
       newSet.add({ label: group.name, value: group.id });
     });
     setOptionsGroups([...newSet]);
@@ -104,16 +112,12 @@ export default function FormNewTask({ client }) {
 
   useEffect(() => {
     fetchGroups();
-  }, [])
-  useEffect(() => {
-    fetchGroups();
-  }, [refresh, actionDone])
+  }, [groups])
 
   const fetchStatus = async () => {
     setLoading(true);
-    const allStatus = await fetchAllStatus();
     let newSet = new Set();
-    allStatus.data.map((statu) => {
+    status?.data.map((statu) => {
       if(statu.id !== 5){
         newSet.add({ label: statu.name, value: statu.id });
       }
@@ -122,59 +126,39 @@ export default function FormNewTask({ client }) {
     setLoading(false);
   }
 
-  const handleUserLogged = async () => {
-    const user = await fetchUserLogged();
-    setUserLogged(user.user);
-  }
-
   useEffect(() => {
     fetchStatus();
-    handleUserLogged();
-  }, [])
-  useEffect(() => {
-    fetchStatus();
-    handleUserLogged();
-  }, [refresh, actionDone])
-
+  }, [status])
 
   useEffect(() => {
-    fetchAllUsers().then((data) => {
-      setUsers(data.data);
-    });
     let newSet = new Set();
-    users.map((user) => {
-      if (userLogged.id === user.id) {
-        newSet.add({ label: "(Eu mesmo)", value: userLogged.id });
+    users?.data.map((user) => {
+      if (userLogged?.user.id === user.id) {
+        newSet.add({ label: "(Eu mesmo)", value: userLogged?.user.id });
       } else {
         newSet.add({ label: user.name, value: user.id });
       }
     });
     setOptionsUsers([...newSet]);
-  }, [actionDone, refresh]);
+  }, [users]);
 
   const fetchChannels = async () => {
     setLoading(true);
-    const allChannels = await fetchAllChannels();
     let newSet = new Set();
-    allChannels.data.map((channel) => {
+    channels?.data.map((channel) => {
       newSet.add({ label: channel.name, value: channel.id });
     });
     setOptionsChannels([...newSet]);
     setLoading(false);
   }
-
   useEffect(() => {
     fetchChannels();
-  }, [])
-  useEffect(() => {
-    fetchChannels();
-  }, [refresh, actionDone])
+  }, [channels])
 
   const fetchClients = async () => {
     setLoading(true);
-    const allClients = await fetchAllClients();
     let newSet = new Set();
-    allClients.data.map((client) => {
+    clients?.data.map((client) => {
       newSet.add({ label: client.name, value: client.id });
     });
     setOptionsClients([...newSet]);
@@ -183,16 +167,12 @@ export default function FormNewTask({ client }) {
 
   useEffect(() => {
     fetchClients();
-  }, [])
-  useEffect(() => {
-    fetchClients();
-  }, [refresh, actionDone])
+  }, [clients])
 
   const fetchTypes = async () => {
     setLoading(true);
-    const allTypes = await fetchAllTypes();
     let newSet = new Set();
-    allTypes.data.map((type) => {
+    types?.data.map((type) => {
       newSet.add({ label: type.name, value: type.id });
     });
     setOptionsTypes([...newSet]);
@@ -201,20 +181,8 @@ export default function FormNewTask({ client }) {
 
   useEffect(() => {
     fetchTypes();
-  }, [])
-  useEffect(() => {
-    fetchTypes();
-  }, [refresh, actionDone])
-
-  useEffect(() => {
-    setLoading(true);
-    fetchAreasOfGroup(groupId).then((data) => {
-      setAreasOfGroup(data.data);
-      setLoading(false);
-    });
-  }, [actionDone, actionDone]);
-
-
+  }, [types])
+  
   useEffect(() => {
     let today = new Date();
     let formated = moment(today).format("YYYY-MM-DDTHH:MM");
@@ -472,7 +440,6 @@ export default function FormNewTask({ client }) {
                 formik.setFieldValue("area_id", "");
                 formik.setFieldValue("agent_id", "");
                 setOptionsAreaOfGroups([]);
-                setOptionsAgentsGroup([]);
               }
             }}
           />
@@ -661,7 +628,6 @@ export default function FormNewTask({ client }) {
             onChange={(option) => {
              if (option) {
                 formik.setFieldValue("user_id", option.value);
-                setEnableStatus(true);
               } else {
                 formik.setFieldValue("user_id", "");
                 formik.setFieldValue("status_id", 4);
@@ -733,31 +699,7 @@ export default function FormNewTask({ client }) {
           {formik.errors.dueDate && formik.touched.dueDate && (
             <p className="error">{formik.errors.dueDate}</p>
           )}
-        </div>{/* 
-        <div className="form-controls">
-            <SelftAttribuated htmlFor="attribuated_at">
-            <input
-              id="attribuated_at"
-              type="checkbox"
-              value={formik.values.user_id}
-              onBlur={formik.handleBlur}
-              checked={checked}
-              onChange={(option) => {
-                setChecked(!checked);
-                if (checked) {
-                  formik.setFieldValue("user_id", userAuthenticated.id);
-                  formik.setFieldValue("status_id", 4);
-                } 
-              }}
-              />
-            <div className="label-control">
-              <div className="label">
-                <label htmlFor="attribuated_at">Atribuir a mim mesmo </label>
-              </div>
-            </div>
-
-            </SelftAttribuated>
-        </div> */}
+        </div>
       </div>
 
       <div className="form-control first">

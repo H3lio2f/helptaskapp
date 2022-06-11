@@ -156,7 +156,7 @@ export const tasksByStatus = async (id) => {
 
 export const fetchAreasOfGroup = async (id) => {
   const token = Cookies.get("token");
-
+  console.log(id);
   const areas = await api.get(`/groups/${id}/areas`, {
     headers: {
       Authorization: `Bearer ${token}`,

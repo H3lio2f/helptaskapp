@@ -1,17 +1,37 @@
 import Head from "next/head";
 import { useEffect, useState } from "react";
 import Layout from "../../../components/Layout";
-import ClientDetails from "../../../components/ClientDetails";
 import { useGlobal } from "../../../utils/contexts/global";
 import { Container } from '../../../styles/pages/clientDetails';
+import dynamic from 'next/dynamic';
 import api from '../../../services/api';
+<<<<<<< HEAD
 import { showClientDetails } from "../../../utils/fetchData";
+=======
+import useSWR from 'swr';
+import {useRouter} from 'next/router';
+>>>>>>> deda98b53046292b24b39a46c61abd9695b44f9a
 
-export default function DetailClient({ client, otherInfo}) {
+const Loader = dynamic(() => import("../../../components/LoadingSpinner"));
+const ClientDetails = dynamic(() => import("../../../components/ClientDetails"));
+
+
+async function fetcher(url) {
+  const res = await fetch(url);
+  return res.json();
+}
+
+export default function DetailClient() {
+  const router = useRouter();
+  const { data: client, error } = useSWR(`/api/clients/${router.query.id}`, fetcher, { revalidateOnMount: true});
   
-  const {
-    refresh
-  } = useGlobal();
+  const otherInfo = {
+    opened_tasks: client?.opened_tasks,
+    closed_tasks: client?.closed_tasks,
+    recent_task_date: client?.latest_task_date
+  }
+
+  if(error) return <p>Error...</p>;
 
   const [singleClient, setSingleClient] = useState({});
 
@@ -36,38 +56,18 @@ export default function DetailClient({ client, otherInfo}) {
       <Layout>
       <Container>
       <div className="inner-main-container">
+<<<<<<< HEAD
         <ClientDetails client={singleClient} otherInfo={otherInfo} />
+=======
+      {!client ? (
+        <Loader />
+      ):(
+        <ClientDetails client={client?.data} otherInfo={otherInfo} />
+      )} 
+>>>>>>> deda98b53046292b24b39a46c61abd9695b44f9a
       </div>
       </Container>
       </Layout>
     </>
   );
 }
-
-export async function getServerSideProps(context){
-  const { id} = context.params;
-  const { token } = context.req.cookies;
-
-  const { data: client } = await api.get(`/clients/${id}`, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
-
-  context.res.setHeader(
-    'Cache-Control',
-    'public, s-maxage=10, stale-while-revalidate=59'
-  )
-
-  return {
-    props: {
-      client: client.data,
-      otherInfo: {
-        opened_tasks: client.opened_tasks,
-        closed_tasks: client.closed_tasks,
-        recent_task_date: client.latest_task_date
-      }
-    },
-  };
-};
-

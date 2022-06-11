@@ -5,8 +5,10 @@ export const Container = styled.div`
   flex-direction: column;
   
   .all-info{
-    margin-top: 20px;
-
+    margin-top: 60px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-gap: 20px;
   }
   .row{
     font-size: var(--font-size-6);

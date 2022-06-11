@@ -8,7 +8,7 @@ export const Container = styled.div`
   right: 0;
   top: 0;
   width: 85%;
-  z-index: 1;
+  z-index: 2;
   grid-area: topbar;
   height: 70px;
   background-color: var(--primary);

@@ -1,4 +1,5 @@
 import moment from 'moment';
+import { Button } from '@mui/material';
 import { useFormik } from "formik";
 import { useSnackbar } from "notistack";
 import { useCallback, useEffect, useState } from "react";
@@ -14,12 +15,13 @@ import {
   fetchAllStatus,
   fetchAllTypes,
   fetchAllUsers,
-  fetchAgentsGroup,
+  fetchUserLogged,
   fetchAreasOfGroup
 } from "../../utils/fetchData";
+
 import { updateTask } from "../../utils/persistData";
 import { ButtonContainer } from "../Buttons/save";
-import { SelftAttribuated} from './styles';
+import {useRouter} from 'next/router';
 
 const customStyles = {
   control: (styles, { isDisabled} ) => ({
@@ -40,10 +42,10 @@ const customStyles = {
   },
 };
 
-const FormUpdateTask = ({ task }) => {
+export default function FormNewTask({ task }) {
   const { user: userAuthenticated } = useAuth();
   const { enqueueSnackbar } = useSnackbar();
-  const { actionDone, setActionDone, groups, status, users } = useGlobal();
+  const { actionDone, setActionDone, refresh, setRefresh, setShowUpdateTask } = useGlobal();
   const [channels, setChannels] = useState([]);
   const [clients, setClients] = useState([]);
   const [areasOfGroup, setAreasOfGroup] = useState([]);
@@ -85,13 +87,15 @@ const FormUpdateTask = ({ task }) => {
   }, []);
 
   useEffect(() => {
+    fetchAllStatus().then((data) => {
     let newSet = new Set();
-    status.map((statu) => {
+    data.data.map((statu) => {
       if(statu.id !== 5){
         newSet.add({ label: statu.name, value: statu.id });
       }
     });
     setOptionsStatus([...newSet]);
+    });
   }, []);
 
   useEffect(() => {
@@ -106,8 +110,9 @@ const FormUpdateTask = ({ task }) => {
 
 
   useEffect(() => {
+    fetchAllUsers().then((data) => {
     let newSet = new Set();
-    users.map((user) => {
+    data.data.map((user) => {
       if (userAuthenticated.id === user.id) {
         newSet.add({ label: "(EU)", value: user.id });
       } else {
@@ -115,6 +120,7 @@ const FormUpdateTask = ({ task }) => {
       }
     });
     setOptionsUsers([...newSet]);
+  });
   }, []);
 
   useEffect(() => {
@@ -140,9 +146,8 @@ const FormUpdateTask = ({ task }) => {
   }, []);
 
 
-
   useEffect(() => {
-    fetchAreasOfGroup(task.group.id).then((data) => {
+    fetchAreasOfGroup(task.group?.id).then((data) => {
       setAreasOfGroup(data.data);
     });
   }, []);
@@ -153,17 +158,16 @@ const FormUpdateTask = ({ task }) => {
     setTommorrowDay(plusOneDay.format("YYYY-MM-DDTHH:MM"));
   }, [])
 
-
   const formik = useFormik({
     enableReinitialize: true,
     initialValues: {
       name: task.name,
       description: task.description,
-      user_id: task.user ? { label: `${task.user.name}`, value: `${task.user.id}`}: "",
+      user_id: task.user ? { label: `${task.user.name}`, value : `${task.user.id}`}: { label: `sem atribuição`, value: ``},
       client_id: { label: `${task.client.name}`, value: `${task.client.id}`},
       type_id: { label: `${task.type.name}`, value: `${task.type.id}`},
-      group_id: task.group ? { label: `${task.group.name}`, value: `${task.group.id}`} : '',
-      area_id: task.area ? { label: `${task.area.name}`, value: `${task.area.id}`}: "",
+      group_id: task.group ? { label: `${task.group.name}`, value: `${task.group.id}`} : { label: ``, value: ``},
+      area_id: task.area ? { label: `${task.area.name}`, value: `${task.area.id}`}: { label: ``, value: ``},
       status_id: { label: `${task.status.name}`, value: `${task.status.id}`},
       dueDate: moment(task.dueDate).format("YYYY-MM-DDTHH:MM"),
       channel_id: { label: `${task.channel.name}`, value: `${task.channel.id}`},
@@ -212,20 +216,25 @@ const FormUpdateTask = ({ task }) => {
       })
         .then(({ data }) => {
           setSubmitting(false);
+          setShowUpdateTask(false);
+          setRefresh(!refresh);
           setActionDone(!actionDone);
           enqueueSnackbar(data.message, {
             variant: "success",
           });
         })
         .catch(({response}) => {
+          console.log(response);
           setSubmitting(false);
         });
     },
   });
 
   return (
-    <Container style={{ width: "85%", margin: "0 auto", background: "var(--gray-4)", padding: "20px 50px"}} onSubmit={formik.handleSubmit}>
-      <div className="form-control">
+    <>
+    
+    <Container onSubmit={formik.handleSubmit}>
+    <div className="form-control">
         <div className="label-control">
           <div className="label">
             <label htmlFor="channel">Cliente</label>
@@ -255,7 +264,6 @@ const FormUpdateTask = ({ task }) => {
           <p className="error">{formik.errors.client_id}</p>
         )}
       </div>
-
       <div className="form-control-divided">
         <div className="form-control">
           <div className="label-control">
@@ -402,6 +410,7 @@ const FormUpdateTask = ({ task }) => {
           )}
         </div>
       </div>
+
       <div className="form-control-divided">
         <div className="form-control">
           <div className="label-control">
@@ -466,7 +475,6 @@ const FormUpdateTask = ({ task }) => {
         </div>
       </div>
 
-
       <div className="form-control-divided">
       <div className="form-control">
           <div className="label-control">
@@ -487,33 +495,8 @@ const FormUpdateTask = ({ task }) => {
             <p className="error">{formik.errors.dueDate}</p>
           )}
         </div>
-        <div className="form-controls" style={{ display: "none"}}>
-            <SelftAttribuated htmlFor="attribuated_at">
-            <input
-              id="attribuated_at"
-              type="checkbox"
-              value={formik.values.user_id}
-              onBlur={formik.handleBlur}
-              checked={checked}
-              onChange={(option) => {
-                setChecked(!checked);
-                if (checked) {
-                  formik.setFieldValue("agent_id", "");
-                  formik.setFieldValue("group_id", "");
-                } else {
-                  formik.setFieldValue("user_id", "");
-                }
-              }}
-              />
-            <div className="label-control">
-              <div className="label">
-                <label htmlFor="attribuated_at">Atribuir a mim mesmo </label>
-              </div>
-            </div>
-
-            </SelftAttribuated>
-        </div>
       </div>
+
 
       <div className="form-control first">
         <div className="label-control">
@@ -543,16 +526,25 @@ const FormUpdateTask = ({ task }) => {
         )}
       </div>
         <div className="form-button-control-divided">
-          <input
-            id="files"
-            multiple
-            name="files"
-            type="file"
-            onChange={event => {
-              formik.setFieldValue('files', event.target.files);
-            }}
-          />
-        <ButtonContainer
+          <div>
+            <input
+              style={{ display: 'none' }}
+              id="files"
+              multiple
+              name="files"
+              type="file"
+              onChange={event => {
+                formik.setFieldValue('files', event.target.files);
+                setFiles(event.target.files.length);
+              }}
+            />
+            <label style={{ display: 'flex', alignItems: "center"}} htmlFor="files">
+              <Button variant="raised" component="span" >
+                {formik.values.files ? `${files} ${files > 0 ? 'anexos' : 'anexo'} ${files > 0 ? 'carregados' : 'carregado'}` : "Carregar anexos (Opcional)"}
+              </Button>
+            </label>
+          </div>
+          <ButtonContainer
           type="submit"
           disabled={
             formik.isSubmitting ||
@@ -580,7 +572,6 @@ const FormUpdateTask = ({ task }) => {
         </ButtonContainer>
       </div>
     </Container>
+    </>
   );
-};
-
-export default FormUpdateTask;
+}

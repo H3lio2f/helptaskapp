@@ -22,12 +22,18 @@ export default function ChannelConfig() {
   }
 
   useEffect(() => {
-    setLoading(true);
     fetchAllChannels().then(data => {
       setChannels(data.data);
       setLoading(false);
     })
   }, [actionDone]);
+
+  useEffect(() => {
+    fetchAllChannels().then(data => {
+      setChannels(data.data);
+      setLoading(false);
+    })
+  }, []);
 
   return (
     <CardBase isShown={showChannelConfig} setIsShown={setShowChannelConfig}>

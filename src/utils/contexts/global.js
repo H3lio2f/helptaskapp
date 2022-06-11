@@ -3,8 +3,11 @@ import { createContext, useContext, useState } from "react";
 const GlobalContext = createContext({});
 
 export const GlobalProvider = ({ children }) => {
+  const [showHistoricTask, setShowHistoricTask] = useState(false);
   const [showNewTask, setShowNewTask] = useState(false);
+  const [showUpdateTask, setShowUpdateTask] = useState(false);
   const [showNewClient, setShowNewClient] = useState(false);
+  const [showUpdateClient, setShowUpdateClient] = useState(false);
   const [showNewConfiguration, setShowNewConfiguration] = useState(false);
   const [showTaskConfig, setShowTaskConfig] = useState(false);
   const [showChannelConfig, setShowChannelConfig] = useState(false);
@@ -95,7 +98,10 @@ export const GlobalProvider = ({ children }) => {
         isOpenClient, setIsOpenClient,
         groups, setGroups,
         types, setTypes,
-        clients, setClients
+        clients, setClients,
+        showUpdateTask, setShowUpdateTask,
+        showUpdateClient, setShowUpdateClient,
+        showHistoricTask, setShowHistoricTask
       }}
     >
       {children}

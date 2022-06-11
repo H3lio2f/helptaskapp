@@ -22,8 +22,12 @@ import {
 } from "../../../utils/persistData";
 import api from '../../../services/api';
 import AttachFileOutlinedIcon from '@mui/icons-material/AttachFileOutlined';
+import useSWR from 'swr';
+import {useRouter} from 'next/router';
 
 const TaskDetails = dynamic(() => import("../../../components/TaskDetails"));
+const ReplyDetails = dynamic(() => import("../../../components/ReplyDetails"));
+const Loader = dynamic(() => import("../../../components/LoadingSpinner"));
 
 const StyledMenu = styled((props) => (
   <Menu
@@ -66,9 +70,14 @@ const StyledMenu = styled((props) => (
   },
 }));
 
-export default function DetailTask(
-  { task }
-  ) {
+async function fetcher(url) {
+  const res = await fetch(url);
+  return res.json();
+}
+
+export default function DetailTask() {
+    const router = useRouter();
+    const { data: task, error } = useSWR(`/api/tasks/${router.query.id}`, fetcher, { revalidateOnMount: true});
     const { enqueueSnackbar } = useSnackbar();
     const {
       isOpenForward,
@@ -148,6 +157,7 @@ export default function DetailTask(
       setIsOpenForward(true);
     }
 
+if(error) return <p>Error...</p>;
 
   return (
     <>
@@ -159,49 +169,32 @@ export default function DetailTask(
       <Layout>
       <Container>
       <div className="inner-main-container">
-        
-        <TaskDetails hideReplyBtn={false} task={task} />
-        <div className="attaches">
-          <label>Anexos ({task.files.length})</label>
-          <div className="list">
-            {task?.files && task?.files.map((file, index) => (
-              <Link key={index} href={file} passHref>
-                <a target="_blank">
-                <Button  style={{textTransform: 'capitalize', marginRight: '10px', padding: "5px"}} variant="outlined" size="small">
-                  <AttachFileOutlinedIcon size="small"  />
-                  <Typography variant="h7">anexo {index + 1}</Typography>
-                </Button>
-                </a>
-              </Link>
-            ))}
+      {!task ? (
+          <Loader />
+        ):(
+          <>
+          <TaskDetails hideReplyBtn={false} task={task.data} />
+          <div className="attaches" style={task.data.files.length > 0 ? {} : { display: 'none'}}>
+            <label>Anexos da tarefa ({task.data.files.length})</label>
+            <div className="list">
+              {task.data?.files && task.data?.files.map((file, index) => (
+                <Link key={index} href={file} passHref>
+                  <a target="_blank">
+                  <Button  style={{textTransform: 'capitalize', marginRight: '10px', padding: "5px"}} variant="outlined" size="small">
+                    <AttachFileOutlinedIcon size="small"  />
+                    <Typography variant="h7">anexo {index + 1}</Typography>
+                  </Button>
+                  </a>
+                </Link>
+              ))}
+            </div>
           </div>
+          <ReplyDetails task={task.data} taskId={task.data.id} />
+          </>
+        )} 
         </div>
-      </div>
       </Container>
       </Layout>
     </>
   );
 }
-
-
-export async function getServerSideProps(context){
-  const { token } = context.req.cookies;
-
-  const { data: task } = await api.get(`/tasks/${context.params.id}`, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
-
-  context.res.setHeader(
-    'Cache-Control',
-    'public, s-maxage=10, stale-while-revalidate=59'
-  )
-
-  return {
-    props: {
-      task: task.data,
-    },
-  };
-};
-

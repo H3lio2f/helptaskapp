@@ -32,7 +32,10 @@ export default function Home({ tasks }) {
       if(checked === true) {
         setAllTasks(dataFiltered);
       }else{
-        const filterActive = dataFiltered.filter((task) => task.active === 1);
+        let filterActive = dataFiltered.filter((task) => task.active === 1);
+        if(searchQuery === "waiting"){
+          filterActive = dataFiltered.filter((task) => task.active === 1 || task.active === 0);
+        }
         setAllTasks(filterActive);
       }
     }

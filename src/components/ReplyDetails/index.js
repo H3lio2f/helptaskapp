@@ -30,7 +30,7 @@ export default function ReplyDetails({task, taskId }) {
   return (
     <Container>
         <div className="reply-top">
-          <span>Respostas</span>
+          <span>Respostas ({allReplies.length})</span>
         </div>
         <div className="reply-list">
           {allReplies.map((reply) => (
