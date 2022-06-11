@@ -1,8 +1,8 @@
 import moment from "moment";
-import {  useState, useEffect, Fragment } from "react";
+import {  useState, useEffect } from "react";
 import EditIcon from '@mui/icons-material/Edit';
 import { alpha, styled } from '@mui/material/styles';
-import {  Menu, MenuItem, Box, TextField } from '@mui/material';
+import {  Menu, MenuItem, TextField } from '@mui/material';
 import { Container } from "./styles";
 import Tasks from "../TaskHorizontalViewer/List";
 import FormUpdateClient from "../FormUpdateClient/";
@@ -54,8 +54,7 @@ const StyledMenu = styled((props) => (
 
 
 const ClientDetails = ({ client, otherInfo }) => {
-  const { setShowNewTask, showNewTask, setActionDone, actionDone, refresh } = useGlobal();
-  const [editable, setEditable] = useState(false);
+  const { setShowNewTask, showNewTask, showUpdateClient, setShowUpdateClient, setActionDone, actionDone, refresh } = useGlobal();
   const [singleClient, setSingleClient] = useState(client);
 
   const handleOpenAddcard = () => {
@@ -66,10 +65,13 @@ const ClientDetails = ({ client, otherInfo }) => {
     setSingleClient(client);
   }, [])
 
+  const handleClient = async () => {
+    const clients = await showClientDetails(client.id);
+    setSingleClient(clients.data);
+  }
+
   useEffect(() => {
-    showClientDetails(client.id).then(data => {
-      setSingleClient(data.data);
-    })
+    handleClient();
   }, [refresh])
 
   return (
@@ -77,11 +79,11 @@ const ClientDetails = ({ client, otherInfo }) => {
     <CardBase isShown={showNewTask} setIsShown={setShowNewTask}>
       <FormNewTask client={singleClient} actionDoneFromClient={actionDone}/>
     </CardBase>
-    <CardBase isShown={editable} setIsShown={setEditable}>
+    <CardBase isShown={showUpdateClient} setIsShown={() => setShowUpdateClient(false)}>
       <FormUpdateClient client={singleClient} />
     </CardBase>
         <div className="options">
-          <MenuItem disableRipple onClick={ () => setEditable(true)}>
+          <MenuItem disableRipple onClick={ () => setShowUpdateClient(true)}>
             <EditIcon />
             Editar
           </MenuItem>
@@ -101,9 +103,9 @@ const ClientDetails = ({ client, otherInfo }) => {
                   fullWidth
                   id="outlined-read-only-input"
                   label="Referência"
-                  defaultValue={singleClient.reference}
+                  value={singleClient.reference}
                   InputProps={{
-                    readOnly: !editable,
+                    readOnly: true,
                   }}
                 />
               </div>
@@ -112,7 +114,7 @@ const ClientDetails = ({ client, otherInfo }) => {
                   fullWidth
                   id="outlined-read-only-input"
                   label="Nome do singleCliente"
-                  defaultValue={singleClient.name}
+                  value={singleClient.name}
                   InputProps={{
                     readOnly: true,
                   }}
@@ -123,7 +125,7 @@ const ClientDetails = ({ client, otherInfo }) => {
                 fullWidth
                   id="outlined-read-only-input"
                   label="País"
-                  defaultValue={singleClient.country}
+                  value={singleClient.country}
                   InputProps={{
                     readOnly: true,
                   }}
@@ -134,7 +136,7 @@ const ClientDetails = ({ client, otherInfo }) => {
                   fullWidth
                   id="outlined-read-only-input"
                   label="Cidade"
-                  defaultValue={singleClient.city}
+                  value={singleClient.city}
                   InputProps={{
                     readOnly: true,
                   }}
@@ -145,7 +147,7 @@ const ClientDetails = ({ client, otherInfo }) => {
                 fullWidth
                   id="outlined-read-only-input"
                   label="Endereço"
-                  defaultValue={singleClient.address}
+                  value={singleClient.address}
                   InputProps={{
                     readOnly: true,
                   }}
@@ -156,7 +158,7 @@ const ClientDetails = ({ client, otherInfo }) => {
                   fullWidth
                   id="outlined-read-only-input"
                   label="Email Principal"
-                  defaultValue={singleClient.email1}
+                  value={singleClient.email1}
                   InputProps={{
                     readOnly: true,
                   }}
@@ -167,7 +169,7 @@ const ClientDetails = ({ client, otherInfo }) => {
                   fullWidth
                   id="outlined-read-only-input"
                   label="Email alternativo"
-                  defaultValue={singleClient.email2}
+                  value={singleClient.email2}
                   InputProps={{
                     readOnly: true,
                   }}
@@ -178,7 +180,7 @@ const ClientDetails = ({ client, otherInfo }) => {
                   fullWidth
                   id="outlined-read-only-input"
                   label="Telefone principal"
-                  defaultValue={singleClient.phone1}
+                  value={singleClient.phone1}
                   InputProps={{
                     readOnly: true,
                   }}
@@ -189,7 +191,7 @@ const ClientDetails = ({ client, otherInfo }) => {
                   fullWidth
                   id="outlined-read-only-input"
                   label="Telefone alternativo"
-                  defaultValue={singleClient.phone2}
+                  value={singleClient.phone2}
                   InputProps={{
                     readOnly: true,
                   }}

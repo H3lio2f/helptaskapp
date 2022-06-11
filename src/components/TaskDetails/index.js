@@ -2,23 +2,23 @@ import BrowserNotSupportedIcon from '@mui/icons-material/BrowserNotSupported';
 import CompareArrowsIcon from '@mui/icons-material/CompareArrows';
 import ReplyAllOutlinedIcon from '@mui/icons-material/ReplyAllOutlined';
 import EditIcon from '@mui/icons-material/Edit';
-import SettingsIcon from '@mui/icons-material/Settings';
-import VisibilityIcon from '@mui/icons-material/Visibility';
-import { Box, Button, Divider, FormControl, IconButton, Menu, MenuItem, Tooltip, Typography } from '@mui/material';
+import { Box, Button, FormControl, Menu, MenuItem, Typography, TextField } from '@mui/material';
 import { alpha, styled } from '@mui/material/styles';
 import moment from "moment";
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useSnackbar } from "notistack";
-import { Fragment, useCallback, useEffect, useState } from "react";
+import {  useCallback, useEffect, useState } from "react";
 import Select from "react-select";
+import dynamic from 'next/dynamic';
 import Swal from "sweetalert2";
 import { useGlobal } from "../../utils/contexts/global";
-import { ButtonReply } from "../Buttons/reply";
 import Portal from "../Portal/Portal";
 import ReplyTask from "../ReplyTask";
 import {
-  showTaskDetails
+  showTaskDetails,
+  fetchAllUsers,
+  fetchUserLogged
 } from "./../../utils/fetchData";
 import {
   forwardTask,
@@ -26,8 +26,9 @@ import {
   turnTaskInactive
 } from "./../../utils/persistData";
 import { Container } from "./styles";
+import CardBase from "../AddCard/CardBase";
 
-
+const FormUpdateTask = dynamic( () => import('../FormUpdateTask/'));
 
 const customStyles = {
   control: (styles, { isDisabled} ) => ({
@@ -48,104 +49,58 @@ const customStyles = {
   },
 };
 
-const StyledMenu = styled((props) => (
-  <Menu
-    elevation={0}
-    anchorOrigin={{
-      vertical: 'bottom',
-      horizontal: 'right',
-    }}
-    transformOrigin={{
-      vertical: 'top',
-      horizontal: 'right',
-    }}
-    {...props}
-  />
-))(({ theme }) => ({
-  '& .MuiPaper-root': {
-    borderRadius: 6,
-    marginTop: theme.spacing(1),
-    minWidth: 180,
-    color:
-      theme.palette.mode === 'light' ? 'rgb(55, 65, 81)' : theme.palette.grey[300],
-    boxShadow:
-      'rgb(255, 255, 255) 0px 0px 0px 0px, rgba(0, 0, 0, 0.05) 0px 0px 0px 1px, rgba(0, 0, 0, 0.1) 0px 10px 15px -3px, rgba(0, 0, 0, 0.05) 0px 4px 6px -2px',
-    '& .MuiMenu-list': {
-      padding: '4px 0',
-    },
-    '& .MuiMenuItem-root': {
-      '& .MuiSvgIcon-root': {
-        fontSize: 18,
-        color: theme.palette.text.secondary,
-        marginRight: theme.spacing(1.5),
-      },
-      '&:active': {
-        backgroundColor: alpha(
-          theme.palette.primary.main,
-          theme.palette.action.selectedOpacity,
-        ),
-      },
-    },
-  },
-}));
-
-
 
 const TaskDetails = ({ task, hideReplyBtn }) => {
   const router = useRouter();
   const { enqueueSnackbar } = useSnackbar();
-  const [isOpen, setIsOpen] = useState(false);
   const {  actionDone,
     setActionDone,
     isOpenForward,
     setIsOpenForward,
     refresh, setRefresh,
-    showAttribueted,
-    users,
-    user: userAuthenticated,
-    status,
-    openReply, setOpenReply } = useGlobal();
-  const handleToggle = useCallback(() => setIsOpen(!isOpen), [isOpen]);
+    openReply, setOpenReply,
+    showUpdateTask, setShowUpdateTask
+   } = useGlobal();
   const [optionsUsers, setOptionsUsers] = useState([]);
   const [singleTask, setSingleTask] = useState(task);
+  const [users, setUsers] = useState([]);
   const [user, setUser] = useState('');
   const [loading, setLoading] = useState(false);
+  const [userLogged, setUserLogged] = useState();
 
   useEffect(() => {
+    handleUserLogged();
     setSingleTask(task);
   }, []);
 
+  const handleUserLogged = async () => {
+    const user = await fetchUserLogged();
+    setUserLogged(user.user);
+  }
+  const handleTask = async () => {
+    const tasks = await showTaskDetails(task.id);
+    setSingleTask(tasks.data);
+  }
 
   useEffect(() => {
-    const fetch = async() => {
-      const task = await showTaskDetails(router.query.id);
-      setSingleTask(task.data);
-    }
-    fetch();
-  }, [actionDone, refresh])
+    handleTask();
+    handleUserLogged();
+  }, [refresh])
 
   useEffect(() => {
+    fetchAllUsers().then((data) => {
+      setUsers(data.data);
+    });
     let newSet = new Set();
     users.map((user) => {
-      if (userAuthenticated.id === user.id) {
-        newSet.add({ label: "(EU)", value: user.id });
+      if (userLogged.id === user.id) {
+        newSet.add({ label: "(Eu mesmo)", value: userLogged.id });
       } else {
         newSet.add({ label: user.name, value: user.id });
       }
     });
     setOptionsUsers([...newSet]);
-  }, [actionDone]);
-
-  /*Menu Option */
-  const [anchorEl, setAnchorEl] = useState(null);
-  const open = Boolean(anchorEl);
-  const handleClickOptions = (event) => {
-    setAnchorEl(event.currentTarget);
-  };
-
-  const handleClose = () => {
-    setAnchorEl(null);
-  };
+  }, []);
 
   const handleInactive = (id) => {
     turnTaskInactive(id)
@@ -228,7 +183,7 @@ const TaskDetails = ({ task, hideReplyBtn }) => {
         <Box sx={{ minWidth: 120 }}  mt={5} mb={15}>
           <Select
             styles={customStyles}
-            placeholder="selecione um usuário"
+            placeholder="selecione um utilizador"
             isClearable
             isSearchable
             id="user_id"
@@ -248,35 +203,15 @@ const TaskDetails = ({ task, hideReplyBtn }) => {
           </FormControl>
         </Box>
       </Portal>
-      <ReplyTask shadown={true} isShown={openReply} setIsShown={() => setOpenReply(false)} task={task} taskId={router.query.id} />
+      <CardBase isShown={showUpdateTask} setIsShown={() => setShowUpdateTask(false)}>
+        <FormUpdateTask task={singleTask} />
+      </CardBase>
       <div className="options">
           {!hideReplyBtn && (
-            <>
-            <MenuItem disableRipple>
-              <Link href={`/tasks/${singleTask.id}/reply`} passHref>
-                <Button style={{textTransform: 'capitalize', width: "125px"}} variant="outlined" size="small">
-                  {singleTask.replies.length > 0 ? (
-                      <>
-                        <ReplyAllOutlinedIcon size="small"  />
-                        <Typography ml={2} variant="h7">Ler({singleTask.replies.length})</Typography>
-                      </>
-                    ): (
-                      <>
-                        <ReplyAllOutlinedIcon size="small"  />
-                        <Typography ml={2} variant="h7">responder</Typography>
-                      </>
-                    )}
-                </Button>
-              </Link>
-            </MenuItem>
-          
-          <MenuItem disableRipple>
-            <Link href={`/tasks/${singleTask.id}/edit`}>
-            <a style={{ display: "flex", alignItems: "center"}}>
+            <>          
+          <MenuItem disableRipple onClick={ () => setShowUpdateTask(true)}>
               <EditIcon />
               Editar
-              </a>
-            </Link>
           </MenuItem>
           {singleTask.active === 1 ? (
               <MenuItem onClick={() => handleInactive(singleTask.id)} disableRipple>
@@ -301,24 +236,40 @@ const TaskDetails = ({ task, hideReplyBtn }) => {
         statusColor={singleTask.statusColor.toLowerCase()}
         percent={singleTask.remain_percent}
       >
-            <div className="all-info">
-        <div className="row subjemect">
-            <label>Assunto: </label>
-            <span>{singleTask.name}</span>
-        </div>
-        <div className="row client">
-            <label>Cliente: </label>
-            <span>
-            <Link href={`/clients/${singleTask.client.id}`}>
-              <a>
-                {singleTask.client_name}
-              </a>
-              </Link>
-            </span>
-        </div>
+        <div className="all-info">
+          <div className="row subjemect">
+              <TextField
+                fullWidth
+                id="outlined-read-only-input"
+                label="Assunto"
+                value={singleTask.name}
+                InputProps={{
+                  readOnly: true,
+                }}
+              /> 
+          </div>
+          <div className="row client">
+              <TextField
+                fullWidth
+                id="outlined-read-only-input"
+                label="Cliente"
+                value={singleTask.client_name}
+                InputProps={{
+                  readOnly: true,
+                }}
+              />
+          </div>
         <div className="row attr">
-            <label>Atribuído a: </label>
-            <span className="username">
+            <TextField
+                fullWidth
+                id="outlined-read-only-input"
+                label="Atribuído a:"
+                value={singleTask.user ? singleTask.user_name : 'sem atribuição'}
+                InputProps={{
+                  readOnly: true,
+                }}
+              />
+            {/* <span className="username">
               {singleTask.user
                 ? singleTask.user_name
                 : singleTask.agent_id
@@ -327,35 +278,125 @@ const TaskDetails = ({ task, hideReplyBtn }) => {
                 ? singleTask.group
                 : "sem atribuição "}
                {singleTask.user && ` (${moment(singleTask.updated_at).format("DD/MMMM/YYYY HH:MM")})`} 
-            </span>
+            </span> */}
         </div>
-        <div className="row type">
-            <label>Tipo de tarefa: </label>
-            <span>{singleTask.type_name}</span>
+        <div className="row group">
+            <TextField
+                fullWidth
+                id="outlined-read-only-input"
+                label="Grupo"
+                value={singleTask.group_name}
+                InputProps={{
+                  readOnly: true,
+                }}
+              />
+        </div>
+        <div className="row area">
+            <TextField
+                fullWidth
+                id="outlined-read-only-input"
+                label="Área"
+                value={singleTask.area.name}
+                InputProps={{
+                  readOnly: true,
+                }}
+              />
         </div>
         <div className="row channel">
-            <label>Canal : </label>
-            <span>{singleTask.channel_name}</span>
+            <TextField
+                fullWidth
+                id="outlined-read-only-input"
+                label="Canal de recepção"
+                value={singleTask.channel_name}
+                InputProps={{
+                  readOnly: true,
+                }}
+              />
         </div>
-        <div className="double_row">
+        <div className="row status">
+            <TextField
+                fullWidth
+                id="outlined-read-only-input"
+                label="Estado da tarefa"
+                value={singleTask.status_name}
+                InputProps={{
+                  readOnly: true,
+                }}
+              />
+        </div>
+        <div className="row type">
+            <TextField
+                fullWidth
+                id="outlined-read-only-input"
+                label="Tipo de tarefa"
+                value={singleTask.type_name}
+                InputProps={{
+                  readOnly: true,
+                }}
+              />
+        </div>
+        <div className="row channel">
+            <TextField
+                fullWidth
+                id="outlined-read-only-input"
+                label="Canal de recepção"
+                value={singleTask.channel_name}
+                InputProps={{
+                  readOnly: true,
+                }}
+              />
+        </div>
+        <div className="row due">
+              <TextField
+                fullWidth
+                id="outlined-read-only-input"
+                label="Data da criação"
+                value={moment(singleTask.created_at).format("DD/MMMM/YYYY HH:MM")}
+                InputProps={{
+                  readOnly: true,
+                }}
+              />
+          </div>
           <div className="row due">
-              <label>Prazo: </label>
-              <span>{moment(singleTask.dueDate).format("DD/MMMM/YYYY HH:MM")}</span>
+              <TextField
+                fullWidth
+                id="outlined-read-only-input"
+                label="Prazo de conclusão"
+                value={moment(singleTask.dueDate).format("DD/MMMM/YYYY HH:MM")}
+                InputProps={{
+                  readOnly: true,
+                }}
+              />
           </div>
           <div className="row left_time">
-              <label>Tempo em falta: </label>
-              <span
-                 style={
-                  singleTask.remain_percent === 100
-                    ? { color: "var(--error)", fontWeight: "bold" }
-                    : {}
-                }
-              >{singleTask.remain_hour} ( {singleTask.remain_percent}% )</span>
+              <TextField
+                fullWidth
+                id="outlined-read-only-input"
+                label="Tempo em falta:"
+                error={singleTask.remain_percent === 100}
+                value={`${singleTask.remain_hour} ( ${singleTask.remain_percent}% )`}
+                InputProps={{
+                  readOnly: true,
+                }}
+              />
           </div>
-        </div>
+       
         <div className="row description">
-              <label>Descrição: </label>
-              <span>{singleTask.description}</span>
+              <TextField
+                fullWidth
+                multiline
+                rows={4}
+                style={{
+                  grid: '1/3',
+                  flex: 1
+                }}
+                id="outlined-read-only-input"
+                label="Descrição:"
+                value={singleTask.description}
+                InputProps={{
+                  readOnly: true,
+                }}
+              />
           </div>
       </div>
       </Container>

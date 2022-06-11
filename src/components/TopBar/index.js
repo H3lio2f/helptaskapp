@@ -95,7 +95,7 @@ export default function TopBar() {
              {router.pathname !== "/" ? (
                 <Link href="/">
                   <a>
-                   <button> Ir para lista das tarefas para visualizar</button>
+                   <button> Vá para lista de tarefas para visualiza-los</button>
                   </a>
                 </Link>
              ) : (

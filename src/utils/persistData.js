@@ -282,33 +282,31 @@ export const updateTask = async ({
   area_id,
   dueDate,
   channel_id,
-  agent_id,
   status_id,
   files
 }) => {
 
   const token = Cookies.get("token");
   
-  const client = client_id;
-  const channel = channel_id;
-  const type = type_id;
-  const group = group_id;
-  const status = status_id;
-  const area = area_id;
-  const user = user_id;
+  const client = client_id.value;
+  const channel = channel_id.value;
+  const type = type_id.value;
+  const group = group_id.value;
+  const status = status_id.value;
+  const area = area_id.value;
+  const user = user_id.value;
 
   let data = new FormData();
   data.append('name', name);
   data.append('description', description);
-  data.append('user_id', user.value);
-  data.append('client_id', client.value);
-  data.append('type_id', type.value);
-  data.append('group_id', group.value ? group.value : "");
-  data.append('area_id', area.value ? area.value : "");
+  data.append('user_id', user);
+  data.append('client_id', client);
+  data.append('type_id', type);
+  data.append('group_id', group);
+  data.append('area_id', area);
   data.append('dueDate', dueDate);
-  data.append('channel_id', channel.value);
-  data.append('agent_id',  agent_id);
-  data.append('status_id', status.value);
+  data.append('channel_id', channel);
+  data.append('status_id', status);
   
   if(files){
     for (var [key, value] of Object.entries(files)) {

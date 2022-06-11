@@ -13,7 +13,7 @@ import { updateClient } from "./../../utils/persistData";
 export default function FormUpdateClient({ client }) {
 
   const { enqueueSnackbar } = useSnackbar();
-  const { actionDone, setActionDone, setRefresh, refresh } = useGlobal();
+  const { actionDone, setActionDone, setRefresh, refresh, setShowUpdateClient } = useGlobal();
 
   const formik = useFormik({
     enableReinitialize: true,
@@ -40,7 +40,7 @@ export default function FormUpdateClient({ client }) {
         .defined("Este campo é obrigatório")
         .email("Este email não é inválido!"),
       phone1: yup
-        .number()
+        .string()
         .typeError("Número telefone invalido")
         .defined("Este campo é obrigatório"),
     }),
@@ -73,6 +73,7 @@ export default function FormUpdateClient({ client }) {
         active,
       }).then(({ data }) => {
           setSubmitting(false);
+          setShowUpdateClient(false);
           setRefresh(!refresh);
           setActionDone(!actionDone);
           enqueueSnackbar(data.message, {

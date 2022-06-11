@@ -422,14 +422,6 @@ export default function Row({ row, labelId }) {
         >
             {row.active === 1 &&
               [
-              <Link href={`/tasks/${row.id}/edit`} underline="none" shallow>
-                <a>
-                <MenuItem disableRipple>
-                  <EditIcon />
-                  Editar
-                </MenuItem>
-                </a>
-              </Link>,
               <Link href={`/tasks/${row.id}`} underline="none" shallow>
                 <a>
                 <MenuItem disableRipple>

@@ -41,11 +41,11 @@ export default function FormNewClient() {
         .string()
         .email("Este email não é inválido!"),
       phone1: yup
-        .number()
+        .string()
         .typeError("Número telefone invalido")
         .defined("Este campo é obrigatório"),
       phone2: yup
-        .number()
+        .string()
         .typeError("Número telefone invalido")
     }),
     onSubmit: (

@@ -4,6 +4,7 @@ import { useFormik } from "formik";
 import { useSnackbar } from "notistack";
 import { useCallback, useEffect, useState } from "react";
 import Select from "react-select";
+import dynamic from 'next/dynamic';
 import * as yup from "yup";
 import { Container } from "../../styles/addCard";
 import { useAuth } from "../../utils/contexts/auth";
@@ -21,12 +22,13 @@ import {
 
 import { addNewTask } from "../../utils/persistData";
 import { ButtonContainer } from "../Buttons/save";
-import FormNewChannel from '../FormNewChannel';
-import FormNewClient from '../FormNewClient';
-import FormNewGroup from '../FormNewGroup';
-import FormNewType from '../FormNewType';
-import FormNewStatus from '../FormNewStatus';
-import Portal from '../Portal/Portal';
+const FormNewChannel = dynamic( () => import('../FormNewChannel'));
+const FormNewClient = dynamic( () => import('../FormNewClient'));
+const FormNewGroup = dynamic( () => import('../FormNewGroup'));
+const FormNewType = dynamic( () => import('../FormNewType'));
+const FormNewStatus = dynamic( () => import('../FormNewStatus'));
+const Portal = dynamic( () => import('../Portal/Portal'));
+
 import ToolTipIcon from "./../Icons/ToolTip";
 import { SelftAttribuated} from './styles';
 import {useRouter} from 'next/router';
@@ -733,31 +735,7 @@ export default function FormNewTask({ client }) {
           {formik.errors.dueDate && formik.touched.dueDate && (
             <p className="error">{formik.errors.dueDate}</p>
           )}
-        </div>{/* 
-        <div className="form-controls">
-            <SelftAttribuated htmlFor="attribuated_at">
-            <input
-              id="attribuated_at"
-              type="checkbox"
-              value={formik.values.user_id}
-              onBlur={formik.handleBlur}
-              checked={checked}
-              onChange={(option) => {
-                setChecked(!checked);
-                if (checked) {
-                  formik.setFieldValue("user_id", userAuthenticated.id);
-                  formik.setFieldValue("status_id", 4);
-                } 
-              }}
-              />
-            <div className="label-control">
-              <div className="label">
-                <label htmlFor="attribuated_at">Atribuir a mim mesmo </label>
-              </div>
-            </div>
-
-            </SelftAttribuated>
-        </div> */}
+        </div>
       </div>
 
       <div className="form-control first">

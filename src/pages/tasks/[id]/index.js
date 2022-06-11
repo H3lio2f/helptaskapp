@@ -24,6 +24,7 @@ import api from '../../../services/api';
 import AttachFileOutlinedIcon from '@mui/icons-material/AttachFileOutlined';
 
 const TaskDetails = dynamic(() => import("../../../components/TaskDetails"));
+const ReplyDetails = dynamic(() => import("../../../components/ReplyDetails"));
 
 const StyledMenu = styled((props) => (
   <Menu
@@ -161,8 +162,8 @@ export default function DetailTask(
       <div className="inner-main-container">
         
         <TaskDetails hideReplyBtn={false} task={task} />
-        <div className="attaches">
-          <label>Anexos ({task.files.length})</label>
+        <div className="attaches" style={task.files.length > 0 ? {} : { display: 'none'}}>
+          <label>Anexos da tarefa ({task.files.length})</label>
           <div className="list">
             {task?.files && task?.files.map((file, index) => (
               <Link key={index} href={file} passHref>
@@ -176,6 +177,7 @@ export default function DetailTask(
             ))}
           </div>
         </div>
+        <ReplyDetails task={task} taskId={task.id} />
       </div>
       </Container>
       </Layout>

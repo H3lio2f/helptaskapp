@@ -165,14 +165,6 @@ export default function Row({ row, labelId }) {
             transformOrigin={{ horizontal: 'right', vertical: 'top' }}
             anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
         >
-            <Link href={`/clients/${row.id}/edit`} underline="none">
-              <a>
-                <MenuItem disableRipple>
-                  <EditIcon />
-                  Editar
-                </MenuItem>
-              </a>
-            </Link>
             <Link href={`/clients/${row.id}`} underline="none">
               <a>
                 <MenuItem disableRipple>
