@@ -1,11 +1,10 @@
+import { Button } from '@mui/material';
 import { useFormik } from "formik";
 import { useSnackbar } from "notistack";
-import { useCallback, useEffect, useState } from "react";
 import Swal from "sweetalert2";
 import * as yup from "yup";
 import { Container } from "../../styles/addCard";
 import { useGlobal } from "../../utils/contexts/global";
-import { showClientDetails } from "../../utils/fetchData";
 import { ButtonContainer } from "../Buttons/save";
 import PhoneInput from "react-phone-input-2";
 import pt from 'react-phone-input-2/lang/pt.json';
@@ -14,9 +13,7 @@ import { updateClient } from "./../../utils/persistData";
 export default function FormUpdateClient({ client }) {
 
   const { enqueueSnackbar } = useSnackbar();
-  const { actionDone, setActionDone } = useGlobal();
-
-
+  const { actionDone, setActionDone, setRefresh, refresh } = useGlobal();
 
   const formik = useFormik({
     enableReinitialize: true,
@@ -76,6 +73,7 @@ export default function FormUpdateClient({ client }) {
         active,
       }).then(({ data }) => {
           setSubmitting(false);
+          setRefresh(!refresh);
           setActionDone(!actionDone);
           enqueueSnackbar(data.message, {
             variant: "success",
@@ -104,12 +102,13 @@ export default function FormUpdateClient({ client }) {
     },
   });
 
-   return (
-    <Container style={{ width: "85%", margin: "0 auto", background: "var(--gray-4)", padding: "20px 50px"}}  onSubmit={formik.handleSubmit}>
+
+  return (
+    <Container onSubmit={formik.handleSubmit}>
       <div className="first form-control-divided">
         <div className="form-control">
           <div className="label-control">
-            <label htmlFor="client">Cod. Referência*</label>
+            <label htmlFor="client">Referência*</label>
           </div>
           <input
             className={
@@ -117,7 +116,6 @@ export default function FormUpdateClient({ client }) {
             }
             id="reference"
             type="text"
-            name="reference"
             placeholder="Digite o código de referência do cliente"
             value={formik.values.reference}
             onChange={formik.handleChange}
@@ -134,7 +132,6 @@ export default function FormUpdateClient({ client }) {
           <input
             className={formik.errors.name ? "client red-border" : "client "}
             id="name"
-            name="name"
             type="text"
             placeholder="Digite o nome do cliente"
             value={formik.values.name}
@@ -264,7 +261,7 @@ export default function FormUpdateClient({ client }) {
               <p className="error">{formik.errors.phone1}</p>
             )}
           </div>
-          <div className="phone">
+          <div className=" phone">
             <div className="label-control">
               <label htmlFor="other-phone">
                 Número de telefone alternativo
@@ -283,9 +280,24 @@ export default function FormUpdateClient({ client }) {
       </div>
 
       <div className="form-button-control-divided">
-        <div></div>
+        <div>
+        <input
+          onChange={event => {
+              formik.setFieldValue('photo', event.target.files[0]);
+            }}
+          name="photo"
+          id="raised-button-file"
+          type="file"
+        />
+        <label htmlFor="raised-button-file">
+        {client.photo && (<img width="22px" height="22px" src={client.photo} alt="image" />)}
+          <Button variant="raised" component="span" >
+            Carregar fotografia (Opcional)
+          </Button>
+        </label>
+        </div>
 
-        <ButtonContainer
+         <ButtonContainer
           type="submit"
           disabled={
             formik.isSubmitting ||
@@ -299,7 +311,7 @@ export default function FormUpdateClient({ client }) {
         >
           <span>
             {" "}
-            {formik.isSubmitting ? "Guardando..." : "Guardar mudanças"}{" "}
+            {formik.isSubmitting ? "A guardar..." : "Guardar alterações"}{" "}
           </span>
           {formik.isSubmitting === true ? (
             <svg

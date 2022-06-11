@@ -16,14 +16,17 @@ export const Container = styled.div`
     border-top-left-radius: 5px;
     border-top-right-radius: 5px;
     padding: 40px 20px;
-    display: grid;
-    grid-template-columns: repeat(6, 1fr);
-    grid-template-rows: 1fr;
-    grid-gap: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    .photo{
+      width: 18%;
+    }
     .list-info{
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: space-between;
+      flex: 1;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      grid-gap: 40px;
     }
   }
   .avatar{
@@ -44,7 +47,6 @@ export const Container = styled.div`
   }
   .info{
     display: flex;
-    flex-direction: column;
     label{
       color: var(--text-color);
       font-weight: var(--font-weight-3);

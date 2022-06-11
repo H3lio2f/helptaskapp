@@ -292,7 +292,7 @@ export default function FormNewUser() {
             !!(formik.errors.password && formik.touched.password)
           }
         >
-          <span> {formik.isSubmitting ? "Guardando..." : "Guardar"} </span>
+          <span> {formik.isSubmitting ? "A guardar..." : "Guardar"} </span>
           {formik.isSubmitting === true ? (
             <svg
               width="15"

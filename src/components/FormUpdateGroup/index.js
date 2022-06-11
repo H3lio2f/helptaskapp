@@ -125,7 +125,7 @@ export default function FormUpdateGroup({group}) {
             !!(formik.errors.descripion && formik.touched.descripion)
           }
         >
-          <span> {formik.isSubmitting ? "a editar..." : "Guardar mudanças"} </span>
+          <span> {formik.isSubmitting ? "a editar..." : "Guardar alterações"} </span>
           {formik.isSubmitting === true ? (
             <svg
               width="15"

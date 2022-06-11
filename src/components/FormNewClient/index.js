@@ -315,7 +315,7 @@ export default function FormNewClient() {
             !!(formik.errors.phone1 && formik.touched.phone1)
           }
         >
-          <span> {formik.isSubmitting ? "Guardando..." : "Guardar"} </span>
+          <span> {formik.isSubmitting ? "A guardar..." : "Guardar"} </span>
           {formik.isSubmitting === true ? (
             <svg
               width="15"

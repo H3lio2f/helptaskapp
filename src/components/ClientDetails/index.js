@@ -2,15 +2,14 @@ import moment from "moment";
 import {  useState, useEffect, Fragment } from "react";
 import EditIcon from '@mui/icons-material/Edit';
 import { alpha, styled } from '@mui/material/styles';
-import { IconButton, Menu, MenuItem } from '@mui/material';
-import { Container, Options } from "./styles";
+import {  Menu, MenuItem, Box, TextField } from '@mui/material';
+import { Container } from "./styles";
 import Tasks from "../TaskHorizontalViewer/List";
 import FormUpdateClient from "../FormUpdateClient/";
 import FormNewTask from "../FormNewTask/";
 import CardBase from "../AddCard/CardBase";
-import ButtonAdd from "../Buttons/add";
 import { useGlobal } from "../../utils/contexts/global";
-import Link from 'next/link';
+import { showClientDetails } from "../../utils/fetchData";
 
 const StyledMenu = styled((props) => (
   <Menu
@@ -55,77 +54,149 @@ const StyledMenu = styled((props) => (
 
 
 const ClientDetails = ({ client, otherInfo }) => {
-  const { setShowNewTask, showNewTask, setActionDone, actionDone } = useGlobal();
-  const [open, setOpen] = useState(false);
+  const { setShowNewTask, showNewTask, setActionDone, actionDone, refresh } = useGlobal();
+  const [editable, setEditable] = useState(false);
+  const [singleClient, setSingleClient] = useState(client);
 
   const handleOpenAddcard = () => {
     setShowNewTask(true);
     setActionDone(!actionDone);
   }
+  useEffect(() => {
+    setSingleClient(client);
+  }, [])
+
+  useEffect(() => {
+    showClientDetails(client.id).then(data => {
+      setSingleClient(data.data);
+    })
+  }, [refresh])
 
   return (
     <Container className="client-details" >
     <CardBase isShown={showNewTask} setIsShown={setShowNewTask}>
-      <FormNewTask client={client} actionDoneFromClient={actionDone}/>
+      <FormNewTask client={singleClient} actionDoneFromClient={actionDone}/>
     </CardBase>
-    <CardBase isShown={open} setIsShown={setOpen}>
-      <FormUpdateClient client={client} />
+    <CardBase isShown={editable} setIsShown={setEditable}>
+      <FormUpdateClient client={singleClient} />
     </CardBase>
         <div className="options">
-          <MenuItem disableRipple>
-            <Link href={`/clients/${client.id}/edit`}>
-            <a style={{ display: "flex", alignItems: "center"}}>
-              <EditIcon />
-              Editar
-              </a>
-            </Link>
+          <MenuItem disableRipple onClick={ () => setEditable(true)}>
+            <EditIcon />
+            Editar
           </MenuItem>
         </div>
         <div className="top-detail">
-
-            {client.photo ? (
-                <img className="avatar" src={client.photo} />
-            ) : (
-              <div className="avatar">{`${client.name.charAt(0).toUpperCase()}${client.name.charAt(1).toUpperCase()}`}</div>
-            )}
-
-            <div className="info">
-              <label>Referência</label>
-              <span>{client.reference}</span>
+            <div className="photo">
+              {!singleClient.photo === null ? (
+                  <img className="avatar" src={singleClient.photo} />
+              ) : (
+                <div className="avatar">{`${singleClient?.name?.charAt(0).toUpperCase()}${singleClient.name?.charAt(1).toUpperCase()}`}</div>
+              )}
             </div>
-            <div className="info">
-              <label>Nome Completo</label>
-              <span>{client.name}</span>
+            <div className="list-info">
+              
+              <div className="info">
+                <TextField
+                  fullWidth
+                  id="outlined-read-only-input"
+                  label="Referência"
+                  defaultValue={singleClient.reference}
+                  InputProps={{
+                    readOnly: !editable,
+                  }}
+                />
+              </div>
+              <div className="info">
+                <TextField
+                  fullWidth
+                  id="outlined-read-only-input"
+                  label="Nome do singleCliente"
+                  defaultValue={singleClient.name}
+                  InputProps={{
+                    readOnly: true,
+                  }}
+                />
+              </div>
+              <div className="info">
+              <TextField
+                fullWidth
+                  id="outlined-read-only-input"
+                  label="País"
+                  defaultValue={singleClient.country}
+                  InputProps={{
+                    readOnly: true,
+                  }}
+                />
+              </div>
+              <div className="info">
+                <TextField
+                  fullWidth
+                  id="outlined-read-only-input"
+                  label="Cidade"
+                  defaultValue={singleClient.city}
+                  InputProps={{
+                    readOnly: true,
+                  }}
+                />
+              </div>
+              <div className="info">
+              <TextField
+                fullWidth
+                  id="outlined-read-only-input"
+                  label="Endereço"
+                  defaultValue={singleClient.address}
+                  InputProps={{
+                    readOnly: true,
+                  }}
+                />
+              </div>
+              <div className="info">
+                <TextField
+                  fullWidth
+                  id="outlined-read-only-input"
+                  label="Email Principal"
+                  defaultValue={singleClient.email1}
+                  InputProps={{
+                    readOnly: true,
+                  }}
+                />
+              </div>
+              <div className="info">
+                <TextField
+                  fullWidth
+                  id="outlined-read-only-input"
+                  label="Email alternativo"
+                  defaultValue={singleClient.email2}
+                  InputProps={{
+                    readOnly: true,
+                  }}
+                />
+              </div>
+              <div className="info">
+                <TextField
+                  fullWidth
+                  id="outlined-read-only-input"
+                  label="Telefone principal"
+                  defaultValue={singleClient.phone1}
+                  InputProps={{
+                    readOnly: true,
+                  }}
+                />
+              </div>
+              <div className="info">
+                <TextField
+                  fullWidth
+                  id="outlined-read-only-input"
+                  label="Telefone alternativo"
+                  defaultValue={singleClient.phone2}
+                  InputProps={{
+                    readOnly: true,
+                  }}
+                />
+              </div>
+              
             </div>
-            <div className="info">
-              <label>País</label>
-              <span>{client.country}</span>
-            </div>
-            <div className="info">
-              <label>Cidade</label>
-              <span>{client.city}</span>
-            </div>
-            <div className="info">
-              <label>Endereço</label>
-              <span>{client.address}</span>
-            </div>
-            <div className="info">
-              <label>Email Principal</label>
-              <span>{client.email1}</span>
-            </div>
-            <div className="info">
-              <label>Email secundário</label>
-              <span>{client.email2}</span>
-            </div>
-            <div className="info">
-              <label>Telefone Principal</label>
-              <span>{client.phone1}</span>
-            </div>
-            <div className="info">
-              <label>Telefone secundário</label>
-              <span>{client.phone2}</span>
-            </div>
-
         </div>
         <div className="history">
           <div className="history-top">
@@ -149,9 +220,9 @@ const ClientDetails = ({ client, otherInfo }) => {
             )}
           </div>
         </div>
-          {client.tasks.length > 0 && (
+          {singleClient.tasks.length > 0 && (
             <div className="tasks">
-              <Tasks tasks={client.tasks} />
+              <Tasks tasks={singleClient.tasks} />
             </div>
           )}
     </Container>
