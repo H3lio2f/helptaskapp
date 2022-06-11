@@ -5,12 +5,26 @@ import ClientDetails from "../../../components/ClientDetails";
 import { useGlobal } from "../../../utils/contexts/global";
 import { Container } from '../../../styles/pages/clientDetails';
 import api from '../../../services/api';
+import { showClientDetails } from "../../../utils/fetchData";
 
 export default function DetailClient({ client, otherInfo}) {
   
   const {
     refresh
   } = useGlobal();
+
+  const [singleClient, setSingleClient] = useState({});
+
+  useEffect(() => {
+    setSingleClient(client);
+  }, [])
+
+  useEffect(() => {
+    showClientDetails(client.id).then(data => {
+      setSingleClient(data.data);
+      console.log(data.data);
+    })
+  }, [refresh])
 
   return (
     <>
@@ -22,7 +36,7 @@ export default function DetailClient({ client, otherInfo}) {
       <Layout>
       <Container>
       <div className="inner-main-container">
-        <ClientDetails client={client} otherInfo={otherInfo} />
+        <ClientDetails client={singleClient} otherInfo={otherInfo} />
       </div>
       </Container>
       </Layout>

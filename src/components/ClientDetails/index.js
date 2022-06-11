@@ -69,6 +69,7 @@ const ClientDetails = ({ client, otherInfo }) => {
   useEffect(() => {
     showClientDetails(client.id).then(data => {
       setSingleClient(data.data);
+      console.log(data.data);
     })
   }, [refresh])
 
