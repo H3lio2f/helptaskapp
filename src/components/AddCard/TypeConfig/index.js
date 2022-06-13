@@ -22,12 +22,18 @@ export default function TypeConfig() {
   }
 
   useEffect(() => {
-    setLoading(true);
     fetchAllTypes().then(data => {
       setTypes(data.data);
       setLoading(false);
     })
   }, [actionDone]);
+
+  useEffect(() => {
+    fetchAllTypes().then(data => {
+      setTypes(data.data);
+      setLoading(false);
+    })
+  }, []);
 
   return (
     <CardBase isShown={showTypeConfig} setIsShown={setShowTypeConfig}>

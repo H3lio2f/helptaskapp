@@ -11,11 +11,9 @@ async function fetcher(url) {
 }
 
 export default function Home() {
-   const { data, error } = useSWR("/api/tasks", fetcher);
+  const { data, error } = useSWR("/api/tasks", fetcher, { revalidateOnMount: true});
   
-
   if(error) return <p>Error...</p>;
-
 
   return (
     <>
@@ -32,19 +30,3 @@ export default function Home() {
     </>
   );
 }
-
-
-/* import axios from 'axios';
-export function getStaticProps(context){
-  
-  axios.get("http://localhost:3000/api/tasks").then(({data} )=> {
-    console.log(data.json());
-  });
-  
-  return {
-    props: {
-      tasks: []
-    }
-  }
-}
- */

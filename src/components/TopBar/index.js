@@ -13,8 +13,8 @@ async function fetcher(url) {
   return res.json();
 }
 export default function TopBar() {
-  const { data: tasks } = useSWR("/api/tasks", fetcher);
-  const { data: userLogged } = useSWR("/api/userLogged", fetcher);
+  const { data: tasks } = useSWR("/api/tasks", fetcher, { revalidateOnMount: true});
+  const { data: userLogged } = useSWR("/api/userLogged", fetcher, { revalidateOnMount: true});
   const router = useRouter();
   const { showAttribueted, setShowAttribueted } = useGlobal();
   const [isOpen, setIsOpen] = useState(false);
@@ -47,8 +47,8 @@ export default function TopBar() {
   }
 
   const handleLateTasks = async () => {
-    const filteredLate = tasks.data.filter(task => task.status_control === "waiting");
-    setFilteredLate(filteredLate.length);
+    const filteredLate = tasks?.data.filter(task => task.status_control === "waiting");
+    setFilteredLate(filteredLate?.length);
   }
 
   useEffect(() => {
@@ -104,13 +104,13 @@ export default function TopBar() {
 
         <div className="user dropdown-container">
           <div className="dropdown-header" onClick={handleToggle}>
-            {userLogged?.user?.photo ? (
+            {userLogged?.user.photo ? (
                 <img className="photo" src={userLogged.user.photo} />
               ) : (
-                <span className="photo">{userLogged?.user?.name?.charAt(0)}</span>
+                <span className="photo">{userLogged?.user.name?.charAt(0)}</span>
             )}
             <div className="logged-in">
-              <span>{userLogged?.user?.name}</span>
+              <span>{userLogged?.user.name}</span>
               <p>{userLogged?.user?.role}</p>
             </div>
             <svg

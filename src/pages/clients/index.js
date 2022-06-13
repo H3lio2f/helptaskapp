@@ -1,10 +1,6 @@
 import React from 'react';
 import Head from "next/head";
 import dynamic from 'next/dynamic'
-import { useEffect, useState } from "react";
-import { useGlobal } from "../../utils/contexts/global";
-import { fetchAllClients } from '../../utils/fetchData';
-
 import useSWR from 'swr';
 
 const ClientComponent = dynamic(() => import("../../components/ClientComponent"));
@@ -16,23 +12,7 @@ async function fetcher(url) {
 }
 
 export default function Clients() {
-  const { data, error } = useSWR("/api/clients", fetcher);
- /*  const {
-    refresh
-  } = useGlobal();
-  
-  const [loading, setLoading] = useState(true);
-  const [clients, setClients] = useState([]);
-
-  const handleClients = async () => {
-    const clients = await fetchAllClients();
-    setClients(clients.data);
-    setLoading(false);
-  }
-  
-  useEffect(() => {
-    handleClients();
-  }, []); */
+  const { data, error } = useSWR("/api/clients", fetcher, { revalidateOnMount: true});
 
   if(error) return <p>Error...</p>;
 

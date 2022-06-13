@@ -25,12 +25,18 @@ export default function UserConfig() {
   };
 
   useEffect(() => {
-    setLoading(true);
     fetchAllUsers().then((data) => {
       setUsers(data.data);
       setLoading(false);
     });
   }, [actionDone]);
+
+  useEffect(() => {
+    fetchAllUsers().then((data) => {
+      setUsers(data.data);
+      setLoading(false);
+    });
+  }, []);
 
   return (
     <CardBase isShown={showUserConfig} setIsShown={setShowUserConfig}>

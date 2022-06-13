@@ -8,25 +8,36 @@ import Portal from '../../Portal/Portal';
 import CardBase from "../CardBase";
 import Item from './Item';
 import { Container } from "./styles";
+import useSWR from 'swr';
 
-
+async function fetcher(url) {
+  const res = await fetch(url);
+  return res.json();
+}
 
 export default function GroupConfig({ all }) {
+  //const { data: groups, error } = useSWR("/api/groups", fetcher, { revalidateOnMount: true});
+
   const { showGroupConfig, setShowGroupConfig, actionDone, isOpenGroup, setIsOpenGroup } = useGlobal();
-  const [groups, setGroups] = useState([]);
   const [loading, setLoading] = useState(true);
-  
+  const [groups, setGroups] = useState([]);
   const handlePortalGroup = () => {
     setIsOpenGroup(true);
   }
 
   useEffect(() => {
-    setLoading(true);
     fetchAllGroups().then(data => {
       setGroups(data.data);
-      setLoading(false);
-    })
+    });
+    setLoading(false);
   }, [actionDone]);
+
+  useEffect(() => {
+    fetchAllGroups().then(data => {
+      setGroups(data.data);
+    });
+    setLoading(false);
+  }, []);
 
   return (
     <CardBase isShown={showGroupConfig} setIsShown={setShowGroupConfig}>

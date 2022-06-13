@@ -94,8 +94,8 @@ async function fetcher(url) {
 }
 
 export default function Row({ row, labelId }) {
-  const { data: users } = useSWR("/api/users", fetcher);
-  const { data: status } = useSWR("/api/status", fetcher);
+  const { data: users } = useSWR("/api/users", fetcher, { revalidateOnMount: true});
+  const { data: status } = useSWR("/api/status", fetcher, { revalidateOnMount: true});
   const router = useRouter();
   const { enqueueSnackbar } = useSnackbar();
   const {

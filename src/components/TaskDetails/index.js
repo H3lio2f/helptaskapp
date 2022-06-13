@@ -27,6 +27,7 @@ import {
 } from "./../../utils/persistData";
 import { Container } from "./styles";
 import CardBase from "../AddCard/CardBase";
+import useSWR from 'swr';
 
 const FormUpdateTask = dynamic( () => import('../FormUpdateTask/'));
 
@@ -49,8 +50,13 @@ const customStyles = {
   },
 };
 
+async function fetcher(url) {
+  const res = await fetch(url);
+  return res.json();
+}
 
 const TaskDetails = ({ task, hideReplyBtn }) => {
+  const { data: users } = useSWR("/api/users", fetcher, { revalidateOnMount: true});
   const router = useRouter();
   const { enqueueSnackbar } = useSnackbar();
   const {  actionDone,
@@ -63,7 +69,6 @@ const TaskDetails = ({ task, hideReplyBtn }) => {
    } = useGlobal();
   const [optionsUsers, setOptionsUsers] = useState([]);
   const [singleTask, setSingleTask] = useState(task);
-  const [users, setUsers] = useState([]);
   const [user, setUser] = useState('');
   const [loading, setLoading] = useState(false);
   const [userLogged, setUserLogged] = useState();
@@ -88,12 +93,9 @@ const TaskDetails = ({ task, hideReplyBtn }) => {
   }, [refresh])
 
   useEffect(() => {
-    fetchAllUsers().then((data) => {
-      setUsers(data.data);
-    });
     let newSet = new Set();
-    users.map((user) => {
-      if (userLogged.id === user.id) {
+    users?.data.map((user) => {
+      if (userLogged?.id === user.id) {
         newSet.add({ label: "(Eu mesmo)", value: userLogged.id });
       } else {
         newSet.add({ label: user.name, value: user.id });
