@@ -14,6 +14,7 @@ import Swal from "sweetalert2";
 import * as React from 'react';
 import Select from "react-select";
 import { useGlobal } from "../../utils/contexts/global";
+import useSWR from 'swr';
 import {
   changeTaskStatus,
   forwardTask,
@@ -87,7 +88,14 @@ const StyledMenu = styled((props) => (
   },
 }));
 
+async function fetcher(url) {
+  const res = await fetch(url);
+  return res.json();
+}
+
 export default function Row({ row, labelId }) {
+  const { data: users } = useSWR("/api/users", fetcher);
+  const { data: status } = useSWR("/api/status", fetcher);
   const router = useRouter();
   const { enqueueSnackbar } = useSnackbar();
   const {
@@ -96,9 +104,7 @@ export default function Row({ row, labelId }) {
     isOpenForward,
     setIsOpenForward,
     refresh, setRefresh,
-    user: userAuthenticated,
-    users,
-    status,
+    user: userAuthenticated
   } = useGlobal();
 
   
@@ -137,7 +143,7 @@ export default function Row({ row, labelId }) {
 
   React.useEffect(() => {
     let newSet = new Set();
-    users.map((user) => {
+    users?.data.map((user) => {
       if (userAuthenticated?.id === user.id) {
         newSet.add({ label: "(EU)", value: user.id });
       } else {
@@ -172,8 +178,8 @@ export default function Row({ row, labelId }) {
     const handleActive = (id) => {
       turnTaskActive(id)
         .then(({ message }) => {
-          setActionDone(!actionDone);
           setRefresh(!refresh);
+          setActionDone(!actionDone);
           enqueueSnackbar(message, {
             variant: "success",
           });
@@ -336,7 +342,7 @@ export default function Row({ row, labelId }) {
         >
             <Typography ml={2} pt={5} variant="h7">Mudar estado para:</Typography>
             <Divider />
-            {status.map(statu =>  (
+            {status?.data.map(statu =>  (
               <MenuItem style={{ color: `${statu.color}`}} key={statu.id} onClick={() => hendleChange(statu.id)} disableRipple>
                 {statu.name}
               </MenuItem>

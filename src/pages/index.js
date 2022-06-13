@@ -1,49 +1,50 @@
 import Head from "next/head";
 import dynamic from 'next/dynamic';
-import { useEffect, useState } from "react";
-import { useGlobal } from "../utils/contexts/global";
-import { fetchAllTasks, fetchAllStatus, fetchAllUsers } from '../utils/fetchData'
+import useSWR from 'swr';
 
 const HomeComponent = dynamic(() => import("../components/Home"));
 const Loader = dynamic(() => import("../components/LoadingSpinner"));
 
+async function fetcher(url) {
+    const res = await fetch(url);
+    return res.json();
+}
+
 export default function Home() {
+   const { data, error } = useSWR("/api/tasks", fetcher);
   
-  const {
-    refresh,
-    setStatus,
-    setUsers
-  } = useGlobal();
 
-  const [loading, setLoading] = useState(true);
-  const [tasks, setTasks] = useState([]);
+  if(error) return <p>Error...</p>;
 
-  const handleTasks = async () => {
-    const tasks = await fetchAllTasks();
-    setTasks(tasks.data);
-    const status = await fetchAllStatus();
-    setStatus(status.data);
-    const users = await fetchAllUsers();
-    setUsers(users.data);
-    setLoading(false);
-  }
-
-  useEffect(() => {
-    handleTasks();
-  }, []);
 
   return (
     <>
-     {loading === true && (
-        <Loader />
-      )} 
       <Head>
         <title>Helptask - Minhas Tarefas</title>
         <meta name="description" content="Helptask - Página Incial" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <HomeComponent tasks={tasks} />
+      {!data ? (
+        <Loader />
+      ):(
+      <HomeComponent tasks={data.data} />
+      )} 
     </>
   );
 }
 
+
+/* import axios from 'axios';
+export function getStaticProps(context){
+  
+  axios.get("http://localhost:3000/api/tasks").then(({data} )=> {
+    console.log(data.json());
+  });
+  
+  return {
+    props: {
+      tasks: []
+    }
+  }
+}
+ */

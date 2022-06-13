@@ -7,14 +7,19 @@ import { useRouter } from 'next/router';
 import { useGlobal } from "../../utils/contexts/global";
 import { fetchUserLogged, fetchAllTasks } from "../../utils/fetchData";
 
-
+import useSWR from 'swr';
+async function fetcher(url) {
+  const res = await fetch(url);
+  return res.json();
+}
 export default function TopBar() {
+  const { data: tasks } = useSWR("/api/tasks", fetcher);
+  const { data: userLogged } = useSWR("/api/userLogged", fetcher);
   const router = useRouter();
   const { showAttribueted, setShowAttribueted } = useGlobal();
   const [isOpen, setIsOpen] = useState(false);
   const [isOpenNoty, setIsOpenNoty] = useState(false);
 
-  const [user, setUser] = useState();
   const [filteredLate, setFilteredLate] = useState();
 
   const handleToggle = () => {
@@ -42,18 +47,11 @@ export default function TopBar() {
   }
 
   const handleLateTasks = async () => {
-    const { data: tasks } = await fetchAllTasks();
-    const filteredLate = tasks.filter(task => task.status_control === "waiting");
+    const filteredLate = tasks.data.filter(task => task.status_control === "waiting");
     setFilteredLate(filteredLate.length);
   }
 
-  const handleUserLogged = async () => {
-    const user = await fetchUserLogged();
-    setUser(user.user);
-  }
-
   useEffect(() => {
-    handleUserLogged();
     handleLateTasks();
   }, []);
 
@@ -106,14 +104,14 @@ export default function TopBar() {
 
         <div className="user dropdown-container">
           <div className="dropdown-header" onClick={handleToggle}>
-            {user?.photo ? (
-                <img className="photo" src={user.photo} />
+            {userLogged?.user?.photo ? (
+                <img className="photo" src={userLogged.user.photo} />
               ) : (
-                <span className="photo">{user?.name?.charAt(0)}</span>
+                <span className="photo">{userLogged?.user?.name?.charAt(0)}</span>
             )}
             <div className="logged-in">
-              <span>{user?.name}</span>
-              <p>{user?.role}</p>
+              <span>{userLogged?.user?.name}</span>
+              <p>{userLogged?.user?.role}</p>
             </div>
             <svg
               width="8"
