@@ -296,6 +296,8 @@ export const updateTask = async ({
   const area = area_id.value;
   const user = user_id.value;
 
+  console.log(group_id);
+
   let data = new FormData();
   data.append('name', name);
   data.append('description', description);

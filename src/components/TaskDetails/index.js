@@ -298,7 +298,7 @@ const TaskDetails = ({ task, hideReplyBtn }) => {
                 fullWidth
                 id="outlined-read-only-input"
                 label="Área"
-                value={singleTask.area.name}
+                value={singleTask.area?.name}
                 InputProps={{
                   readOnly: true,
                 }}

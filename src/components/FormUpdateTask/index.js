@@ -147,7 +147,7 @@ export default function FormNewTask({ task }) {
 
 
   useEffect(() => {
-    fetchAreasOfGroup(task.group.id).then((data) => {
+    fetchAreasOfGroup(task.group?.id).then((data) => {
       setAreasOfGroup(data.data);
     });
   }, []);
@@ -163,11 +163,11 @@ export default function FormNewTask({ task }) {
     initialValues: {
       name: task.name,
       description: task.description,
-      user_id: task.user ? { label: `${task.user.name}`, value: `${task.user.id}`}: { label: `sem atribuição`, value: ``},
+      user_id: task.user ? { label: `${task.user.name}`, value : `${task.user.id}`}: { label: `sem atribuição`, value: ``},
       client_id: { label: `${task.client.name}`, value: `${task.client.id}`},
       type_id: { label: `${task.type.name}`, value: `${task.type.id}`},
-      group_id: task.group ? { label: `${task.group.name}`, value: `${task.group.id}`} : '',
-      area_id: task.area ? { label: `${task.area.name}`, value: `${task.area.id}`}: "",
+      group_id: task.group ? { label: `${task.group.name}`, value: `${task.group.id}`} : { label: ``, value: ``},
+      area_id: task.area ? { label: `${task.area.name}`, value: `${task.area.id}`}: { label: ``, value: ``},
       status_id: { label: `${task.status.name}`, value: `${task.status.id}`},
       dueDate: moment(task.dueDate).format("YYYY-MM-DDTHH:MM"),
       channel_id: { label: `${task.channel.name}`, value: `${task.channel.id}`},
@@ -224,6 +224,7 @@ export default function FormNewTask({ task }) {
           });
         })
         .catch(({response}) => {
+          console.log(response);
           setSubmitting(false);
         });
     },
