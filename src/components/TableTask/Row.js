@@ -352,8 +352,8 @@ export default function Row({ row, labelId }) {
         <TableCell align="right">
         {row.active === 1 && (
           [
-          <Link href={`tasks/${row.id}/reply`} passHref>
-            <Button onClick={() => router.push(`tasks/${row.id}/reply`)} style={{textTransform: 'capitalize', width: "125px"}} variant="outlined" size="small">
+          <Link href={`tasks/${row.id}`} passHref>
+            <Button onClick={() => router.push(`tasks/${row.id}`)} style={{textTransform: 'capitalize', width: "125px"}} variant="outlined" size="small">
               {row.replies.length > 0 ? 
                   [
                     <ReplyAllOutlinedIcon size="small"  />,
