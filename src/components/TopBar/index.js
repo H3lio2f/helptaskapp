@@ -105,7 +105,7 @@ export default function TopBar() {
             )}
             <div className="logged-in">
               <span>{userLogged?.user.name}</span>
-              <p>{userLogged?.user?.role}</p>
+              <p>{userLogged?.user.role === "admin" ? 'administrador': userLogged?.user.role === "user" ? 'utilizador' : 'gestor'}</p>
             </div>
             <svg
               width="8"

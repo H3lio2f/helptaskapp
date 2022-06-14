@@ -3,6 +3,7 @@ import { createContext, useContext, useState } from "react";
 const GlobalContext = createContext({});
 
 export const GlobalProvider = ({ children }) => {
+  const [showHistoricTask, setShowHistoricTask] = useState(false);
   const [showNewTask, setShowNewTask] = useState(false);
   const [showUpdateTask, setShowUpdateTask] = useState(false);
   const [showNewClient, setShowNewClient] = useState(false);
@@ -99,7 +100,8 @@ export const GlobalProvider = ({ children }) => {
         types, setTypes,
         clients, setClients,
         showUpdateTask, setShowUpdateTask,
-        showUpdateClient, setShowUpdateClient
+        showUpdateClient, setShowUpdateClient,
+        showHistoricTask, setShowHistoricTask
       }}
     >
       {children}

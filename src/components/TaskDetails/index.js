@@ -1,11 +1,8 @@
 import BrowserNotSupportedIcon from '@mui/icons-material/BrowserNotSupported';
 import CompareArrowsIcon from '@mui/icons-material/CompareArrows';
-import ReplyAllOutlinedIcon from '@mui/icons-material/ReplyAllOutlined';
 import EditIcon from '@mui/icons-material/Edit';
-import { Box, Button, FormControl, Menu, MenuItem, Typography, TextField } from '@mui/material';
-import { alpha, styled } from '@mui/material/styles';
+import { Box, Button, FormControl, MenuItem, TextField } from '@mui/material';
 import moment from "moment";
-import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useSnackbar } from "notistack";
 import {  useCallback, useEffect, useState } from "react";
@@ -14,10 +11,8 @@ import dynamic from 'next/dynamic';
 import Swal from "sweetalert2";
 import { useGlobal } from "../../utils/contexts/global";
 import Portal from "../Portal/Portal";
-import ReplyTask from "../ReplyTask";
 import {
   showTaskDetails,
-  fetchAllUsers,
   fetchUserLogged
 } from "./../../utils/fetchData";
 import {
@@ -30,6 +25,7 @@ import CardBase from "../AddCard/CardBase";
 import useSWR from 'swr';
 
 const FormUpdateTask = dynamic( () => import('../FormUpdateTask/'));
+const TaskHistoric = dynamic( () => import('../AddCard/TaskHistoric/'));
 
 const customStyles = {
   control: (styles, { isDisabled} ) => ({
@@ -64,8 +60,8 @@ const TaskDetails = ({ task, hideReplyBtn }) => {
     isOpenForward,
     setIsOpenForward,
     refresh, setRefresh,
-    openReply, setOpenReply,
-    showUpdateTask, setShowUpdateTask
+    showUpdateTask, setShowUpdateTask,
+    showHistoricTask, setShowHistoricTask
    } = useGlobal();
   const [optionsUsers, setOptionsUsers] = useState([]);
   const [singleTask, setSingleTask] = useState(task);
@@ -208,9 +204,16 @@ const TaskDetails = ({ task, hideReplyBtn }) => {
       <CardBase isShown={showUpdateTask} setIsShown={() => setShowUpdateTask(false)}>
         <FormUpdateTask task={singleTask} />
       </CardBase>
+      <CardBase isShown={showHistoricTask} setIsShown={() => setShowHistoricTask(false)}>
+        <TaskHistoric task={singleTask} />
+      </CardBase>
       <div className="options">
           {!hideReplyBtn && (
-            <>          
+            <> 
+            <MenuItem disableRipple onClick={ () => setShowHistoricTask(true)}>
+              {/* <EditIcon /> */}
+              Histórico da tarefa
+          </MenuItem>         
           <MenuItem disableRipple onClick={ () => setShowUpdateTask(true)}>
               <EditIcon />
               Editar
