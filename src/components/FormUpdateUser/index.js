@@ -1,6 +1,9 @@
+import { Button } from '@mui/material';
 import { useFormik } from "formik";
 import { useSnackbar } from "notistack";
-import { useState } from "react";
+import { useState, useEffect } from 'react';
+import PhoneInput from "react-phone-input-2";
+import pt from 'react-phone-input-2/lang/pt.json';
 import Select from "react-select";
 import Swal from "sweetalert2";
 import * as yup from "yup";
@@ -26,31 +29,52 @@ const customStyles = {
   },
 };
 
+import useSWR from 'swr';
+async function fetcher(url) {
+  const res = await fetch(url);
+  return res.json();
+}
+
 export default function FormUpdateUser() {
+  const { data: userLogged } = useSWR("/api/userLogged", fetcher, { revalidateOnMount: true, refreshInterval: 1000});
   const { enqueueSnackbar } = useSnackbar();
-  const { actionDone, setActionDone, setIsOpenUser } = useGlobal();
+  const { actionDone, setActionDone, setIsOpenUpdateUser } = useGlobal();
   const [passwordVisibility, setPasswordVisibility] = useState(false);
+  const [preview, setPreview] = useState();
 
   const dropdownOptions = [
-    { label: "Admninistrador", value: "admin" },
-    { label: "Gerente", value: "manneger" },
-    { label: "Agente", value: "agent" },
-  ];
+    { label: 'Admninistrador', value: 'admin' },
+    { label: 'Gerente', value: 'manneger' },
+    { label: 'Agente', value: 'agent' },
+]
 
   const formik = useFormik({
+    enableReinitialize: true,
     initialValues: {
-      name: "",
-      email: "",
+      name: userLogged?.user.name,
+      email: userLogged?.user.email,
       password: "",
-      role: "",
+      role: { label: `${userLogged?.user.role}`, value: `${userLogged?.user.role}`},
+      country: userLogged?.user.country,
+      phone: userLogged?.user.phone,
+      photo: userLogged?.user.photo
     },
     validationSchema: yup.object().shape({
       name: yup.string().defined("Este campo é obrigatório"),
       email: yup.string().defined("Este campo é obrigatório"),
       password: yup.string().defined("Este campo é obrigatório"),
+      country: yup.string().defined("Este campo é obrigatório")
     }),
     onSubmit: (
-      { name, email, password, role },
+      {
+        name,
+        email,
+        password,
+        role,
+        country,
+        phone,
+        photo
+      },
       { setSubmitting, resetForm, setErrors }
     ) => {
       addNewUser({
@@ -58,11 +82,14 @@ export default function FormUpdateUser() {
         email,
         password,
         role,
+        country,
+        phone,
+        photo
       })
         .then(({ data }) => {
           setSubmitting(false);
           setActionDone(!actionDone);
-          setIsOpenUser(false);
+          setIsOpenUpdateUser(false);
           enqueueSnackbar(data.message, {
             variant: "success",
           });
@@ -85,6 +112,11 @@ export default function FormUpdateUser() {
                 password: `${response.data.errors.password[0]}`,
               });
             }
+            if (response.data.errors.country) {
+              setErrors({
+                country: `${response.data.errors.country[0]}`,
+              });
+            }
             if (response.data.errors.role) {
               setErrors({
                 role: `${response.data.errors.role[0]}`,
@@ -95,7 +127,7 @@ export default function FormUpdateUser() {
               text: `${
                 response.mensagem
                   ? response.mensagem
-                  : "Erro ao adicionar utilizador"
+                  : "Erro ao adicionar o utilizador"
               }`,
               icon: "error",
               confirmButtonColor: "var(--primary)",
@@ -107,145 +139,164 @@ export default function FormUpdateUser() {
 
   return (
     <Container onSubmit={formik.handleSubmit}>
-      <div className="form-control">
-        <div className="label-control">
+        <div className="form-control">
+          <div className="label-control">
           <div className="label">
-            <label htmlFor="subject">Nome completo*</label>
+            <label htmlFor="subject">Nome completo* ddd</label>
+            </div>
           </div>
-        </div>
-        <input
-          className={formik.errors.name ? "subject red-border" : "subject "}
-          id="name"
-          type="text"
-          placeholder="Digite agluma coisa..."
-          value={formik.values.name}
-          onChange={formik.handleChange}
-          onBlur={formik.handleBlur}
-        />
-        {formik.errors.name && formik.touched.name && (
-          <p className="error">{formik.errors.name}</p>
-        )}
-      </div>
-      <div className="form-control">
-        <div className="label-control">
+          <input
+            className={formik.errors.name ? "subject red-border" : "subject "}
+            id="name"
+            name='name'
+            type="text"
+            placeholder="Digite agluma coisa..."
+            value={formik.values.name}
+            onChange={formik.handleChange}
+            onBlur={formik.handleBlur}
+          />
+          {formik.errors.name && formik.touched.name && (
+            <p className="error">{formik.errors.name}</p>
+          )}
+       </div>
+       <div className="form-control">
+          <div className="label-control">
           <div className="label">
             <label htmlFor="subject">Email*</label>
+            </div>
           </div>
-        </div>
-        <input
-          className={formik.errors.email ? "subject red-border" : "subject "}
-          id="email"
-          type="email"
-          placeholder="Digite agluma coisa..."
-          value={formik.values.email}
-          onChange={formik.handleChange}
-          onBlur={formik.handleBlur}
-        />
-        {formik.errors.email && formik.touched.email && (
-          <p className="error">{formik.errors.email}</p>
-        )}
-      </div>
-
-      <div className="form-control">
-        <input
-          className={
-            formik.errors.password ? "password red-border" : "password "
-          }
-          type={passwordVisibility ? "text" : "password"}
-          name="password"
-          placeholder="Palavra-passe"
-          value={formik.values.password}
-          onChange={formik.handleChange}
-          onBlur={formik.handleBlur}
-        />
-        {formik.errors.password && formik.touched.password && (
-          <p className="error">{formik.errors.password}</p>
-        )}
-        {/* {passwordVisibility ? (
-            <svg
-              width="20"
-              height="20"
-              viewBox="0 0 20 20"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-              id="svg-eye"
-              onClick={() => setPasswordVisibility(!passwordVisibility)}
-            >
-              <path
-                d="M9.99999 4.99992C13.1583 4.99992 15.975 6.77492 17.35 9.58325C15.975 12.3916 13.1583 14.1666 9.99999 14.1666C6.84166 14.1666 4.02499 12.3916 2.64999 9.58325C4.02499 6.77492 6.84166 4.99992 9.99999 4.99992ZM9.99999 3.33325C5.83333 3.33325 2.27499 5.92492 0.833328 9.58325C2.27499 13.2416 5.83333 15.8333 9.99999 15.8333C14.1667 15.8333 17.725 13.2416 19.1667 9.58325C17.725 5.92492 14.1667 3.33325 9.99999 3.33325ZM9.99999 7.49992C11.15 7.49992 12.0833 8.43325 12.0833 9.58325C12.0833 10.7333 11.15 11.6666 9.99999 11.6666C8.84999 11.6666 7.91666 10.7333 7.91666 9.58325C7.91666 8.43325 8.84999 7.49992 9.99999 7.49992ZM9.99999 5.83325C7.93333 5.83325 6.24999 7.51659 6.24999 9.58325C6.24999 11.6499 7.93333 13.3333 9.99999 13.3333C12.0667 13.3333 13.75 11.6499 13.75 9.58325C13.75 7.51659 12.0667 5.83325 9.99999 5.83325Z"
-                fill="#636E72"
-              />
-            </svg>
-          ) : (
-            <svg
-              width="20"
-              height="20"
-              viewBox="0 0 20 20"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-              id="svg-eye"
-              onClick={() => setPasswordVisibility(!passwordVisibility)}
-            >
-              <path
-                d="M10 5.83333C12.3 5.83333 14.1667 7.7 14.1667 10C14.1667 10.5417 14.0583 11.05 13.8667 11.525L16.3 13.9583C17.5583 12.9083 18.55 11.55 19.1583 10C17.7167 6.34167 14.1583 3.75 9.99167 3.75C8.825 3.75 7.70834 3.95833 6.675 4.33333L8.475 6.13333C8.95 5.94167 9.45834 5.83333 10 5.83333ZM1.66667 3.55833L3.56667 5.45833L3.95 5.84167C2.56667 6.91667 1.48334 8.35 0.833336 10C2.275 13.6583 5.83334 16.25 10 16.25C11.2917 16.25 12.525 16 13.65 15.55L14 15.9L16.4417 18.3333L17.5 17.275L2.725 2.5L1.66667 3.55833ZM6.275 8.16667L7.56667 9.45834C7.525 9.63334 7.5 9.81667 7.5 10C7.5 11.3833 8.61667 12.5 10 12.5C10.1833 12.5 10.3667 12.475 10.5417 12.4333L11.8333 13.725C11.275 14 10.6583 14.1667 10 14.1667C7.7 14.1667 5.83334 12.3 5.83334 10C5.83334 9.34167 6 8.725 6.275 8.16667ZM9.86667 7.51667L12.4917 10.1417L12.5083 10.0083C12.5083 8.625 11.3917 7.50833 10.0083 7.50833L9.86667 7.51667Z"
-                fill="#636E72"
-              />
-            </svg>
-          )} */}
-      </div>
-      <div className="form-control">
-        <div className="label-control">
-          <div className="label">
-            <label htmlFor="subject">Funcção*</label>
-          </div>
-        </div>
-        {/* <select
-            className={formik.errors.role ? "subject red-border" : "subject "}
-            id="role"
-            name="role"
-            value={formik.values.role}
+          <input
+            className={formik.errors.email ? "subject red-border" : "subject "}
+            id="email"
+            type="email"
+            placeholder="Digite agluma coisa..."
+            value={formik.values.email}
+            onChange={formik.handleChange}
             onBlur={formik.handleBlur}
-            onChange={async (e) => {
-              const { value } = e.target;
-              setFieldValue('role', value);
-            }}
-          >
-            <option value="agent">Agente</option>
-            <option value="manager">Gerente</option>
-            <option value="admin">Administrador</option>
-          </select> */}
+          />
+          {formik.errors.email && formik.touched.email && (
+            <p className="error">{formik.errors.email}</p>
+          )}
+       </div>
 
-        <Select
-          styles={customStyles}
-          classNamePrefix="select"
-          label="Single select"
-          isClearable
-          isSearchable
-          id="role"
-          instanceId="role"
-          options={dropdownOptions}
-          onChange={async (option) => {
-            if (option) {
-              const { value } = option;
-              formik.setFieldValue("role", value);
-            } else {
-              formik.setFieldValue("role", "");
+       <div className="form-control">
+       <div className="label-control">
+          <div className="label">
+            <label htmlFor="subject">Palavra-Passe*</label>
+            </div>
+          </div>
+          <input
+            className={
+              formik.errors.password ? "password red-border" : "password "
             }
-          }}
-        />
+            type={passwordVisibility ? "text" : "password"}
+            name="password"
+            placeholder="Palavra-passe"
+            value={formik.values.password}
+            onChange={formik.handleChange}
+            onBlur={formik.handleBlur}
+          />
+          {formik.errors.password && formik.touched.password && (
+            <p className="error">{formik.errors.password}</p>
+          )}
+        </div>
+        <div className="form-control-divided">
+          <div className="form-control">
+            <div className="label-control">
+              <label htmlFor="client">País*</label>
+            </div>
+            <input
+              className={formik.errors.country ? "client red-border" : "client "}
+              id="country"
+              type="text"
+              placeholder="Digite o país"
+              value={formik.values.country}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+            />
+            {formik.errors.country && formik.touched.country && (
+              <p className="error">{formik.errors.country}</p>
+            )}
+          </div>
+          <div className="phone">
+            <div className="label-control">
+              <label htmlFor="phone">Número de telefone*</label>
+            </div>
+            <PhoneInput
+              localization={pt}
+              inputClass={formik.errors.phone ? "red-border" : " "}
+              enableSearch={false}
+              name="phone"
+              country={"ao"}
+              value={formik.values.phone}
+              onBlur={formik.handleBlur}
+              placeholder="Telefone"
+              onChange={ value => formik.setFieldValue('phone', value)}
+            />
+            {formik.errors.phone && formik.touched.phone && (
+              <p className="error">{formik.errors.phone}</p>
+            )}
+          </div>
+        </div>
+        <div className="form-control">
+          <div className="label-control">
+          <div className="label">
+            <label htmlFor="subject">Nível de acesso*</label>
+            </div>
+          </div>
+          <Select
+            styles={customStyles}
+            classNamePrefix="select"
+            placeholder="Selecione o nível de acesso"
+            isClearable
+            isSearchable
+            id="role"
+            instanceId="role"
+            options={dropdownOptions}
+            value={formik.values.role}
+            noOptionsMessage={() => 'Sem nível de acesso!'}
+            onChange={async (option) => {
+              if (option) {
+                const { value } = option;
+                formik.setFieldValue("role", value);
+              } else {
+                formik.setFieldValue("role", "");
+              }
+            }}
+          />
 
-        {formik.errors.role && formik.touched.role && (
-          <p className="error">{formik.errors.role}</p>
-        )}
-      </div>
+          {formik.errors.role && formik.touched.role && (
+            <p className="error">{formik.errors.role}</p>
+          )}
+       </div>
 
-      <div className="form-button-control-divided">
+        <div className="form-button-control-divided">
+        <div>
+          <input
+            accept="image/*"
+            style={{ display: 'none' }}
+            onChange={event => {
+                formik.setFieldValue('photo', event.target.files[0]);
+                setPreview(URL.createObjectURL(event.target.files[0]));
+              }}
+            name="photo"
+            id="raised-button-file"
+            type="file"
+          />
+          <label style={{ display: 'flex', alignItems: "center"}} htmlFor="raised-button-file">
+            {preview && (<img width="22px" height="22px" src={preview} alt="image" />)}
+            <Button variant="raised" component="span" >
+              Carregar fotografia (Opcional)
+            </Button>
+          </label>
+        </div>
         <ButtonContainer
           type="submit"
           disabled={
             formik.isSubmitting ||
             !!(formik.errors.name && formik.touched.name) ||
             !!(formik.errors.email && formik.touched.email) ||
+            !!(formik.errors.country && formik.touched.country) ||
             !!(formik.errors.password && formik.touched.password)
           }
         >
@@ -279,7 +330,7 @@ export default function FormUpdateUser() {
             </svg>
           )}
         </ButtonContainer>
-      </div>
+        </div>
     </Container>
   );
 }

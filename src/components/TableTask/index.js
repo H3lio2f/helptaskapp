@@ -1,9 +1,8 @@
 import * as React from 'react';
 import dynamic from 'next/dynamic';
-import { styled, alpha } from '@mui/material/styles';
+import { styled } from '@mui/material/styles';
 import { Box, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TablePagination, TableRow, TableSortLabel, Menu} from '@mui/material';
 import { visuallyHidden } from '@mui/utils';
-import { useGlobal } from "../../utils/contexts/global";
 import { tableCellClasses } from '@mui/material/TableCell';
 
 const Row = dynamic(() => import('./Row'));

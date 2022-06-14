@@ -5,16 +5,14 @@ import { Container } from "./styles";
 import Portal from '../../../Portal/Portal';
 import FormUpdateType from '../../../FormUpdateType';
 import {useState} from 'react';
-import {useRouter} from 'next/router';
 import { deleteType } from "../../../../utils/persistData";
-import { useGlobal } from "../../../../utils/contexts/global";
-
 
 export default function Item({ type }) {
   const { enqueueSnackbar } = useSnackbar();
   const [isOpenChannel, setIsOpenChannel] = useState(false);
   const handleOpen = () => {
-    setIsOpenChannel(true);}
+    setIsOpenChannel(true);
+  }
 
   const handleDelete = (id) => {
     deleteType(id)

@@ -17,6 +17,7 @@ export const GlobalProvider = ({ children }) => {
   const [showAgentConfig, setShowAgentConfig] = useState(false);
   const [isOpenAgent, setIsOpenAgent] = useState(false);
   const [isOpenUser, setIsOpenUser] = useState(false);
+  const [isOpenUpdateUser, setIsOpenUpdateUser] = useState(false);
   const [isOpenType, setIsOpenType] = useState(false);
   const [isOpenClient, setIsOpenClient] = useState(false);
   const [isOpenGroup, setIsOpenGroup] = useState(false);
@@ -101,7 +102,8 @@ export const GlobalProvider = ({ children }) => {
         clients, setClients,
         showUpdateTask, setShowUpdateTask,
         showUpdateClient, setShowUpdateClient,
-        showHistoricTask, setShowHistoricTask
+        showHistoricTask, setShowHistoricTask,
+        isOpenUpdateUser, setIsOpenUpdateUser
       }}
     >
       {children}

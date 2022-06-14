@@ -3,11 +3,9 @@ import Head from "next/head";
 import { useEffect, useState } from 'react';
 import Layout from "../../components/Layout";
 import SectionTitle from "../../components/SectionTitle";
-import api from '../../services/api';
 import { Container } from "../../styles/pages/configuration";
 import { useGlobal } from "../../utils/contexts/global";
 
-const AgentConfig = dynamic(() => import("../../components/AddCard/AgentConfig"));
 const ChannelConfig = dynamic(() => import("../../components/AddCard/ChannelConfig"));
 const ClientConfig = dynamic(() => import("../../components/AddCard/ClientConfig"));
 const GroupConfig = dynamic(() => import("../../components/AddCard/GroupConfig"));

@@ -9,10 +9,17 @@ import Layout from "../Layout";
 import SectionTitle from "../SectionTitle";
 import TableTask from "../TableTask";
 import moment from 'moment';
+import useSWR from 'swr';
 
 const NewTask = dynamic(() => import('../AddCard/NewTask'))
 
+async function fetcher(url) {
+  const res = await fetch(url);
+  return res.json();
+}
+
 export default function Home({ tasks }) {
+  const { data: userLogged } = useSWR("/api/userLogged", fetcher, { revalidateOnMount: true});
   const { refresh, showAttribueted } = useGlobal();
   const [allTasks, setAllTasks] = useState([]);
   const [checked, setChecked] = useState(false);
@@ -191,7 +198,9 @@ export default function Home({ tasks }) {
                   </div>
       
                   <div className="view-control"></div>
+                  {(userLogged?.user.role === "admin" || userLogged?.user.role === "mannager")  && (
                     <ButtonAdd>Adicionar nova tarefa</ButtonAdd>
+                  )}
                 </div>
             </div>
               <Filter handleKeyDown={handleKeyDown} searchQuery={searchQuery} setSearchQuery={setSearchQuery} />

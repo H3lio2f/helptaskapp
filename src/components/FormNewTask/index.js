@@ -7,16 +7,8 @@ import Select from "react-select";
 import dynamic from 'next/dynamic';
 import * as yup from "yup";
 import { Container } from "../../styles/addCard";
-import { useAuth } from "../../utils/contexts/auth";
 import { useGlobal } from "../../utils/contexts/global";
 import {
-  fetchAllChannels,
-  fetchAllClients,
-  fetchAllGroups,
-  fetchAllStatus,
-  fetchAllTypes,
-  fetchAllUsers,
-  fetchUserLogged,
   fetchAreasOfGroup
 } from "../../utils/fetchData";
 import useSWR from 'swr';
@@ -31,7 +23,6 @@ const FormNewStatus = dynamic( () => import('../FormNewStatus'));
 const Portal = dynamic( () => import('../Portal/Portal'));
 
 import ToolTipIcon from "./../Icons/ToolTip";
-import { SelftAttribuated} from './styles';
 import {useRouter} from 'next/router';
 
 const customStyles = {

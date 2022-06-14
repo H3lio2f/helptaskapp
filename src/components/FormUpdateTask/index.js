@@ -9,19 +9,12 @@ import { Container } from "../../styles/addCard";
 import { useAuth } from "../../utils/contexts/auth";
 import { useGlobal } from "../../utils/contexts/global";
 import {
-  fetchAllChannels,
-  fetchAllClients,
-  fetchAllGroups,
-  fetchAllStatus,
-  fetchAllTypes,
-  fetchAllUsers,
-  fetchUserLogged,
   fetchAreasOfGroup
 } from "../../utils/fetchData";
+import useSWR from 'swr';
 
 import { updateTask } from "../../utils/persistData";
 import { ButtonContainer } from "../Buttons/save";
-import {useRouter} from 'next/router';
 
 const customStyles = {
   control: (styles, { isDisabled} ) => ({
@@ -42,14 +35,23 @@ const customStyles = {
   },
 };
 
+async function fetcher(url) {
+  const res = await fetch(url);
+  return res.json();
+}
 export default function FormNewTask({ task }) {
+  const { data: groups } = useSWR("/api/groups", fetcher, { revalidateOnMount: true});
+  const { data: status } = useSWR("/api/status", fetcher, { revalidateOnMount: true});
+  const { data: users } = useSWR("/api/users", fetcher, { revalidateOnMount: true});
+  const { data: channels } = useSWR("/api/channels", fetcher, { revalidateOnMount: true});
+  const { data: types } = useSWR("/api/types", fetcher, { revalidateOnMount: true});
+  const { data: clients } = useSWR("/api/clients", fetcher, { revalidateOnMount: true});
+  const { data: userLogged } = useSWR("/api/userLogged", fetcher, { revalidateOnMount: true});
+
   const { user: userAuthenticated } = useAuth();
   const { enqueueSnackbar } = useSnackbar();
   const { actionDone, setActionDone, refresh, setRefresh, setShowUpdateTask } = useGlobal();
-  const [channels, setChannels] = useState([]);
-  const [clients, setClients] = useState([]);
   const [areasOfGroup, setAreasOfGroup] = useState([]);
-  const [checked, setChecked] = useState(false);
   const [tommorrowDay, setTommorrowDay] = useState("");
 
   const [optionsClients, setOptionsClients] = useState([]);
@@ -77,42 +79,35 @@ export default function FormNewTask({ task }) {
 
 
   useEffect(() => {
-    fetchAllGroups().then(data => {
       let newSet = new Set();
-      data.data.map((group) => {
+      groups?.data.map((group) => {
         newSet.add({ label: group.name, value: group.id });
       });
       setOptionsGroups([...newSet]);
-    })
   }, []);
 
   useEffect(() => {
-    fetchAllStatus().then((data) => {
     let newSet = new Set();
-    data.data.map((statu) => {
+    status?.data.map((statu) => {
       if(statu.id !== 5){
         newSet.add({ label: statu.name, value: statu.id });
       }
     });
     setOptionsStatus([...newSet]);
-    });
   }, []);
 
   useEffect(() => {
-    fetchAllTypes().then((data) => {
       let newSet = new Set();
-        data.data.map((type) => {
+      types?.data.map((type) => {
           newSet.add({ label: type.name, value: type.id });
         });
         setOptionsTypes([...newSet]);
-      });
   }, []);
 
 
   useEffect(() => {
-    fetchAllUsers().then((data) => {
     let newSet = new Set();
-    data.data.map((user) => {
+    users?.data.map((user) => {
       if (userAuthenticated.id === user.id) {
         newSet.add({ label: "(EU)", value: user.id });
       } else {
@@ -120,26 +115,19 @@ export default function FormNewTask({ task }) {
       }
     });
     setOptionsUsers([...newSet]);
-  });
   }, []);
 
   useEffect(() => {
-    fetchAllChannels().then((data) => {
-      setChannels(data.data);
-    });
     let newSet = new Set();
-    channels.map((channel) => {
+    channels?.data.map((channel) => {
       newSet.add({ label: channel.name, value: channel.id });
     });
     setOptionsChannels([...newSet]);
   }, []);
 
   useEffect(() => {
-    fetchAllClients().then((data) => {
-      setClients(data.data);
-    });
     let newSet = new Set();
-    clients.map((client) => {
+    clients?.data.map((client) => {
       newSet.add({ label: client.name, value: client.id });
     });
     setOptionsClients([...newSet]);

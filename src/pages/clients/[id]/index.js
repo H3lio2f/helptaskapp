@@ -4,13 +4,9 @@ import Layout from "../../../components/Layout";
 import { useGlobal } from "../../../utils/contexts/global";
 import { Container } from '../../../styles/pages/clientDetails';
 import dynamic from 'next/dynamic';
-import api from '../../../services/api';
-<<<<<<< HEAD
-import { showClientDetails } from "../../../utils/fetchData";
-=======
 import useSWR from 'swr';
 import {useRouter} from 'next/router';
->>>>>>> deda98b53046292b24b39a46c61abd9695b44f9a
+import { showClientDetails } from "../../../utils/fetchData";
 
 const Loader = dynamic(() => import("../../../components/LoadingSpinner"));
 const ClientDetails = dynamic(() => import("../../../components/ClientDetails"));
@@ -24,7 +20,7 @@ async function fetcher(url) {
 export default function DetailClient() {
   const router = useRouter();
   const { data: client, error } = useSWR(`/api/clients/${router.query.id}`, fetcher, { revalidateOnMount: true});
-  
+  const { refresh } = useGlobal();
   const otherInfo = {
     opened_tasks: client?.opened_tasks,
     closed_tasks: client?.closed_tasks,
@@ -32,19 +28,6 @@ export default function DetailClient() {
   }
 
   if(error) return <p>Error...</p>;
-
-  const [singleClient, setSingleClient] = useState({});
-
-  useEffect(() => {
-    setSingleClient(client);
-  }, [])
-
-  useEffect(() => {
-    showClientDetails(client.id).then(data => {
-      setSingleClient(data.data);
-      console.log(data.data);
-    })
-  }, [refresh])
 
   return (
     <>
@@ -56,15 +39,11 @@ export default function DetailClient() {
       <Layout>
       <Container>
       <div className="inner-main-container">
-<<<<<<< HEAD
-        <ClientDetails client={singleClient} otherInfo={otherInfo} />
-=======
       {!client ? (
         <Loader />
       ):(
         <ClientDetails client={client?.data} otherInfo={otherInfo} />
       )} 
->>>>>>> deda98b53046292b24b39a46c61abd9695b44f9a
       </div>
       </Container>
       </Layout>

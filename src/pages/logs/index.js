@@ -1,40 +1,32 @@
 import Head from "next/head";
-import { useEffect, useState } from "react";
-import LogComponent from '../../components/LogComponent';
-import { useGlobal } from "../../utils/contexts/global";
-import Loader from '../../components/LoadingSpinner';
-import { fetchAllLogs } from '../../utils/fetchData'
+import dynamic from 'next/dynamic'
+import useSWR from 'swr';
 
+const LogComponent = dynamic(() => import("../../components/LogComponent"));
+const Loader = dynamic(() => import("../../components/LoadingSpinner"));
+const Error = dynamic(() => import("../../components/Error"));
+
+async function fetcher(url) {
+  const res = await fetch(url);
+  return res.json();
+}
 export default function Logs() {
+  const { data, error } = useSWR("/api/logs", fetcher, { revalidateOnMount: true});
 
-  const {
-    refresh
-  } = useGlobal();
-
-  const [loading, setLoading] = useState(true);
-  const [logs, setLogs] = useState([]);
-
-  const handleLogs = async () => {
-    const logs = await fetchAllLogs();
-    setLogs(logs.data);
-    setLoading(false);
-  }
-  
-  useEffect(() => {
-    handleLogs();
-  }, []);
+  if(error) return <Error />;
 
   return (
     <>
-    {loading === true && (
-      <Loader />
-    )}
       <Head>
         <title>Helptask - Histórico de actividades</title>
         <meta name="description" content="Helptask - Histórico de actividades" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <LogComponent logs={logs} />
+      {!data ? (
+        <Loader />
+      ):(
+      <LogComponent logs={data.data} />
+      )}
     </>
   );
 }

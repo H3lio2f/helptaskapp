@@ -2,15 +2,21 @@ import moment from 'moment';
 import { useEffect, useState } from 'react';
 import {Button, Typography } from '@mui/material';
 import { useGlobal } from "../../utils/contexts/global";
-import CardBase from "../AddCard/CardBase";
 import FormReplyTask from "../FormReplyTask";
 import { Container } from "./styles";
 import { showTaskDetails } from "./../../utils/fetchData";
-import AttachFileOutlinedIcon from '@mui/icons-material/AttachFileOutlined';
+import useSWR from 'swr';
 
 import Link from 'next/link';
 
+async function fetcher(url) {
+  const res = await fetch(url);
+  return res.json();
+}
+
 export default function ReplyDetails({task, taskId }) {
+  const { data: userLogged } = useSWR("/api/userLogged", fetcher, { revalidateOnInterval: 1000});
+  const { data: task_reply } = useSWR(`/api/tasks/${taskId}`, fetcher, { revalidateOnInterval: 1000});
   const { setOpenReply, actionDone } = useGlobal();
   const [allReplies, setAllReplies] = useState([])
 
@@ -24,8 +30,7 @@ export default function ReplyDetails({task, taskId }) {
   }
   useEffect(() => {
     fetch();
-  }, [actionDone])
-
+  }, [task_reply, actionDone])
 
   return (
     <Container>
@@ -34,7 +39,7 @@ export default function ReplyDetails({task, taskId }) {
         </div>
         <div className="reply-list">
           {allReplies.map((reply) => (
-            <div key={reply.id} className="reply">
+            <div key={reply.id} className="reply" style={reply.user_name == userLogged?.user.name ? { borderLeft: "4px solid var(--primary)"} : {}}>
             {task.user?.photo ? (
                 <img className="avatar" src={task.user.photo} />
               ) : (
@@ -42,7 +47,7 @@ export default function ReplyDetails({task, taskId }) {
             )}
               <div className="info">
                 <p>De: {" "}
-                  <strong>{reply.user_name}</strong> em <i>{`${moment(reply.created_at).format("DD")} de ${moment(reply.created_at).format("MMMM")} de ${moment(reply.created_at).format("YYYY")}, ${moment(reply.created_at).format("dddd")} as ${moment(reply.created_at).format("HH:MM")} min`} </i>
+                  <strong>{reply.user_name == userLogged?.user.name ? 'Eu' : reply.user_name}</strong> em <i>{`${moment(reply.created_at).format("DD")} de ${moment(reply.created_at).format("MMMM")} de ${moment(reply.created_at).format("YYYY")}, ${moment(reply.created_at).format("dddd")} as ${moment(reply.created_at).format("HH:MM")} min`} </i>
                 </p>
                 <p>
                   <span>Para:</span> <strong> {task.client.name} </strong> {"<"}{task.client.email1}{">"}{" "}
@@ -50,13 +55,11 @@ export default function ReplyDetails({task, taskId }) {
                 </p>
                 <div className="message">{reply.message}</div>
                 <div className="attaches">
-                  {/* <label>Anexos ({reply.files.length})</label> */}
                   <div className="list">
                     {reply?.files && reply?.files.map((file, index) => (
                       <Link key={index} href={file} passHref>
                         <a target="_blank">
                         <Button  style={{textTransform: 'capitalize', marginRight: '10px', padding: "5px"}} variant="none" size="small">
-                          {/* <AttachFileOutlinedIcon size="small"  /> */}
                           <Typography style={{ color: "var(--primary)"}} variant="h7">anexo {index + 1}</Typography>
                         </Button>
                         </a>

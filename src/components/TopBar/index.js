@@ -1,11 +1,14 @@
 import Link from "next/link";
-import { useSnackbar } from "notistack";
-import { useState, useEffect, useCallback, useMemo } from "react";
+import dynamic from 'next/dynamic';
+import { useState,  useMemo } from "react";
 import { useAuth } from "../../utils/contexts/auth";
 import { Container, BouncyDiv } from "./styles";
 import { useRouter } from 'next/router';
 import { useGlobal } from "../../utils/contexts/global";
-import { fetchUserLogged, fetchAllTasks } from "../../utils/fetchData";
+
+const FormUpdateUser = dynamic(() => import("../FormUpdateUser"));
+const CardBase = dynamic(() => import("../AddCard/CardBase"));
+const Portal = dynamic(() => import("../Portal/Portal"));
 
 import useSWR from 'swr';
 async function fetcher(url) {
@@ -13,14 +16,16 @@ async function fetcher(url) {
   return res.json();
 }
 export default function TopBar() {
-  const { data: tasks } = useSWR("/api/tasks", fetcher, { revalidateOnMount: true, refreshInterval: 1000});
-  const { data: userLogged } = useSWR("/api/userLogged", fetcher, { revalidateOnMount: true});
-  const router = useRouter();
-  const { showAttribueted, setShowAttribueted } = useGlobal();
+  const { data: userLogged } = useSWR("/api/userLogged", fetcher, { revalidateOnMount: true, refreshInterval: 1000});
+  const { data: tasks } = useSWR("/api/tasks", fetcher, { revalidateOnMount: true, refreshInterval: 1000}); const router = useRouter();
+  const { showAttribueted, setShowAttribueted, isOpenUpdateUser, setIsOpenUpdateUser } = useGlobal();
   const [isOpen, setIsOpen] = useState(false);
   const [isOpenNoty, setIsOpenNoty] = useState(false);
 
-
+  const handleOpenUpdatePerfil = () => {
+    setIsOpen(false);
+    setIsOpenUpdateUser(true);
+  }
   const handleToggle = () => {
     setIsOpenNoty(false);
     setIsOpen(!isOpen)
@@ -48,6 +53,11 @@ export default function TopBar() {
   const late = useMemo( () =>tasks?.data.filter(task => task.status_control === "waiting"), [tasks]);
 
   return (
+    <>
+      <Portal isOpen={isOpenUpdateUser} setIsOpen={() => setIsOpenUpdateUser(false)}>
+        <label>Alterar informações do utilizador</label>
+        <FormUpdateUser />
+      </Portal>
     <Container>
       <div
         style={isOpen || isOpenNoty === true ? { display: "" } : { display: "none" }}
@@ -129,10 +139,8 @@ export default function TopBar() {
             }
           >
             <ul className="dropdown-list">
-              <li>
-                <Link href="#">
+              <li onClick={() => handleOpenUpdatePerfil()}>
                   <a>Editar perfil</a>
-                </Link>
               </li>
               <li>
                 <Link href="/logs">
@@ -147,5 +155,6 @@ export default function TopBar() {
         </div>
       </div>
     </Container>
+    </>
   );
 }

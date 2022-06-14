@@ -1,8 +1,15 @@
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { Container, Item } from "./styles";
+import useSWR from 'swr';
+
+async function fetcher(url) {
+  const res = await fetch(url);
+  return res.json();
+}
 
 export default function Sidebar() {
+  const { data: userLogged } = useSWR("/api/userLogged", fetcher, { revalidateOnMount: true});
   const router = useRouter();
 
   return (
@@ -65,6 +72,7 @@ export default function Sidebar() {
               <a> Clientes </a>
             </Link>
           </Item>
+          {userLogged?.user.role === "admin" && (
           <Item
             className={router.pathname === "/configurations" ? "active" : ""}
             onClick={() => router.push('/configurations')}
@@ -86,6 +94,7 @@ export default function Sidebar() {
               <a> Configurações </a>
             </Link>
           </Item>
+          )}
         </ul>
       </nav>
       <div className="copy">

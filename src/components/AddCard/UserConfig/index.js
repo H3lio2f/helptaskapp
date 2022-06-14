@@ -1,13 +1,15 @@
 import { Box, CircularProgress } from '@mui/material';
+import dynamic from 'next/dynamic';
 import { useEffect, useState } from "react";
 import { Container as List } from "../../../styles/addCard";
 import { useGlobal } from "../../../utils/contexts/global";
 import { fetchAllUsers } from "../../../utils/fetchData";
-import FormNewUser from "../../FormNewUser";
-import Portal from "../../Portal/Portal";
 import CardBase from "../CardBase";
 import Item from "./Item";
 import { Container } from "./styles";
+
+const FormNewUser = dynamic(() => import("../../FormNewUser"));
+const Portal = dynamic(() => import("../../Portal/Portal"));
 
 export default function UserConfig() {
   const {

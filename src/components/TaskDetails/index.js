@@ -13,7 +13,6 @@ import { useGlobal } from "../../utils/contexts/global";
 import Portal from "../Portal/Portal";
 import {
   showTaskDetails,
-  fetchUserLogged
 } from "./../../utils/fetchData";
 import {
   forwardTask,
@@ -53,6 +52,7 @@ async function fetcher(url) {
 
 const TaskDetails = ({ task, hideReplyBtn }) => {
   const { data: users } = useSWR("/api/users", fetcher, { revalidateOnMount: true});
+  const { data: userLogged } = useSWR("/api/userLogged", fetcher, { revalidateOnMount: true});
   const router = useRouter();
   const { enqueueSnackbar } = useSnackbar();
   const {  actionDone,
@@ -67,17 +67,7 @@ const TaskDetails = ({ task, hideReplyBtn }) => {
   const [singleTask, setSingleTask] = useState(task);
   const [user, setUser] = useState('');
   const [loading, setLoading] = useState(false);
-  const [userLogged, setUserLogged] = useState();
 
-  useEffect(() => {
-    handleUserLogged();
-    setSingleTask(task);
-  }, []);
-
-  const handleUserLogged = async () => {
-    const user = await fetchUserLogged();
-    setUserLogged(user.user);
-  }
   const handleTask = async () => {
     const tasks = await showTaskDetails(task.id);
     setSingleTask(tasks.data);
@@ -85,14 +75,13 @@ const TaskDetails = ({ task, hideReplyBtn }) => {
 
   useEffect(() => {
     handleTask();
-    handleUserLogged();
   }, [refresh])
 
   useEffect(() => {
     let newSet = new Set();
     users?.data.map((user) => {
-      if (userLogged?.id === user.id) {
-        newSet.add({ label: "(Eu mesmo)", value: userLogged.id });
+      if (userLogged?.user.id === user.id) {
+        newSet.add({ label: "(Eu mesmo)", value: userLogged?.user.id });
       } else {
         newSet.add({ label: user.name, value: user.id });
       }
@@ -214,22 +203,22 @@ const TaskDetails = ({ task, hideReplyBtn }) => {
               {/* <EditIcon /> */}
               Histórico da tarefa
           </MenuItem>         
-          <MenuItem disableRipple onClick={ () => setShowUpdateTask(true)}>
+          <MenuItem disableRipple onClick={ () => setShowUpdateTask(true)} style={(userLogged?.user.role === "admin" || userLogged?.user.role === "mannager") ? {}: {display: "none"}}>
               <EditIcon />
               Editar
           </MenuItem>
           {singleTask.active === 1 ? (
-              <MenuItem onClick={() => handleInactive(singleTask.id)} disableRipple>
+              <MenuItem onClick={() => handleInactive(singleTask.id)} disableRipple style={(userLogged?.user.role === "admin" || userLogged?.user.role === "mannager") ? {}: {display: "none"}}>
                 <BrowserNotSupportedIcon />
                   Tornar Inactivo
               </MenuItem>
             ) : (
-              <MenuItem onClick={() => handleActive(singleTask.id)} disableRipple>
+              <MenuItem onClick={() => handleActive(singleTask.id)} disableRipple style={(userLogged?.user.role === "admin" || userLogged?.user.role === "mannager") ? {}: {display: "none"}}>
                 <BrowserNotSupportedIcon />
                 Tornar Activa
               </MenuItem>
             )}
-          <MenuItem onClick={() => handleOpenForward(singleTask.id)} disableRipple>
+          <MenuItem onClick={() => handleOpenForward(singleTask.id)} disableRipple style={(userLogged?.user.role === "admin" || userLogged?.user.role === "mannager") ? {}: {display: "none"}}>
             <CompareArrowsIcon />
             Atribuir
             </MenuItem>

@@ -96,6 +96,7 @@ async function fetcher(url) {
 export default function Row({ row, labelId }) {
   const { data: users } = useSWR("/api/users", fetcher, { revalidateOnMount: true});
   const { data: status } = useSWR("/api/status", fetcher, { revalidateOnMount: true});
+  const { data: userLogged } = useSWR("/api/userLogged", fetcher, { revalidateOnInterval: 1000});
   const router = useRouter();
   const { enqueueSnackbar } = useSnackbar();
   const {
@@ -110,16 +111,6 @@ export default function Row({ row, labelId }) {
   const [optionsUsers, setOptionsUsers] = React.useState([]);
   const [user, setUser] = React.useState("");
   const [loading, setLoading] = React.useState(false);
-  const [userLogged, setUserLogged] = React.useState();
-  
-  const handleUserLogged = async () => {
-    const user = await fetchUserLogged();
-    setUserLogged(user.user);
-  }
-
-  React.useEffect(() => {
-    handleUserLogged();
-  }, [])
 
   /*Menu Option */
   const [anchorEl, setAnchorEl] = React.useState(null);
@@ -150,7 +141,7 @@ export default function Row({ row, labelId }) {
     });
     setOptionsUsers([...newSet]);
 
-  }, []);
+  }, [users]);
 
     const handleInactive = (id) => {
       turnTaskInactive(id)
@@ -298,7 +289,7 @@ export default function Row({ row, labelId }) {
         </TableCell>
         <TableCell align="left">{moment(row.dueDate).format("DD/MM/YYYY")}</TableCell>
         <TableCell align="left">{row.type.name}</TableCell>
-        <TableCell align="left">{row.user ? userLogged?.id === row.user.id ? "(Eu)" : row.user_name : 'sem atribuição'}</TableCell>
+        <TableCell align="left">{row.user ? userLogged?.user.id === row.user.id ? "(Eu)" : row.user_name : 'sem atribuição'}</TableCell>
         <TableCell align="left">
         <>
           <Button onClick={handleClickStatus} size="small" variant="outlined" style={{textTransform: 'lowercase', color: `${row.statusColor}`, borderColor: `${row.statusColor}`, width: "120px"}}>
@@ -367,14 +358,16 @@ export default function Row({ row, labelId }) {
                 }
             </Button>
           </Link>,
-          <Button
-          style={{textTransform: 'none', marginLeft: "15px"}}
-          size="small"
-          variant="text"
-          onClick={() => handleOpenForward(row.id)}
-          >
-          Atribuir
-          </Button>
+          
+            <Button
+              style={(userLogged?.user.role === "admin" || userLogged?.user.role === "mannager") ? {textTransform: 'none', marginLeft: "15px"} : {display: "none"}}
+              size="small"
+              variant="text"
+              onClick={() => handleOpenForward(row.id)}
+            >
+            Atribuir
+            </Button>
+          
           ]
         )}
         <>
@@ -437,12 +430,12 @@ export default function Row({ row, labelId }) {
               ]
             }
             {row.active === 1 ? (
-              <MenuItem onClick={() => handleInactive(row.id)} disableRipple>
+              <MenuItem onClick={() => handleInactive(row.id)} disableRipple style={(userLogged?.user.role === "admin" || userLogged?.user.role === "mannager") ? {}: {display: "none"}}>
                 <BrowserNotSupportedIcon />
                   Tornar Inactivo
               </MenuItem>
             ) : (
-              <MenuItem onClick={() => handleActive(row.id)} disableRipple>
+              <MenuItem onClick={() => handleActive(row.id)} disableRipple style={(userLogged?.user.role === "admin" || userLogged?.user.role === "mannager")  ? {}: {display: "none"}}>
                 <BrowserNotSupportedIcon />
                 Tornar Activa
               </MenuItem>
@@ -450,7 +443,7 @@ export default function Row({ row, labelId }) {
             {row.active === 1 &&
               [
               <Divider sx={{ my: 0.5 }} />,
-              <MenuItem onClick={() => handleOpenForward(row.id)} disableRipple>
+              <MenuItem onClick={() => handleOpenForward(row.id)} disableRipple style={(userLogged?.user.role === "admin" || userLogged?.user.role === "mannager") ? {}: {display: "none"}}>
                 <CompareArrowsIcon />
                 Atribuir
               </MenuItem>

@@ -9,10 +9,16 @@ import { Container } from "../../styles/pages/client";
 import { useGlobal } from "../../utils/contexts/global";
 import {fetchAllClients } from "../../utils/fetchData";
 import TableClient from "../TableClient";
+import useSWR from 'swr';
 
 const NewClient = dynamic(() => import("../AddCard/NewClient"));
 
+async function fetcher(url) {
+  const res = await fetch(url);
+  return res.json();
+}
 export default function Clients({ clients }) {
+  const { data: userLogged } = useSWR("/api/userLogged", fetcher, { revalidateOnMount: true});
   const { setShowNewClient, refresh } = useGlobal();
   const [allClients, setAllClients] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
@@ -77,8 +83,9 @@ export default function Clients({ clients }) {
 
               <span>Meus clientes</span>
             </SectionTitle>
+            {(userLogged?.user.role === "admin" || userLogged?.user.role === "mannager") && (
               <ButtonAdd>Adicionar novo cliente</ButtonAdd>
-         
+            )}
             </div>
               <Filter handleKeyDown={handleKeyDown} searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
             {allClients.length > 0 ? (

@@ -15,7 +15,7 @@ export default function FormReplyTask({ taskId }) {
   const { enqueueSnackbar } = useSnackbar();
   const router = useRouter();
 
-  const { setActionDone, actionDone, setLoading, setOpenReply, refresh, setRefresh } = useGlobal();
+  const { setActionDone, actionDone } = useGlobal();
   const [files, setFiles] = useState();
 
   const formik = useFormik({
@@ -42,7 +42,7 @@ export default function FormReplyTask({ taskId }) {
           setSubmitting(false);
           setActionDone(!actionDone);
           resetForm({});
-          enqueueSnackbar(data.message, {
+          enqueueSnackbar("Resposta enviada", {
             variant: "success",
           });
         })

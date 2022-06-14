@@ -1,59 +1,25 @@
 import moment from "moment";
 import {  useState, useEffect } from "react";
+import dynamic from 'next/dynamic';
 import EditIcon from '@mui/icons-material/Edit';
-import { alpha, styled } from '@mui/material/styles';
-import {  Menu, MenuItem, TextField } from '@mui/material';
+import {  MenuItem, TextField } from '@mui/material';
 import { Container } from "./styles";
-import Tasks from "../TaskHorizontalViewer/List";
-import FormUpdateClient from "../FormUpdateClient/";
-import FormNewTask from "../FormNewTask/";
-import CardBase from "../AddCard/CardBase";
 import { useGlobal } from "../../utils/contexts/global";
 import { showClientDetails } from "../../utils/fetchData";
+import useSWR from 'swr';
 
-const StyledMenu = styled((props) => (
-  <Menu
-    elevation={0}
-    anchorOrigin={{
-      vertical: 'bottom',
-      horizontal: 'right',
-    }}
-    transformOrigin={{
-      vertical: 'top',
-      horizontal: 'right',
-    }}
-    {...props}
-  />
-))(({ theme }) => ({
-  '& .MuiPaper-root': {
-    borderRadius: 6,
-    marginTop: theme.spacing(1),
-    minWidth: 180,
-    color:
-      theme.palette.mode === 'light' ? 'rgb(55, 65, 81)' : theme.palette.grey[300],
-    boxShadow:
-      'rgb(255, 255, 255) 0px 0px 0px 0px, rgba(0, 0, 0, 0.05) 0px 0px 0px 1px, rgba(0, 0, 0, 0.1) 0px 10px 15px -3px, rgba(0, 0, 0, 0.05) 0px 4px 6px -2px',
-    '& .MuiMenu-list': {
-      padding: '4px 0',
-    },
-    '& .MuiMenuItem-root': {
-      '& .MuiSvgIcon-root': {
-        fontSize: 18,
-        color: theme.palette.text.secondary,
-        marginRight: theme.spacing(1.5),
-      },
-      '&:active': {
-        backgroundColor: alpha(
-          theme.palette.primary.main,
-          theme.palette.action.selectedOpacity,
-        ),
-      },
-    },
-  },
-}));
+const FormUpdateClient = dynamic(() => import("../FormUpdateClient/"));
+const FormNewTask = dynamic(() => import("../FormNewTask/"));
+const CardBase = dynamic(() => import("../AddCard/CardBase"));
+const Tasks = dynamic(() => import("../TaskHorizontalViewer/List"));
 
+async function fetcher(url) {
+  const res = await fetch(url);
+  return res.json();
+}
 
 const ClientDetails = ({ client, otherInfo }) => {
+  const { data: userLogged } = useSWR("/api/userLogged", fetcher, { revalidateOnMount: true});
   const { setShowNewTask, showNewTask, showUpdateClient, setShowUpdateClient, setActionDone, actionDone, refresh } = useGlobal();
   const [singleClient, setSingleClient] = useState(client);
 
@@ -71,14 +37,7 @@ const ClientDetails = ({ client, otherInfo }) => {
   }
 
   useEffect(() => {
-<<<<<<< HEAD
-    showClientDetails(client.id).then(data => {
-      setSingleClient(data.data);
-      console.log(data.data);
-    })
-=======
     handleClient();
->>>>>>> deda98b53046292b24b39a46c61abd9695b44f9a
   }, [refresh])
 
   return (
@@ -89,7 +48,7 @@ const ClientDetails = ({ client, otherInfo }) => {
     <CardBase isShown={showUpdateClient} setIsShown={() => setShowUpdateClient(false)}>
       <FormUpdateClient client={singleClient} />
     </CardBase>
-        <div className="options">
+        <div className="options" style={(userLogged?.user.role === "admin" || userLogged?.user.role === "mannager") ? {}: {display: "none"}}>
           <MenuItem disableRipple onClick={ () => setShowUpdateClient(true)}>
             <EditIcon />
             Editar
@@ -210,7 +169,10 @@ const ClientDetails = ({ client, otherInfo }) => {
         <div className="history">
           <div className="history-top">
             <label>Histórico de tarefas</label>
-            <button onClick={handleOpenAddcard} >Adicionar nova tarefa +</button>
+            <div className="view-control"></div>
+              {(userLogged?.user.role === "admin" || userLogged?.user.role === "mannager")  && (
+                <button onClick={handleOpenAddcard} >Adicionar nova tarefa +</button>
+              )}
           </div>
           <div className="task-histories">
             <div>
