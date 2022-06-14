@@ -42,42 +42,6 @@ export const addNewClient = async ({
   return client;
 };
 
-/* export const addNewClient = async ({
-  reference,
-  name,
-  country,
-  city,
-  address,
-  email1,
-  email2,
-  phone1,
-  phone2,
-}) => {
-  const token = Cookies.get("token");
-
-  const client = await api.post(
-    "/clients",
-    {
-      reference,
-      name,
-      country,
-      city,
-      address,
-      email1,
-      email2,
-      phone1,
-      phone2,
-      active: 1,
-    },
-    {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    }
-  );
-  return client;
-}; */
-
 export const addNewUser = async ({ 
   name, 
   email, 

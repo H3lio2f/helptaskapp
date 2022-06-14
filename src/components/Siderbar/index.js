@@ -25,6 +25,7 @@ export default function Sidebar() {
         <ul>
           <Item
             className={router.pathname === "/" ? "active" : ""}
+            onClick={() => router.push('/')}
           >
             <svg
               width="16"
@@ -45,6 +46,7 @@ export default function Sidebar() {
           </Item>
           <Item
             className={router.pathname === "/clients" ? "active" : ""}
+            onClick={() => router.push('/clients')}
           >
             <svg
               width="24"
@@ -65,6 +67,7 @@ export default function Sidebar() {
           </Item>
           <Item
             className={router.pathname === "/configurations" ? "active" : ""}
+            onClick={() => router.push('/configurations')}
           >
             <svg
               width="20"

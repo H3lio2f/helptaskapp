@@ -106,13 +106,11 @@ export default function Row({ row, labelId }) {
     refresh, setRefresh,
     user: userAuthenticated
   } = useGlobal();
-
-  
+    
   const [optionsUsers, setOptionsUsers] = React.useState([]);
   const [user, setUser] = React.useState("");
   const [loading, setLoading] = React.useState(false);
   const [userLogged, setUserLogged] = React.useState();
-
   
   const handleUserLogged = async () => {
     const user = await fetchUserLogged();

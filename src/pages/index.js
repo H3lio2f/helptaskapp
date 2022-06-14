@@ -4,6 +4,7 @@ import useSWR from 'swr';
 
 const HomeComponent = dynamic(() => import("../components/Home"));
 const Loader = dynamic(() => import("../components/LoadingSpinner"));
+const Error = dynamic(() => import("../components/Error"));
 
 async function fetcher(url) {
     const res = await fetch(url);
@@ -13,7 +14,7 @@ async function fetcher(url) {
 export default function Home() {
   const { data, error } = useSWR("/api/tasks", fetcher, { revalidateOnMount: true});
   
-  if(error) return <p>Error...</p>;
+  if(error) return <Error />;
 
   return (
     <>
