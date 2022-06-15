@@ -28,6 +28,7 @@ export default function TopBar() {
   }
   const handleToggle = () => {
     setIsOpenNoty(false);
+    setShowAttribueted(false);
     setIsOpen(!isOpen)
   };
   const handleToggleNoty = () => {
@@ -42,7 +43,7 @@ export default function TopBar() {
   }
 
   const handleToAssign = () => {
-    setShowAttribueted(!showAttribueted);
+    setShowAttribueted(true);
   }
 
   const handleClose = () => {

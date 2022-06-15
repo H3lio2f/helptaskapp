@@ -110,7 +110,9 @@ export default function Home({ tasks }) {
   };
 
   useEffect(() => {
-    handleToAssignLate();
+    if(showAttribueted === true){
+      handleToAssignLate();
+    }
   }, [showAttribueted])
 
   const handleToAssignLate = () => {
