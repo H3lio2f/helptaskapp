@@ -28,22 +28,23 @@ export default function Home({ tasks }) {
 
   const fetchTasks = async () => {
     if (!searchQuery) {
-      if(checked === true) {
-        setAllTasks(tasks);
-      }else{
-        const filterActive = tasks.filter((task) => task.active === 1);
+      const filterActive = tasks.filter((task) => task.active == 1);
+      setAllTasks(filterActive);
+    } else {
+       if(searchQuery === "inactive"){
+        const filterActive = tasks.filter((task) => task.active == 0);
         setAllTasks(filterActive);
       }
-    } else {
-      const dataFiltered = tasks.filter((task) => task.name.toLowerCase().includes(searchQuery.toLowerCase()) || task.status_control.toLowerCase().includes(searchQuery.toLowerCase())  || task.client_name.toLowerCase().includes(searchQuery.toLowerCase()) || task.type_name.toLowerCase().includes(searchQuery.toLowerCase()) || task.user_name.toLowerCase().includes(searchQuery.toLowerCase()) || task.status_name.toLowerCase().includes(searchQuery.toLowerCase()) || task.dueDate.includes(moment(searchQuery).format('DD/MM/YYYY')));
-      if(checked === true) {
-        setAllTasks(dataFiltered);
-      }else{
-        let filterActive = dataFiltered.filter((task) => task.active === 1);
-        if(searchQuery === "waiting"){
-          filterActive = dataFiltered.filter((task) => task.active === 1 || task.active === 0);
-        }
+      if(showAttribueted === true){
+        const filterActive = allTasks.filter((task) => task.active === 1 && task.status_name.toLowerCase().includes("waiting"));
+        console.log(filterActive);
         setAllTasks(filterActive);
+      }
+      else{
+          const dataFiltered = tasks.filter((task) => task.name.toLowerCase().includes(searchQuery.toLowerCase()) || task.client_name.toLowerCase().includes(searchQuery.toLowerCase()) || task.type_name.toLowerCase().includes(searchQuery.toLowerCase()) || task.user_name.toLowerCase().includes(searchQuery.toLowerCase()) || task.status_name.toLowerCase().includes(searchQuery.toLowerCase()) || task.dueDate.includes(moment(searchQuery).format('DD/MM/YYYY')));
+          const filterActive = dataFiltered.filter((task) => task.active == 1);
+          setAllTasks(filterActive);
+        
       }
     }
   }
@@ -54,58 +55,74 @@ export default function Home({ tasks }) {
 
   useEffect(() => {
     fetchAllTasks().then(data => {
-      setAllTasks(data.data);
+      const filterActive = data.data.filter((task) => task.active == 1);
+      setAllTasks(filterActive);
     });
   },[refresh]);
 
   useEffect(() => {
+    setChecked(false);
+    setSearchQuery("");
+  },[]);
+
+  useEffect(() => {
     fetchAllTasks().then(data => {
-      setAllTasks(data.data);
+      const filterActive = data.data.filter((task) => task.active == 1);
+      setAllTasks(filterActive);
     });
   },[]);
 
   const handleKeyDown = async(e) => {
     if (e.keyCode === 13) {
       if (!searchQuery) {
-        if(checked === true) {
-          setAllTasks(tasks);
-        }else{
-          const filterActive = tasks.filter((task) => task.active == 1);
+        const filterActive = tasks.filter((task) => task.active == 1);
+        setAllTasks(filterActive);
+      } else {
+        if(searchQuery === "inactive"){
+          const filterActive = tasks.filter((task) => task.active == 0);
           setAllTasks(filterActive);
         }
-      } else {
-        const dataFiltered = tasks.filter((task) => task.name.toLowerCase().includes(searchQuery.toLowerCase()) || task.client_name.toLowerCase().includes(searchQuery.toLowerCase()) || task.type_name.toLowerCase().includes(searchQuery.toLowerCase()) || task.user_name.toLowerCase().includes(searchQuery.toLowerCase()) || task.status_name.toLowerCase().includes(searchQuery.toLowerCase()) || task.dueDate.includes(moment(searchQuery).format('DD/MM/YYYY')));
-        if(checked === true) {
-          setAllTasks(dataFiltered);
-        }else{
-          const filterActive = dataFiltered.filter((task) => task.active === 1);
+        if(showAttribueted === true){
+          const filterActive = tasks.filter((task) => task.active === 1 && task.status_name.toLowerCase().includes("waiting"));
+          console.log(filterActive);
           setAllTasks(filterActive);
+        }
+        else{
+            const dataFiltered = tasks.filter((task) => task.name.toLowerCase().includes(searchQuery.toLowerCase()) || task.client_name.toLowerCase().includes(searchQuery.toLowerCase()) || task.type_name.toLowerCase().includes(searchQuery.toLowerCase()) || task.user_name.toLowerCase().includes(searchQuery.toLowerCase()) || task.status_name.toLowerCase().includes(searchQuery.toLowerCase()) || task.dueDate.includes(moment(searchQuery).format('DD/MM/YYYY')));
+            const filterActive = dataFiltered.filter((task) => task.active == 1);
+            setAllTasks(filterActive);
+          
         }
       }
     }
   }
 
   const handleWaiting = () => {
+    setChecked(false);
     setSearchQuery("em espera");
     setToogleFilterBy(!toggleFilterBy);
   };
 
   const handleInProgress = () => {
+    setChecked(false);
     setSearchQuery("em andamento");
     setToogleFilterBy(!toggleFilterBy);
   };
 
   const handleClosed = () => {
+    setChecked(false);
     setSearchQuery("fechado");
     setToogleFilterBy(!toggleFilterBy);
   };
 
   const handleToAssign = () => {
+    setChecked(false);
     setSearchQuery("por atribuir");
     setToogleFilterBy(!toggleFilterBy);
   };
 
   const handleToAssignLate = () => {
+    setChecked(false);
     setSearchQuery("waiting");
     setToogleFilterBy(!toggleFilterBy);
   };
@@ -116,7 +133,7 @@ export default function Home({ tasks }) {
     }
   }, [showAttribueted])
 
-  /* const handleInactive = () => {
+  const handleInactive = () => {
     if(checked !== true){
       setSearchQuery("inactive");
       setToogleFilterBy(!toggleFilterBy);
@@ -124,7 +141,7 @@ export default function Home({ tasks }) {
       setSearchQuery("");
       setToogleFilterBy(!toggleFilterBy);
     }
-  }; */
+  };
 
   const handleAll = () => {
     setSearchQuery("");
@@ -133,7 +150,7 @@ export default function Home({ tasks }) {
 
   const handleSeeInactive = () => {
     setChecked(!checked);
-    setToogleFilterBy(!toggleFilterBy);
+    handleInactive();
   }
 
 
