@@ -59,6 +59,7 @@ export default function Home({ tasks }) {
   },[refresh]);
 
   useEffect(() => {
+    setSearchQuery("");
     fetchAllTasks().then(data => {
       setAllTasks(data.data);
     });
