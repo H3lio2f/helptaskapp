@@ -714,7 +714,7 @@ export default function FormNewTask({ client }) {
           name="description"
           type="text"
           rows="6"
-          placeholder="Mais descrição sobre a tarefa..."
+          placeholder="Escreva a descrição sobre a tarefa..."
           value={formik.values.description}
           onChange={formik.handleChange}
           onBlur={formik.handleBlur}
