@@ -109,56 +109,27 @@ function EnhancedTableHead(props) {
       <TableRow>
         <StyledTableCell >
         </StyledTableCell>
-        {(userLogged?.user.role === "admin" || userLogged?.user.role === "mannager")  ? (
-            <>
-            {headCells.map((headCell) =>  (
-            <StyledTableCell
-              key={headCell.id}
-              align={headCell.numeric ? 'left' : 'center'}
-              padding={headCell.disablePadding ? 'none' : 'normal'}
-              sortDirection={orderBy === headCell.id ? order : false}
+        {headCells.map((headCell) => (
+          <StyledTableCell
+            key={headCell.id}
+            align={headCell.numeric ? 'left' : 'center'}
+            padding={headCell.disablePadding ? 'none' : 'normal'}
+            sortDirection={orderBy === headCell.id ? order : false}
+          >
+            <TableSortLabel
+              active={orderBy === headCell.id}
+              direction={orderBy === headCell.id ? order : 'asc'}
+              onClick={createSortHandler(headCell.id)}
             >
-              <TableSortLabel
-                active={orderBy === headCell.id}
-                direction={orderBy === headCell.id ? order : 'asc'}
-                onClick={createSortHandler(headCell.id)}
-              >
-                {headCell.label}
-                {orderBy === headCell.id ? (
-                  <Box component="span" sx={visuallyHidden}>
-                    {order === 'desc' ? 'sorted descending' : 'sorted ascending'}
-                  </Box>
-                ) : null}
-              </TableSortLabel>
-            </StyledTableCell>
-          ))}
-          </>
-          ) : (
-            <>
-            {headCells.map((headCell) => headCell.id !== "status_name" && (
-            <StyledTableCell
-              key={headCell.id}
-              align={headCell.numeric ? 'left' : 'center'}
-              padding={headCell.disablePadding ? 'none' : 'normal'}
-              sortDirection={orderBy === headCell.id ? order : false}
-            >
-              <TableSortLabel
-                active={orderBy === headCell.id}
-                direction={orderBy === headCell.id ? order : 'asc'}
-                onClick={createSortHandler(headCell.id)}
-              >
-                {headCell.label}
-                {orderBy === headCell.id ? (
-                  <Box component="span" sx={visuallyHidden}>
-                    {order === 'desc' ? 'sorted descending' : 'sorted ascending'}
-                  </Box>
-                ) : null}
-              </TableSortLabel>
-            </StyledTableCell>
-          ))}
-          </>
-          )}
-        
+              {headCell.label}
+              {orderBy === headCell.id ? (
+                <Box component="span" sx={visuallyHidden}>
+                  {order === 'desc' ? 'sorted descending' : 'sorted ascending'}
+                </Box>
+              ) : null}
+            </TableSortLabel>
+          </StyledTableCell>
+        ))}
       </TableRow>
     </TableHead>
   );

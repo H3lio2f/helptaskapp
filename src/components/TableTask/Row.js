@@ -233,7 +233,6 @@ export default function Row({ row, labelId }) {
       });
     }
 
-
     const handleOpenForward = (id) => {
       localStorage.setItem("task_id", id);
       setIsOpenForward(true);
@@ -290,7 +289,7 @@ export default function Row({ row, labelId }) {
         <TableCell align="left">{moment(row.dueDate).format("DD/MM/YYYY")}</TableCell>
         <TableCell align="left">{row.type.name}</TableCell>
         <TableCell align="left">{row.user ? userLogged?.user.id === row.user.id ? "(Eu)" : row.user_name : 'sem atribuição'}</TableCell>
-        <TableCell align="left" style={(userLogged?.user.role === "admin" || userLogged?.user.role === "mannager") ? {}: {display: "none"}}>
+        <TableCell align="left">
         <>
           <Button onClick={handleClickStatus} size="small" variant="outlined" style={{textTransform: 'lowercase', color: `${row.statusColor}`, borderColor: `${row.statusColor}`, width: "120px"}}>
               {row.status.name}
@@ -331,11 +330,24 @@ export default function Row({ row, labelId }) {
         >
             <Typography ml={2} pt={5} variant="h7">Mudar estado para:</Typography>
             <Divider />
-            {status?.data.map(statu =>  (
-              <MenuItem style={{ color: `${statu.color}`}} key={statu.id} onClick={() => hendleChange(statu.id)} disableRipple>
-                {statu.name}
-              </MenuItem>
-            ))}
+            {(userLogged?.user.role === "admin" || userLogged?.user.role === "mannager")  ? (
+              <>
+                {status?.data.map(statu =>  (
+                  <MenuItem style={{ color: `${statu.color}`}} key={statu.id} onClick={() => hendleChange(statu.id)} disableRipple>
+                    {statu.name}
+                  </MenuItem>
+                ))}
+              </>
+            ) : (
+              <>
+                 {status?.data.map(statu => statu.id !== 4 &&  (
+                  <MenuItem style={{ color: `${statu.color}`}} key={statu.id} onClick={() => hendleChange(statu.id)} disableRipple>
+                    {statu.name}
+                  </MenuItem>
+                ))}
+              </>
+            )}
+           
         </StyledMenu>
         </>
         </TableCell>

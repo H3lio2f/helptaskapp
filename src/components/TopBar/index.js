@@ -1,5 +1,6 @@
 import Link from "next/link";
 import dynamic from 'next/dynamic';
+import {destroyCookie } from "nookies";
 import { useState,  useMemo } from "react";
 import { useAuth } from "../../utils/contexts/auth";
 import { Container, BouncyDiv } from "./styles";
@@ -38,8 +39,9 @@ export default function TopBar() {
   const { logout } = useAuth();
 
   const hendlelogout =  () => {
-    logout();
-    router.reload();
+    //destroyCookie(null, "token");
+    //logout();
+    router.reload('/');
   }
 
   const handleToAssign = () => {
