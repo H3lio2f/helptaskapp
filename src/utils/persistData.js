@@ -42,6 +42,41 @@ export const addNewClient = async ({
   return client;
 };
 
+export const updateUser = async ({
+  id,
+  name,
+  email,
+  country,
+  phone,
+  photo,
+  role
+}) => {
+
+  const token = Cookies.get("token");
+
+  const role_name = role.value;
+
+  let data = new FormData();
+  data.append('name', name);
+  data.append('email', email);
+  data.append('country', country);
+  data.append('phone', phone);
+  data.append('role', role_name);
+
+  if(photo){
+    data.append("photo", photo);
+  }
+
+  const user = await api.post(`/users/${id}/update`, data,
+  {
+    headers: {
+      "Content-Type": "multipart/form-data",
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  return user;
+};
+
 export const addNewUser = async ({ 
   name, 
   email, 
@@ -114,6 +149,7 @@ export const updateClient = async ({
     });
   return client;
 };
+
 
 export const deleteClient = async (id) => {
   const token = Cookies.get("token");

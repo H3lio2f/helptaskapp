@@ -154,6 +154,7 @@ export default function Home({ tasks }) {
               <span>Minhas tarefas</span>
             </SectionTitle>
                 <div className="top-control">
+                {(userLogged?.user.role === "admin" || userLogged?.user.role === "mannager")  && (
                   <div className="task-visibity" style={allTasks.length === 0 && tasks.length === 0 ? { opacity: "0"} : { opacity: "1"}}>
                     <input
                       id="visibility"
@@ -163,6 +164,8 @@ export default function Home({ tasks }) {
                     />
                     <label htmlFor="visibility">Mostar tarefas inactivas</label>
                   </div>
+                  )}
+                  {(userLogged?.user.role === "admin" || userLogged?.user.role === "mannager")  && (
                   <div className="status" onClick={handleToAssign} style={allTasks.length === 0 && tasks.length === 0  ? { opacity: "0"} : { opacity: "1"}}>
                     <div
                       style={{ background: "#e74c3c" }}
@@ -170,6 +173,7 @@ export default function Home({ tasks }) {
                     ></div>
                     <label>Por Atribuir</label>
                   </div>
+                  )}
                   <div className="status" onClick={handleWaiting} style={allTasks.length === 0 && tasks.length === 0  ? { opacity: "0"} : { opacity: "1"}}>
                     <div
                       style={{

@@ -290,7 +290,7 @@ export default function Row({ row, labelId }) {
         <TableCell align="left">{moment(row.dueDate).format("DD/MM/YYYY")}</TableCell>
         <TableCell align="left">{row.type.name}</TableCell>
         <TableCell align="left">{row.user ? userLogged?.user.id === row.user.id ? "(Eu)" : row.user_name : 'sem atribuição'}</TableCell>
-        <TableCell align="left">
+        <TableCell align="left" style={(userLogged?.user.role === "admin" || userLogged?.user.role === "mannager") ? {}: {display: "none"}}>
         <>
           <Button onClick={handleClickStatus} size="small" variant="outlined" style={{textTransform: 'lowercase', color: `${row.statusColor}`, borderColor: `${row.statusColor}`, width: "120px"}}>
               {row.status.name}
@@ -371,18 +371,35 @@ export default function Row({ row, labelId }) {
           ]
         )}
         <>
+        {(userLogged?.user.role === "admin" || userLogged?.user.role === "mannager") ? (
+
             <Tooltip title="Opções">
-            <IconButton
-                onClick={handleClickOptions}
-                size="small"
-                sx={{ ml: 2 }}
-                aria-controls={open ? 'account-menu' : undefined}
-                aria-haspopup="true"
-                aria-expanded={open ? 'true' : undefined}
-            >
-                <SettingsIcon />
-            </IconButton>
+              <IconButton
+                  onClick={handleClickOptions}
+                  size="small"
+                  sx={{ ml: 2 }}
+                  aria-controls={open ? 'account-menu' : undefined}
+                  aria-haspopup="true"
+                  aria-expanded={open ? 'true' : undefined}
+              >
+                  <SettingsIcon />
+              </IconButton>
             </Tooltip>
+        ): (
+
+            <Link href={`/tasks/${row.id}`} underline="none" shallow style={(userLogged?.user.role === "admin" || userLogged?.user.role === "mannager")  ? {}: {display: "none"}}>
+              <a style={{ marginLeft: "30px"}}>
+                <Button
+                  size="small"
+                  variant="text"
+                >
+                    <VisibilityIcon style={{ marginRight: "5px"}} />
+                    Visualizar
+                </Button>
+              </a>
+            </Link>
+        )}
+
         <StyledMenu
             anchorEl={anchorEl}
             id="account-menu"
@@ -450,6 +467,7 @@ export default function Row({ row, labelId }) {
               ]
             }
         </StyledMenu>
+        
         </>
         </TableCell>
     </TableRow>

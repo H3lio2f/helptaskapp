@@ -9,7 +9,7 @@ import Swal from "sweetalert2";
 import * as yup from "yup";
 import { Container } from "../../styles/addCard";
 import { useGlobal } from "../../utils/contexts/global";
-import { addNewUser } from "../../utils/persistData";
+import { updateUser } from "../../utils/persistData";
 import { ButtonContainer } from "../Buttons/save";
 
 const customStyles = {
@@ -53,17 +53,16 @@ export default function FormUpdateUser() {
     initialValues: {
       name: userLogged?.user.name,
       email: userLogged?.user.email,
-      password: "",
       role: { label: `${userLogged?.user.role}`, value: `${userLogged?.user.role}`},
       country: userLogged?.user.country,
       phone: userLogged?.user.phone,
-      photo: userLogged?.user.photo
+      photo: null
     },
     validationSchema: yup.object().shape({
       name: yup.string().defined("Este campo é obrigatório"),
       email: yup.string().defined("Este campo é obrigatório"),
-      password: yup.string().defined("Este campo é obrigatório"),
-      country: yup.string().defined("Este campo é obrigatório")
+      country: yup.string().defined("Este campo é obrigatório"),
+      role: yup.object().defined("Este campo é obrigatório"),
     }),
     onSubmit: (
       {
@@ -77,10 +76,10 @@ export default function FormUpdateUser() {
       },
       { setSubmitting, resetForm, setErrors }
     ) => {
-      addNewUser({
+      updateUser({
+        id: userLogged?.user.id,
         name,
         email,
-        password,
         role,
         country,
         phone,
@@ -142,7 +141,7 @@ export default function FormUpdateUser() {
         <div className="form-control">
           <div className="label-control">
           <div className="label">
-            <label htmlFor="subject">Nome completo* ddd</label>
+            <label htmlFor="subject">Nome completo*</label>
             </div>
           </div>
           <input
@@ -179,8 +178,8 @@ export default function FormUpdateUser() {
           )}
        </div>
 
-       <div className="form-control">
-       <div className="label-control">
+       {/* <div className="form-control">
+          <div className="label-control">
           <div className="label">
             <label htmlFor="subject">Palavra-Passe*</label>
             </div>
@@ -199,7 +198,7 @@ export default function FormUpdateUser() {
           {formik.errors.password && formik.touched.password && (
             <p className="error">{formik.errors.password}</p>
           )}
-        </div>
+        </div> */}
         <div className="form-control-divided">
           <div className="form-control">
             <div className="label-control">
@@ -238,7 +237,7 @@ export default function FormUpdateUser() {
             )}
           </div>
         </div>
-        <div className="form-control">
+        <div className="form-control" style={{ display: "none"}}>
           <div className="label-control">
           <div className="label">
             <label htmlFor="subject">Nível de acesso*</label>
@@ -258,7 +257,7 @@ export default function FormUpdateUser() {
             onChange={async (option) => {
               if (option) {
                 const { value } = option;
-                formik.setFieldValue("role", value);
+                formik.setFieldValue("role", {label: option.label, value:option.value});
               } else {
                 formik.setFieldValue("role", "");
               }
@@ -297,10 +296,10 @@ export default function FormUpdateUser() {
             !!(formik.errors.name && formik.touched.name) ||
             !!(formik.errors.email && formik.touched.email) ||
             !!(formik.errors.country && formik.touched.country) ||
-            !!(formik.errors.password && formik.touched.password)
+            !!(formik.errors.role && formik.touched.role)
           }
         >
-          <span> {formik.isSubmitting ? "A guardar..." : "Guardar"} </span>
+          <span> {formik.isSubmitting ? "A guardar alterações..." : "Guardar"} </span>
           {formik.isSubmitting === true ? (
             <svg
               width="15"
