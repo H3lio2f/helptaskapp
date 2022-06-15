@@ -82,7 +82,7 @@ export default function FormUpdateGroup({group}) {
             className={formik.errors.name ? "client red-border" : "client "}
             id="name"
             type="text"
-            placeholder="Digite o nome do grupo de utilizador"
+            placeholder="Escreva o nome do grupo de utilizador"
             value={formik.values.name}
             onChange={formik.handleChange}
             onBlur={formik.handleBlur}
@@ -107,7 +107,7 @@ export default function FormUpdateGroup({group}) {
           name="description"
           type="text"
           rows="10"
-          placeholder="Digite alguma coisa..."
+          placeholder="Escreva alguma coisa..."
           value={formik.values.description}
           onChange={formik.handleChange}
           onBlur={formik.handleBlur}

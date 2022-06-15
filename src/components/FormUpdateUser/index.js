@@ -150,7 +150,7 @@ export default function FormUpdateUser() {
             id="name"
             name='name'
             type="text"
-            placeholder="Digite agluma coisa..."
+            placeholder="Escreva agluma coisa..."
             value={formik.values.name}
             onChange={formik.handleChange}
             onBlur={formik.handleBlur}
@@ -169,7 +169,7 @@ export default function FormUpdateUser() {
             className={formik.errors.email ? "subject red-border" : "subject "}
             id="email"
             type="email"
-            placeholder="Digite agluma coisa..."
+            placeholder="Escreva agluma coisa..."
             value={formik.values.email}
             onChange={formik.handleChange}
             onBlur={formik.handleBlur}
@@ -209,7 +209,7 @@ export default function FormUpdateUser() {
               className={formik.errors.country ? "client red-border" : "client "}
               id="country"
               type="text"
-              placeholder="Digite o país"
+              placeholder="Escreva o país"
               value={formik.values.country}
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}

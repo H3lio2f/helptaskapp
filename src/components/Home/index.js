@@ -60,6 +60,9 @@ export default function Home({ tasks }) {
 
   useEffect(() => {
     setSearchQuery("");
+  },[]);
+
+  useEffect(() => {
     fetchAllTasks().then(data => {
       setAllTasks(data.data);
     });
@@ -107,7 +110,7 @@ export default function Home({ tasks }) {
   };
 
   useEffect(() => {
-    handleToAssignLate();
+    //handleToAssignLate();
   }, [showAttribueted])
 
   const handleToAssignLate = () => {

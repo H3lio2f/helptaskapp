@@ -79,7 +79,7 @@ const ClientDetails = ({ client, otherInfo }) => {
                 <TextField
                   fullWidth
                   id="outlined-read-only-input"
-                  label="Nome do singleCliente"
+                  label="Nome do cliente"
                   value={singleClient.name}
                   InputProps={{
                     readOnly: true,

@@ -88,7 +88,7 @@ export default function FormNewStatus() {
             className={formik.errors.name ? "client red-border" : "client "}
             id="name"
             type="text"
-            placeholder="Digite o nome para o estado"
+            placeholder="Escreva o nome para o estado"
             value={formik.values.name}
             onChange={formik.handleChange}
             onBlur={formik.handleBlur}
@@ -133,7 +133,7 @@ export default function FormNewStatus() {
             name="description"
             type="text"
             rows="10"
-            placeholder="Digite alguma coisa..."
+            placeholder="Escreva alguma coisa..."
             value={formik.values.description}
             onChange={formik.handleChange}
             onBlur={formik.handleBlur}

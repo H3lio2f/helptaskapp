@@ -80,7 +80,7 @@ export default function FormNewType() {
             className={formik.errors.name ? "client red-border" : "client "}
             id="name"
             type="text"
-            placeholder="Digite o tipo de tarefa"
+            placeholder="Escreva o tipo de tarefa"
             value={formik.values.name}
             onChange={formik.handleChange}
             onBlur={formik.handleBlur}
@@ -105,7 +105,7 @@ export default function FormNewType() {
           name="description"
           type="text"
           rows="10"
-          placeholder="Digite alguma coisa..."
+          placeholder="Escreva alguma coisa..."
           value={formik.values.description}
           onChange={formik.handleChange}
           onBlur={formik.handleBlur}

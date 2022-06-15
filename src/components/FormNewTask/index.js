@@ -288,7 +288,7 @@ export default function FormNewTask({ client }) {
 
     <Portal isOpen={isOpenGroup} setIsOpen={setIsOpenGroup}>
       <label>
-        Adicionar novo group
+        Adicionar novo grupo
       </label>
       <FormNewGroup/>
     </Portal>
@@ -312,7 +312,7 @@ export default function FormNewTask({ client }) {
         <div className="label-control">
           <div className="label">
             <label htmlFor="channel">Cliente</label>
-            <div className="tooltip" datatooltip="indivíduo que solicita a tarefa">
+            <div className="tooltip" datatooltip="Indivíduo que solicita a tarefa">
               <ToolTipIcon />
             </div>
           </div>
@@ -385,7 +385,7 @@ export default function FormNewTask({ client }) {
           <div className="label-control">
           <div className="label">
             <label htmlFor="channel">Grupo</label>
-            <div className="tooltip" datatooltip="grupo de utilizador">
+            <div className="tooltip" datatooltip="Grupo de utilizador">
               <ToolTipIcon />
             </div>
             </div>
@@ -442,7 +442,7 @@ export default function FormNewTask({ client }) {
           <div className="label-control">
           <div className="label">
             <label htmlFor="channel">Área</label>
-            <div className="tooltip" datatooltip="área naqual pertence o grupo de utilizador">
+            <div className="tooltip" datatooltip="Área na qual pertence o grupo de utilizador">
               <ToolTipIcon />
             </div>
             </div>
@@ -474,7 +474,7 @@ export default function FormNewTask({ client }) {
         <div className="label-control">
         <div className="label">
           <label htmlFor="subject">Assunto</label>
-          <div className="tooltip" datatooltip="assunto da tarefa">
+          <div className="tooltip" datatooltip="Assunto da tarefa">
             <ToolTipIcon />
           </div>
           </div>
@@ -483,7 +483,7 @@ export default function FormNewTask({ client }) {
           className={formik.errors.name ? "subject red-border" : "subject "}
           id="name"
           type="text"
-          placeholder="Digite o assunto da tarefa..."
+          placeholder="Escreva o assunto da tarefa..."
           value={formik.values.name}
           onChange={formik.handleChange}
           onBlur={formik.handleBlur}
@@ -498,7 +498,7 @@ export default function FormNewTask({ client }) {
           <div className="label-control">
           <div className="label">
             <label htmlFor="channel">Canal de recepção</label>
-            <div className="tooltip" datatooltip="meio naqual o cliente solocita a tarefa">
+            <div className="tooltip" datatooltip="Meio na qual o cliente solocita a tarefa">
               <ToolTipIcon />
             </div>
             </div>
@@ -546,7 +546,7 @@ export default function FormNewTask({ client }) {
             <label htmlFor="task-type">Tipo de tarefa</label>
             <div
               className="tooltip"
-              datatooltip="tipo de tarefa: ex: incidente, informação"
+              datatooltip="Tipo de tarefa: ex: incidente, informação"
             >
               <ToolTipIcon />
             </div>
@@ -597,7 +597,7 @@ export default function FormNewTask({ client }) {
             <label htmlFor="client">Atribuir </label>
             <div
               className="tooltip"
-              datatooltip="indivíduo indicado para execução da tarefa"
+              datatooltip="Indivíduo indicado para execução da tarefa"
             >
               <ToolTipIcon />
             </div>
@@ -634,7 +634,7 @@ export default function FormNewTask({ client }) {
           <div className="label-control">
           <div className="label">
             <label htmlFor="channel">Estatdo da tarefa</label>
-            <div className="tooltip" datatooltip="estado da tarefa">
+            <div className="tooltip" datatooltip="Estado da tarefa">
               <ToolTipIcon />
             </div>
             </div>
@@ -672,7 +672,7 @@ export default function FormNewTask({ client }) {
           <div className="label-control">
           <div className="label">
             <label htmlFor="subject">Prazo</label>
-            <div className="tooltip" datatooltip="tempo estimado para conclusão da tarefa">
+            <div className="tooltip" datatooltip="Tempo estimado para conclusão da tarefa">
               <ToolTipIcon />
             </div>
             </div>
@@ -697,7 +697,7 @@ export default function FormNewTask({ client }) {
         <div className="label-control">
         <div className="label">
           <label htmlFor="description"></label>
-          <div className="tooltip" datatooltip="mais descrição sobre a tarefa">
+          <div className="tooltip" datatooltip="Mais descrição sobre a tarefa">
             <ToolTipIcon />
           </div>
           </div>

@@ -10,6 +10,7 @@ import Select from "react-select";
 import dynamic from 'next/dynamic';
 import Swal from "sweetalert2";
 import { useGlobal } from "../../utils/contexts/global";
+import ManageHistoryIcon from '@mui/icons-material/ManageHistory';
 import Portal from "../Portal/Portal";
 import {
   showTaskDetails,
@@ -200,7 +201,7 @@ const TaskDetails = ({ task, hideReplyBtn }) => {
           {!hideReplyBtn && (
             <> 
             <MenuItem disableRipple onClick={ () => setShowHistoricTask(true)}>
-              {/* <EditIcon /> */}
+            <ManageHistoryIcon style={{color: "var(--primary)"}} />
               Histórico da tarefa
           </MenuItem>         
           <MenuItem disableRipple onClick={ () => setShowUpdateTask(true)} style={(userLogged?.user.role === "admin" || userLogged?.user.role === "mannager") ? {}: {display: "none"}}>
@@ -263,16 +264,6 @@ const TaskDetails = ({ task, hideReplyBtn }) => {
                   readOnly: true,
                 }}
               />
-            {/* <span className="username">
-              {singleTask.user
-                ? singleTask.user_name
-                : singleTask.agent_id
-                ? singleTask.agent
-                : singleTask.group
-                ? singleTask.group
-                : "sem atribuição "}
-               {singleTask.user && ` (${moment(singleTask.updated_at).format("DD/MMMM/YYYY HH:MM")})`} 
-            </span> */}
         </div>
         <div className="row group">
             <TextField
@@ -375,6 +366,7 @@ const TaskDetails = ({ task, hideReplyBtn }) => {
               />
           </div>
        
+      </div>
         <div className="row description">
               <TextField
                 fullWidth
@@ -392,7 +384,6 @@ const TaskDetails = ({ task, hideReplyBtn }) => {
                 }}
               />
           </div>
-      </div>
       </Container>
     </>
   );

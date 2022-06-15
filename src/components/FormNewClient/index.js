@@ -122,7 +122,7 @@ export default function FormNewClient() {
             }
             id="reference"
             type="text"
-            placeholder="Digite o código de referência do cliente"
+            placeholder="Escreva o código de referência do cliente"
             value={formik.values.reference}
             onChange={formik.handleChange}
             onBlur={formik.handleBlur}
@@ -139,7 +139,7 @@ export default function FormNewClient() {
             className={formik.errors.name ? "client red-border" : "client "}
             id="name"
             type="text"
-            placeholder="Digite o nome do cliente"
+            placeholder="Escreva o nome do cliente"
             value={formik.values.name}
             onChange={formik.handleChange}
             onBlur={formik.handleBlur}
@@ -164,7 +164,7 @@ export default function FormNewClient() {
               }
               id="country"
               type="text"
-              placeholder="Digite o nome do cliente"
+              placeholder="Escreva o nome do cliente"
               value={formik.values.country}
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
@@ -181,7 +181,7 @@ export default function FormNewClient() {
               className={formik.errors.city ? "client red-border" : "client "}
               id="city"
               type="text"
-              placeholder="Digite o nome do cliente"
+              placeholder="Escreva o nome do cliente"
               value={formik.values.city}
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
@@ -200,7 +200,7 @@ export default function FormNewClient() {
             id="address"
             name="address"
             type="text"
-            placeholder="Digite a morada"
+            placeholder="Escreva a morada"
             value={formik.values.address}
             onChange={formik.handleChange}
             onBlur={formik.handleBlur}

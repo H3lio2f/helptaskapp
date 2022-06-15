@@ -329,7 +329,7 @@ export default function FormNewTask({ task }) {
           className={formik.errors.name ? "subject red-border" : "subject "}
           id="name"
           type="text"
-          placeholder="Digite o assunto da tarefa..."
+          placeholder="Escreva o assunto da tarefa..."
           value={formik.values.name}
           onChange={formik.handleChange}
           onBlur={formik.handleBlur}
