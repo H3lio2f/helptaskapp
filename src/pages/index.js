@@ -13,13 +13,12 @@ async function fetcher(url) {
 }
 
 export default function Home({ tasks}) {
-  const { data, error } = useSWR("/api/tasks", fetcher, { revalidateOnMount: true, initialData: tasks});
+  const { data, error } = useSWR("/api/tasks", fetcher);
   
   if(error) return <Error />;
 
   
-  /* const allTasks = useMemo( () =>data?.data.filter(task => task.status_control === "waiting"), [tasks]);
- */
+  //const allTasks = useMemo( () =>data?.data, [data]);
 
   return (
     <>

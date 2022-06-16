@@ -195,9 +195,9 @@ export default function Row({ row, labelId }) {
         .then(({ message }) => {
           //setActionDone(!actionDone);
           //setRefresh(!refresh);
-          enqueueSnackbar(message, {
+          /* enqueueSnackbar(message, {
             variant: "success",
-          });
+          }); */
         })
         .catch(({ response }) => {
           Swal.fire({
@@ -218,7 +218,7 @@ export default function Row({ row, labelId }) {
       forwardTask(localStorage.getItem("task_id"), user)
       .then(({ message }) => {
         setLoading(false);
-        setRefresh(!refresh);
+        //setRefresh(!refresh);
         setIsOpenForward(false);
         enqueueSnackbar(message, {
           variant: "success",
@@ -272,30 +272,30 @@ export default function Row({ row, labelId }) {
       </Portal>
     <TableRow
         tabIndex={-1}
-        key={late[0].name}
+        key={row?.name}
         style={{ cursor: "pointer"}}
     >
-        <TableCell style={late[0].remain_percent == 100 ? { width: "5px", background: "transparent", borderLeft: "4px solid var(--error)"} : {}} >
+        <TableCell style={row?.remain_percent == 100 ? { width: "5px", background: "transparent", borderLeft: "4px solid var(--error)"} : {}} >
         </TableCell>
         <TableCell
         component="th"
         id={labelId}
         scope="row"
         padding="none"
-        >{late[0].name}
+        >{row?.name}
         </TableCell>
         <TableCell align="left" style={{ color: "var(--primary)"}}>
-            <Link href={`clients/${late[0].client.id}`}>
-               {late[0].client.name}
+            <Link href={`clients/${row?.client.id}`}>
+               {row?.client.name}
             </Link>
         </TableCell>
-        <TableCell align="left">{moment(late[0].dueDate).format("DD/MM/YYYY")}</TableCell>
-        <TableCell align="left">{late[0].type.name}</TableCell>
-        <TableCell align="left">{late[0].user ? userLogged?.user.id === late[0].user.id ? "(Eu)" : late[0].user_name : 'sem atribuição'}</TableCell>
+        <TableCell align="left">{moment(row?.dueDate).format("DD/MM/YYYY")}</TableCell>
+        <TableCell align="left">{row?.type.name}</TableCell>
+        <TableCell align="left">{row?.user ? userLogged?.user.id === row?.user.id ? "(Eu)" : row?.user_name : 'sem atribuição'}</TableCell>
         <TableCell align="left">
         <>
-          <Button onClick={handleClickStatus} size="small" variant="outlined" style={{textTransform: 'lowercase', color: `${late[0].statusColor}`, borderColor: `${late[0].statusColor}`, width: "120px"}}>
-              { late[0].status.name}
+          <Button onClick={handleClickStatus} size="small" variant="outlined" style={{textTransform: 'lowercase', color: `${row?.statusColor}`, borderColor: `${row?.statusColor}`, width: "120px"}}>
+              { row?.status.name}
           </Button>
           <StyledMenu
             anchorEl={anchorElStatus}
@@ -356,14 +356,14 @@ export default function Row({ row, labelId }) {
         </TableCell>
 
         <TableCell align="right">
-        {late[0].active === 1 && (
+        {row?.active === 1 && (
           [
-          <Link href={`tasks/${late[0].id}`} passHref>
-            <Button onClick={() => router.push(`tasks/${late[0].id}`)} style={{textTransform: 'capitalize', width: "125px"}} variant="outlined" size="small">
-              {late[0].replies.length > 0 ? 
+          <Link href={`tasks/${row?.id}`} passHref>
+            <Button onClick={() => router.push(`tasks/${row?.id}`)} style={{textTransform: 'capitalize', width: "125px"}} variant="outlined" size="small">
+              {row?.replies.length > 0 ? 
                   [
                     <ReplyAllOutlinedIcon size="small"  />,
-                    <Typography ml={2} variant="h7">Ler({late[0].replies.length})</Typography>
+                    <Typography ml={2} variant="h7">Ler({row?.replies.length})</Typography>
                   ]
                 : 
                   [
@@ -378,7 +378,7 @@ export default function Row({ row, labelId }) {
               style={(userLogged?.user.role === "admin" || userLogged?.user.role === "mannager") ? {textTransform: 'none', marginLeft: "15px"} : {display: "none"}}
               size="small"
               variant="text"
-              onClick={() => handleOpenForward(late[0].id)}
+              onClick={() => handleOpenForward(row?.id)}
             >
             Atribuir
             </Button>
@@ -402,7 +402,7 @@ export default function Row({ row, labelId }) {
             </Tooltip>
         ): (
 
-            <Link href={`/tasks/${late[0].id}`} underline="none" shallow style={(userLogged?.user.role === "admin" || userLogged?.user.role === "mannager")  ? {}: {display: "none"}}>
+            <Link href={`/tasks/${row?.id}`} underline="none" shallow style={(userLogged?.user.role === "admin" || userLogged?.user.role === "mannager")  ? {}: {display: "none"}}>
               <a style={{ marginLeft: "30px"}}>
                 <Button
                   size="small"
@@ -449,9 +449,9 @@ export default function Row({ row, labelId }) {
             transformOrigin={{ horizontal: 'right', vertical: 'top' }}
             anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
         >
-            {late[0].active === 1 &&
+            {row?.active === 1 &&
               [
-              <Link href={`/tasks/${late[0].id}`} underline="none" shallow>
+              <Link href={`/tasks/${row?.id}`} underline="none" shallow>
                 <a>
                 <MenuItem disableRipple>
                     <VisibilityIcon />
@@ -461,21 +461,21 @@ export default function Row({ row, labelId }) {
               </Link>
               ]
             }
-            {late[0].active === 1 ? (
-              <MenuItem onClick={() => handleInactive(late[0].id)} disableRipple style={(userLogged?.user.role === "admin" || userLogged?.user.role === "mannager") ? {}: {display: "none"}}>
+            {row?.active === 1 ? (
+              <MenuItem onClick={() => handleInactive(row?.id)} disableRipple style={(userLogged?.user.role === "admin" || userLogged?.user.role === "mannager") ? {}: {display: "none"}}>
                 <BrowserNotSupportedIcon />
                   Tornar Inactivo
               </MenuItem>
             ) : (
-              <MenuItem onClick={() => handleActive(late[0].id)} disableRipple style={(userLogged?.user.role === "admin" || userLogged?.user.role === "mannager")  ? {}: {display: "none"}}>
+              <MenuItem onClick={() => handleActive(row?.id)} disableRipple style={(userLogged?.user.role === "admin" || userLogged?.user.role === "mannager")  ? {}: {display: "none"}}>
                 <BrowserNotSupportedIcon />
                 Tornar Activa
               </MenuItem>
             )}
-            {late[0].active === 1 &&
+            {row?.active === 1 &&
               [
               <Divider sx={{ my: 0.5 }} />,
-              <MenuItem onClick={() => handleOpenForward(late[0].id)} disableRipple style={(userLogged?.user.role === "admin" || userLogged?.user.role === "mannager") ? {}: {display: "none"}}>
+              <MenuItem onClick={() => handleOpenForward(row?.id)} disableRipple style={(userLogged?.user.role === "admin" || userLogged?.user.role === "mannager") ? {}: {display: "none"}}>
                 <CompareArrowsIcon />
                 Atribuir
               </MenuItem>

@@ -20,7 +20,7 @@ async function fetcher(url) {
 
 export default function Home({ tasks }) {
   const { data: userLogged } = useSWR("/api/userLogged", fetcher, { revalidateOnMount: true});
-  const { data: tasksAll } = useSWR("/api/tasks", fetcher, { revalidateOnStale: false});
+  const { data: tasksAll } = useSWR("/api/tasks", fetcher, { revalidateOnInterval: 1});
   const { refresh, showAttribueted } = useGlobal();
   const [allTasks, setAllTasks] = useState([]);
   const [checked, setChecked] = useState(false);
@@ -53,10 +53,11 @@ export default function Home({ tasks }) {
     fetchTasks();
   }, [searchQuery, toggleFilterBy])
 
-  /* 
   useEffect(() => {
     setAllTasks(tasksAll?.data);
   },[tasksAll]);
+
+  /* 
   useEffect(() => {
     fetchAllTasks().then(data => {
       setAllTasks(data.data);
