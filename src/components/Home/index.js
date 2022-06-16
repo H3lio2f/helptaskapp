@@ -52,7 +52,7 @@ export default function Home({ tasks }) {
     fetchTasks();
   }, [searchQuery, toggleFilterBy])
 
-  useEffect(() => {
+  /* useEffect(() => {
     fetchAllTasks().then(data => {
       setAllTasks(data.data);
     });
@@ -62,7 +62,7 @@ export default function Home({ tasks }) {
     fetchAllTasks().then(data => {
       setAllTasks(data.data);
     });
-  },[]);
+  },[]); */
 
   const handleKeyDown = async(e) => {
     if (e.keyCode === 13) {

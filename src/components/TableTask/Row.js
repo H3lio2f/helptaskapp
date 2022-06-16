@@ -1,6 +1,5 @@
 import BrowserNotSupportedIcon from '@mui/icons-material/BrowserNotSupported';
 import CompareArrowsIcon from '@mui/icons-material/CompareArrows';
-import EditIcon from '@mui/icons-material/Edit';
 import ReplyAllOutlinedIcon from '@mui/icons-material/ReplyAllOutlined';
 import SettingsIcon from '@mui/icons-material/Settings';
 import VisibilityIcon from '@mui/icons-material/Visibility';
@@ -12,6 +11,7 @@ import { useRouter } from 'next/router';
 import { useSnackbar } from "notistack";
 import Swal from "sweetalert2";
 import * as React from 'react';
+import {useMemo} from 'react';
 import Select from "react-select";
 import { useGlobal } from "../../utils/contexts/global";
 import useSWR from 'swr';
@@ -96,8 +96,9 @@ async function fetcher(url) {
 export default function Row({ row, labelId }) {
   const { data: users } = useSWR("/api/users", fetcher, { revalidateOnMount: true});
   const { data: status } = useSWR("/api/status", fetcher, { revalidateOnMount: true});
+  const { data: tasks } = useSWR(`/api/tasks`, fetcher, { revalidateOnMount: true, revalidateOnInterval: 1000});
   const { data: userLogged } = useSWR("/api/userLogged", fetcher, { revalidateOnInterval: 1000});
-  //const { data: task } = useSWR(`/api/tasks/${row.id}`, fetcher, { revalidateOnMount: true, revalidateOnInterval: 1000});
+ 
   const router = useRouter();
   const { enqueueSnackbar } = useSnackbar();
   const {
@@ -112,6 +113,9 @@ export default function Row({ row, labelId }) {
   const [optionsUsers, setOptionsUsers] = React.useState([]);
   const [user, setUser] = React.useState("");
   const [loading, setLoading] = React.useState(false);
+
+  const late = useMemo( () =>tasks?.data.filter(task => task.id === row.id), [tasks]);
+  console.log(late[0].name)
 
   /*Menu Option */
   const [anchorEl, setAnchorEl] = React.useState(null);
@@ -269,30 +273,30 @@ export default function Row({ row, labelId }) {
       </Portal>
     <TableRow
         tabIndex={-1}
-        key={row.name}
+        key={late[0].name}
         style={{ cursor: "pointer"}}
     >
-        <TableCell style={row.remain_percent == 100 ? { width: "5px", background: "transparent", borderLeft: "4px solid var(--error)"} : {}} >
+        <TableCell style={late[0].remain_percent == 100 ? { width: "5px", background: "transparent", borderLeft: "4px solid var(--error)"} : {}} >
         </TableCell>
         <TableCell
         component="th"
         id={labelId}
         scope="row"
         padding="none"
-        >{row.name}
+        >{late[0].name}
         </TableCell>
         <TableCell align="left" style={{ color: "var(--primary)"}}>
-            <Link href={`clients/${row.client.id}`}>
-               {row.client.name}
+            <Link href={`clients/${late[0].client.id}`}>
+               {late[0].client.name}
             </Link>
         </TableCell>
-        <TableCell align="left">{moment(row.dueDate).format("DD/MM/YYYY")}</TableCell>
-        <TableCell align="left">{row.type.name}</TableCell>
-        <TableCell align="left">{row.user ? userLogged?.user.id === row.user.id ? "(Eu)" : row.user_name : 'sem atribuição'}</TableCell>
+        <TableCell align="left">{moment(late[0].dueDate).format("DD/MM/YYYY")}</TableCell>
+        <TableCell align="left">{late[0].type.name}</TableCell>
+        <TableCell align="left">{late[0].user ? userLogged?.user.id === late[0].user.id ? "(Eu)" : late[0].user_name : 'sem atribuição'}</TableCell>
         <TableCell align="left">
         <>
-          <Button onClick={handleClickStatus} size="small" variant="outlined" style={{textTransform: 'lowercase', color: `${row.statusColor}`, borderColor: `${row.statusColor}`, width: "120px"}}>
-              {row.status.name}
+          <Button onClick={handleClickStatus} size="small" variant="outlined" style={{textTransform: 'lowercase', color: `${late[0].statusColor}`, borderColor: `${late[0].statusColor}`, width: "120px"}}>
+              {late[0].status.name}
           </Button>
           <StyledMenu
             anchorEl={anchorElStatus}
@@ -353,14 +357,14 @@ export default function Row({ row, labelId }) {
         </TableCell>
 
         <TableCell align="right">
-        {row.active === 1 && (
+        {late[0].active === 1 && (
           [
-          <Link href={`tasks/${row.id}`} passHref>
-            <Button onClick={() => router.push(`tasks/${row.id}`)} style={{textTransform: 'capitalize', width: "125px"}} variant="outlined" size="small">
-              {row.replies.length > 0 ? 
+          <Link href={`tasks/${late[0].id}`} passHref>
+            <Button onClick={() => router.push(`tasks/${late[0].id}`)} style={{textTransform: 'capitalize', width: "125px"}} variant="outlined" size="small">
+              {late[0].replies.length > 0 ? 
                   [
                     <ReplyAllOutlinedIcon size="small"  />,
-                    <Typography ml={2} variant="h7">Ler({row.replies.length})</Typography>
+                    <Typography ml={2} variant="h7">Ler({late[0].replies.length})</Typography>
                   ]
                 : 
                   [
@@ -375,7 +379,7 @@ export default function Row({ row, labelId }) {
               style={(userLogged?.user.role === "admin" || userLogged?.user.role === "mannager") ? {textTransform: 'none', marginLeft: "15px"} : {display: "none"}}
               size="small"
               variant="text"
-              onClick={() => handleOpenForward(row.id)}
+              onClick={() => handleOpenForward(late[0].id)}
             >
             Atribuir
             </Button>
@@ -399,7 +403,7 @@ export default function Row({ row, labelId }) {
             </Tooltip>
         ): (
 
-            <Link href={`/tasks/${row.id}`} underline="none" shallow style={(userLogged?.user.role === "admin" || userLogged?.user.role === "mannager")  ? {}: {display: "none"}}>
+            <Link href={`/tasks/${late[0].id}`} underline="none" shallow style={(userLogged?.user.role === "admin" || userLogged?.user.role === "mannager")  ? {}: {display: "none"}}>
               <a style={{ marginLeft: "30px"}}>
                 <Button
                   size="small"
@@ -446,9 +450,9 @@ export default function Row({ row, labelId }) {
             transformOrigin={{ horizontal: 'right', vertical: 'top' }}
             anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
         >
-            {row.active === 1 &&
+            {late[0].active === 1 &&
               [
-              <Link href={`/tasks/${row.id}`} underline="none" shallow>
+              <Link href={`/tasks/${late[0].id}`} underline="none" shallow>
                 <a>
                 <MenuItem disableRipple>
                     <VisibilityIcon />
@@ -458,21 +462,21 @@ export default function Row({ row, labelId }) {
               </Link>
               ]
             }
-            {row.active === 1 ? (
-              <MenuItem onClick={() => handleInactive(row.id)} disableRipple style={(userLogged?.user.role === "admin" || userLogged?.user.role === "mannager") ? {}: {display: "none"}}>
+            {late[0].active === 1 ? (
+              <MenuItem onClick={() => handleInactive(late[0].id)} disableRipple style={(userLogged?.user.role === "admin" || userLogged?.user.role === "mannager") ? {}: {display: "none"}}>
                 <BrowserNotSupportedIcon />
                   Tornar Inactivo
               </MenuItem>
             ) : (
-              <MenuItem onClick={() => handleActive(row.id)} disableRipple style={(userLogged?.user.role === "admin" || userLogged?.user.role === "mannager")  ? {}: {display: "none"}}>
+              <MenuItem onClick={() => handleActive(late[0].id)} disableRipple style={(userLogged?.user.role === "admin" || userLogged?.user.role === "mannager")  ? {}: {display: "none"}}>
                 <BrowserNotSupportedIcon />
                 Tornar Activa
               </MenuItem>
             )}
-            {row.active === 1 &&
+            {late[0].active === 1 &&
               [
               <Divider sx={{ my: 0.5 }} />,
-              <MenuItem onClick={() => handleOpenForward(row.id)} disableRipple style={(userLogged?.user.role === "admin" || userLogged?.user.role === "mannager") ? {}: {display: "none"}}>
+              <MenuItem onClick={() => handleOpenForward(late[0].id)} disableRipple style={(userLogged?.user.role === "admin" || userLogged?.user.role === "mannager") ? {}: {display: "none"}}>
                 <CompareArrowsIcon />
                 Atribuir
               </MenuItem>
