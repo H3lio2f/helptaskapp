@@ -1,6 +1,7 @@
 import Head from "next/head";
 import dynamic from 'next/dynamic';
 import useSWR from 'swr';
+import { useMemo} from 'react';
 
 const HomeComponent = dynamic(() => import("../components/Home"));
 const Loader = dynamic(() => import("../components/LoadingSpinner"));
@@ -16,7 +17,9 @@ export default function Home({ tasks}) {
   
   if(error) return <Error />;
 
-  console.log(tasks);
+  
+  /* const allTasks = useMemo( () =>data?.data.filter(task => task.status_control === "waiting"), [tasks]);
+ */
 
   return (
     <>

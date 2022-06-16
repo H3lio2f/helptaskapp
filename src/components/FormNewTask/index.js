@@ -188,7 +188,7 @@ export default function FormNewTask({ client }) {
       name: "",
       description: "",
       user_id: "",
-      client_id: router.pathname === "/clients/[id]" ? { label: `${client.name}`, value: `${client.id}`}: "",
+      client_id: router.pathname === "/clients/[id]" ? { label: `${client.name}`, value: `${client.id}`}: { label: "", value: ""},
       type_id: "",
       group_id: "",
       area_id: "",
@@ -201,7 +201,7 @@ export default function FormNewTask({ client }) {
     validationSchema: yup.object().shape({
       name: yup.string().defined("Este campo é obrigatório"),
       description: yup.string().defined("Este campo é obrigatório"),
-      client_id: yup.string().defined("Este campo é obrigatório"),
+      client_id: yup.object().defined("Este campo é obrigatório"),
       type_id: yup.string().defined("Este campo é obrigatório"),
       dueDate: yup.string().defined("Este campo é obrigatório"),
       channel_id: yup.string().defined("Este campo é obrigatório")
@@ -347,9 +347,9 @@ export default function FormNewTask({ client }) {
           noOptionsMessage={() => 'Sem clientes!'}
           onChange={(option) => {
             if (option) {
-              formik.setFieldValue("client_id", option.value);
+              formik.setFieldValue("client_id", {label: option.label, value:option.value});
             } else {
-              formik.setFieldValue("client_id", "");
+              formik.setFieldValue("client_id", {label: "", value:""});
             }
           }}
         />
@@ -367,9 +367,9 @@ export default function FormNewTask({ client }) {
           noOptionsMessage={() => 'Sem clientes!'}
           onChange={(option) => {
             if (option) {
-              formik.setFieldValue("client_id", option.value);
+              formik.setFieldValue("client_id", {label: option.label, value:option.value});
             } else {
-              formik.setFieldValue("client_id", "");
+              formik.setFieldValue("client_id", {label: "", value:""});
             }
           }}
         />
@@ -633,7 +633,7 @@ export default function FormNewTask({ client }) {
       <div className="form-control">
           <div className="label-control">
           <div className="label">
-            <label htmlFor="channel">Estatdo da tarefa</label>
+            <label htmlFor="channel">Estado da tarefa</label>
             <div className="tooltip" datatooltip="Estado da tarefa">
               <ToolTipIcon />
             </div>

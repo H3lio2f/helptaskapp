@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { Container } from "../../styles/pages/home";
 import { useGlobal } from "../../utils/contexts/global";
 import { fetchAllTasks } from "../../utils/fetchData";
@@ -20,6 +20,7 @@ async function fetcher(url) {
 
 export default function Home({ tasks }) {
   const { data: userLogged } = useSWR("/api/userLogged", fetcher, { revalidateOnMount: true});
+  const { data: tasksAll } = useSWR("/api/tasks", fetcher, { revalidateOnStale: false});
   const { refresh, showAttribueted } = useGlobal();
   const [allTasks, setAllTasks] = useState([]);
   const [checked, setChecked] = useState(false);
@@ -52,12 +53,10 @@ export default function Home({ tasks }) {
     fetchTasks();
   }, [searchQuery, toggleFilterBy])
 
-  /* useEffect(() => {
-    fetchAllTasks().then(data => {
-      setAllTasks(data.data);
-    });
-  },[refresh]);
-
+  /* 
+  useEffect(() => {
+    setAllTasks(tasksAll?.data);
+  },[tasksAll]);
   useEffect(() => {
     fetchAllTasks().then(data => {
       setAllTasks(data.data);

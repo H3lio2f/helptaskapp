@@ -244,7 +244,7 @@ export default function FormNewTask({ task }) {
             if (option) {
               formik.setFieldValue("client_id", {label: option.label, value:option.value});
             } else {
-              formik.setFieldValue("client_id", "");
+              formik.setFieldValue("client_id", {label: "", value:""});
             }
           }}
         />
@@ -435,7 +435,7 @@ export default function FormNewTask({ task }) {
       <div className="form-control">
           <div className="label-control">
           <div className="label">
-            <label htmlFor="channel">Estatdo da tarefa</label>
+            <label htmlFor="channel">Estado da tarefa</label>
             </div>
           </div>
           <Select

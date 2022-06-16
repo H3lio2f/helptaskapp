@@ -243,11 +243,13 @@ export const addNewTask = async ({
 
   const token = Cookies.get("token");
 
+  const client = client_id.value;
+
   let data = new FormData();
   data.append('name', name);
   data.append('description', description);
   data.append('user_id', user_id);
-  data.append('client_id', client_id);
+  data.append('client_id', client);
   data.append('type_id', type_id);
   data.append('group_id', group_id);
   data.append('area_id', area_id);
