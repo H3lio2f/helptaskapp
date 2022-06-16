@@ -40,7 +40,7 @@ export default function TopBar() {
 
   const hendlelogout =  () => {
     //destroyCookie(null, "token");
-    //logout();
+    logout();
     router.reload('/');
   }
 

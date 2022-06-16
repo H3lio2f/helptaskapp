@@ -97,6 +97,7 @@ export default function Row({ row, labelId }) {
   const { data: users } = useSWR("/api/users", fetcher, { revalidateOnMount: true});
   const { data: status } = useSWR("/api/status", fetcher, { revalidateOnMount: true});
   const { data: userLogged } = useSWR("/api/userLogged", fetcher, { revalidateOnInterval: 1000});
+  //const { data: task } = useSWR(`/api/tasks/${row.id}`, fetcher, { revalidateOnMount: true, revalidateOnInterval: 1000});
   const router = useRouter();
   const { enqueueSnackbar } = useSnackbar();
   const {
@@ -278,8 +279,7 @@ export default function Row({ row, labelId }) {
         id={labelId}
         scope="row"
         padding="none"
-        >
-        {row.name}
+        >{row.name}
         </TableCell>
         <TableCell align="left" style={{ color: "var(--primary)"}}>
             <Link href={`clients/${row.client.id}`}>
