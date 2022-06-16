@@ -115,8 +115,7 @@ export default function Row({ row, labelId }) {
   const [loading, setLoading] = React.useState(false);
 
   const late = useMemo( () =>tasks?.data.filter(task => task.id === row.id), [tasks]);
-  console.log(late[0].name)
-
+ 
   /*Menu Option */
   const [anchorEl, setAnchorEl] = React.useState(null);
   const open = Boolean(anchorEl);
@@ -194,8 +193,8 @@ export default function Row({ row, labelId }) {
     const hendleChange = (id) => {
       changeTaskStatus(row.id, id)
         .then(({ message }) => {
-          setActionDone(!actionDone);
-          setRefresh(!refresh);
+          //setActionDone(!actionDone);
+          //setRefresh(!refresh);
           enqueueSnackbar(message, {
             variant: "success",
           });
@@ -296,7 +295,7 @@ export default function Row({ row, labelId }) {
         <TableCell align="left">
         <>
           <Button onClick={handleClickStatus} size="small" variant="outlined" style={{textTransform: 'lowercase', color: `${late[0].statusColor}`, borderColor: `${late[0].statusColor}`, width: "120px"}}>
-              {late[0].status.name}
+              { late[0].status.name}
           </Button>
           <StyledMenu
             anchorEl={anchorElStatus}

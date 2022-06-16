@@ -11,10 +11,12 @@ async function fetcher(url) {
     return res.json();
 }
 
-export default function Home() {
-  const { data, error } = useSWR("/api/tasks", fetcher, { revalidateOnMount: true});
+export default function Home({ tasks}) {
+  const { data, error } = useSWR("/api/tasks", fetcher, { revalidateOnMount: true, initialData: tasks});
   
   if(error) return <Error />;
+
+  console.log(tasks);
 
   return (
     <>
@@ -30,4 +32,12 @@ export default function Home() {
       )} 
     </>
   );
+}
+
+export async function getStaticProps(context) {
+  return {
+    props: {
+      tasks: []
+    }, // will be passed to the page component as props
+  }
 }
