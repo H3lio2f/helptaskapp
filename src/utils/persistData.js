@@ -1,6 +1,27 @@
 import Cookies from "js-cookie";
 import api from "../services/api";
 
+export const addNewMessage = async ({
+  message,
+  username
+}) => {
+  const token = Cookies.get("token");
+  
+  const newMessage = await api.post(
+    "/messages",
+    {
+      message,
+      username
+    },
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
+  return newMessage;
+};
+
 export const addNewClient = async ({
   reference,
   name,
