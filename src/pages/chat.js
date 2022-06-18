@@ -1,32 +1,38 @@
 import { useState, useEffect } from 'react';
 import Head from "next/head";
 import Pusher from 'pusher-js';
-import {
-    addNewMessage
-  } from "../utils/persistData";
+import Echo from 'laravel-echo';
+import { addNewMessage } from "../utils/persistData";
+
+const pusherConfig = {
+  cluster: 'mt1',
+  wsHost: '127.0.0.1',
+  wsPort: '6001',
+  encrypted:false,
+  enabledTransports: ['ws'],
+  forceTLS: false
+};
+
 
 export default function Chat() {
  const [username, setUsername] = useState("");
  const [message, setMessage] = useState("");
  const [messages, setMessages] = useState([]);
+ const [tasks, setTasks] = useState([]);
     
  useEffect(() => {
-    Pusher.logToConsole = true;
 
-    const pusher = new Pusher('ABCDEFG', {
-        cluster: 'mt1',
-        wsHost: '127.0.0.1',
-        wsPort: '6001',
-        encrypted:false,
-        enabledTransports: ['ws'],
-        forceTLS: false
-    });
-    
+    Pusher.logToConsole = true
+
+    const pusher = new Pusher('ABCDEFG', pusherConfig);
+
     const channel = pusher.subscribe('chat');
     channel.bind('message', data => {
+        //setTasks(data.tasks.data);
         setMessages([...messages, data]);
     });
- }, [message]);
+
+ }, []);
 
  const handleSubmit = async (e) => {
     e.preventDefault();
@@ -63,6 +69,14 @@ export default function Chat() {
             <form onSubmit={handleSubmit}>
                 <input type="submit" value="Enviar" />
             </form>
+
+            <br />
+
+            {/* <ul> List Tasks
+                {tasks.map(task => (
+                  <li key={task.id}>{task.name}</li>
+                ))}
+            </ul> */}
         </div>
     </>
   );
