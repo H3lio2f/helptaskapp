@@ -32,7 +32,7 @@ const customStyles = {
 
 export default function FormNewUser() {
   const { enqueueSnackbar } = useSnackbar();
-  const { actionDone, setActionDone, setIsOpenUser } = useGlobal();
+  const { refresh, setRefresh, setIsOpenUser } = useGlobal();
   const [passwordVisibility, setPasswordVisibility] = useState(false);
   const [preview, setPreview] = useState();
 
@@ -82,7 +82,7 @@ export default function FormNewUser() {
       })
         .then(({ data }) => {
           setSubmitting(false);
-          setActionDone(!actionDone);
+          setRefresh(!refresh);
           setIsOpenUser(false);
           enqueueSnackbar(data.message, {
             variant: "success",

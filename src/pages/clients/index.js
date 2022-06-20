@@ -1,7 +1,19 @@
-import React from 'react';
+import React, { useState, useEffect} from 'react';
 import Head from "next/head";
 import dynamic from 'next/dynamic'
 import useSWR from 'swr';
+import { useGlobal } from "../../utils/contexts/global";
+import { fetchAllClients } from "../../utils/fetchData";
+import Pusher from 'pusher-js';
+
+const pusherConfig = {
+  cluster: 'mt1',
+  wsHost: '127.0.0.1',
+  wsPort: '6001',
+  encrypted:false,
+  enabledTransports: ['ws'],
+  forceTLS: false
+};
 
 const ClientComponent = dynamic(() => import("../../components/ClientComponent"));
 const Loader = dynamic(() => import("../../components/LoadingSpinner"));
@@ -12,10 +24,36 @@ async function fetcher(url) {
   return res.json();
 }
 
-export default function Clients({ clients }) {
-  const { data, error } = useSWR("/api/clients", fetcher, { revalidateOnMount: true, initialData: clients});
+export default function Clients() {
+  const { refresh } = useGlobal();
+  const [clients, setClients] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  if(error) return <Error />;
+  const handleWebsocket = () => {
+    Pusher.logToConsole = true
+    const pusher = new Pusher('ABCDEFG', pusherConfig);
+
+    const channel = pusher.subscribe('clients');
+    channel.bind('all-clients', data => {
+      setClients(data.clients);
+      setLoading(false);
+    });
+  }
+
+  useEffect(() => {
+    handleWebsocket();
+  }, []);
+
+  useEffect(() => {
+    handleTypes();
+  }, [refresh]);
+
+  const handleTypes = () => {
+    fetchAllClients().then(data => {
+    setClients(data.data);
+    setLoading(false);
+    });
+  }
 
   return (
     <>
@@ -24,19 +62,9 @@ export default function Clients({ clients }) {
         <meta name="description" content="Helptask - Nossos clientes" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      {!data ? (
-        <Loader />
-      ):(
-      <ClientComponent clients={data.data} />
-      )}
+      <ClientComponent clients={clients} />
+      
     </>
   );
 }
 
-export async function getStaticProps(context) {
-  return {
-    props: {
-      clients: []
-    }, // will be passed to the page component as props
-  }
-}

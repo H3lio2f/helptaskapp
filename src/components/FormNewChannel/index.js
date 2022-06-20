@@ -8,10 +8,20 @@ import { Container } from "../../styles/addCard";
 import { useGlobal } from "../../utils/contexts/global";
 import { ButtonContainer } from "../Buttons/save";
 import { addNewChannel } from "../../utils/persistData";
+import Pusher from 'pusher-js';
+
+const pusherConfig = {
+  cluster: 'mt1',
+  wsHost: '127.0.0.1',
+  wsPort: '6001',
+  encrypted:false,
+  enabledTransports: ['ws'],
+  forceTLS: false
+};
 
 export default function FormNewChannel() {
   const { enqueueSnackbar } = useSnackbar();
-  const { actionDone, setActionDone, setIsOpenChannel, setRefresh, refresh } = useGlobal();
+  const { actionDone, setActionDone, setIsOpenChannel, setRefresh, refresh, channels, setChannels } = useGlobal();
 
   const formik = useFormik({
     initialValues: {
@@ -34,10 +44,16 @@ export default function FormNewChannel() {
         description
       })
         .then(({ data }) => {
+         /*  Pusher.logToConsole = true;
+          const pusher = new Pusher('ABCDEFG', pusherConfig);
+          const channel = pusher.subscribe('channels');
+          channel.bind('new-channel', (singleChannel) => {
+            setChannels([...channels, singleChannel.channel]);
+          });
+          console.log("CHANNEL: ", channels); */
           setSubmitting(false);
           setIsOpenChannel(false);
           setRefresh(!refresh);
-          setActionDone(!actionDone);
           enqueueSnackbar(data.message, {
             variant: "success",
           });

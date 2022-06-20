@@ -37,7 +37,6 @@ export default function FormNewGroup() {
           setSubmitting(false);
           setIsOpenGroup(false);
           setRefresh(!refresh);
-          setActionDone(!actionDone);
           enqueueSnackbar(data.message, {
             variant: "success",
           });

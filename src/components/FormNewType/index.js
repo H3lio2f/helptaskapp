@@ -11,7 +11,7 @@ import { addNewType } from "../../utils/persistData";
 
 export default function FormNewType() {
   const { enqueueSnackbar } = useSnackbar();
-  const { actionDone, setActionDone, setIsOpenType, setRefresh, refresh } = useGlobal();
+  const { setIsOpenType, setRefresh, refresh } = useGlobal();
 
   const formik = useFormik({
     initialValues: {
@@ -37,7 +37,6 @@ export default function FormNewType() {
           setSubmitting(false);
           setIsOpenType(false);
           setRefresh(!refresh);
-          setActionDone(!actionDone);
           enqueueSnackbar(data.message, {
             variant: "success",
           });

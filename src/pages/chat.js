@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import Head from "next/head";
 import Pusher from 'pusher-js';
-import Echo from 'laravel-echo';
 import { addNewMessage } from "../utils/persistData";
 
 const pusherConfig = {
@@ -27,8 +26,7 @@ export default function Chat() {
     const pusher = new Pusher('ABCDEFG', pusherConfig);
 
     const channel = pusher.subscribe('chat');
-    channel.bind('message', data => {
-        //setTasks(data.tasks.data);
+    channel.bind('new-message', data => {
         setMessages([...messages, data]);
     });
 
@@ -71,12 +69,6 @@ export default function Chat() {
             </form>
 
             <br />
-
-            {/* <ul> List Tasks
-                {tasks.map(task => (
-                  <li key={task.id}>{task.name}</li>
-                ))}
-            </ul> */}
         </div>
     </>
   );

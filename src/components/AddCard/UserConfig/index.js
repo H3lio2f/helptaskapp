@@ -7,6 +7,16 @@ import { fetchAllUsers } from "../../../utils/fetchData";
 import CardBase from "../CardBase";
 import Item from "./Item";
 import { Container } from "./styles";
+import Pusher from 'pusher-js';
+
+const pusherConfig = {
+  cluster: 'mt1',
+  wsHost: '127.0.0.1',
+  wsPort: '6001',
+  encrypted:false,
+  enabledTransports: ['ws'],
+  forceTLS: false
+};
 
 const FormNewUser = dynamic(() => import("../../FormNewUser"));
 const Portal = dynamic(() => import("../../Portal/Portal"));
@@ -15,7 +25,7 @@ export default function UserConfig() {
   const {
     showUserConfig,
     setShowUserConfig,
-    actionDone,
+    refresh,
     isOpenUser,
     setIsOpenUser,
   } = useGlobal();
@@ -26,19 +36,32 @@ export default function UserConfig() {
     setIsOpenUser(true);
   };
 
-  useEffect(() => {
-    fetchAllUsers().then((data) => {
-      setUsers(data.data);
+  const handleWebsocket = () => {
+    Pusher.logToConsole = true
+    const pusher = new Pusher('ABCDEFG', pusherConfig);
+
+    const channel = pusher.subscribe('users');
+    channel.bind('all-users', data => {
+      console.log(data.users);
+      setUsers(data.users);
       setLoading(false);
     });
-  }, [actionDone]);
+  }
 
   useEffect(() => {
-    fetchAllUsers().then((data) => {
-      setUsers(data.data);
-      setLoading(false);
-    });
+    handleWebsocket();
   }, []);
+
+  useEffect(() => {
+    handleUsers();
+  }, [refresh]);
+
+  const handleUsers = () => {
+    fetchAllUsers().then(data => {
+    setUsers(data.data);
+    setLoading(false);
+    });
+  }
 
   return (
     <CardBase isShown={showUserConfig} setIsShown={setShowUserConfig}>

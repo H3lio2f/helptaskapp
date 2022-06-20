@@ -8,11 +8,19 @@ import Portal from '../../Portal/Portal';
 import CardBase from "../CardBase";
 import Item from './Item';
 import { Container } from "./styles";
+import Pusher from 'pusher-js';
 
-
+const pusherConfig = {
+  cluster: 'mt1',
+  wsHost: '127.0.0.1',
+  wsPort: '6001',
+  encrypted:false,
+  enabledTransports: ['ws'],
+  forceTLS: false
+};
 
 export default function ChannelConfig() {
-  const { showChannelConfig, setShowChannelConfig, actionDone,isOpenChannel, setIsOpenChannel } = useGlobal();
+  const { showChannelConfig, setShowChannelConfig, refresh, actionDone, isOpenChannel, setIsOpenChannel } = useGlobal();
   const [channels, setChannels] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -21,28 +29,41 @@ export default function ChannelConfig() {
     setIsOpenChannel(true);
   }
 
-  useEffect(() => {
-    fetchAllChannels().then(data => {
-      setChannels(data.data);
+  const handleWebsocket = () => {
+    Pusher.logToConsole = true
+    const pusher = new Pusher('ABCDEFG', pusherConfig);
+
+    const channel = pusher.subscribe('channels');
+    channel.bind('all-channels', data => {
+      setChannels(data.channels);
       setLoading(false);
-    })
-  }, [actionDone]);
+    });
+  }
 
   useEffect(() => {
+      handleWebsocket();
+  }, []);
+
+  useEffect(() => {
+      handleChannels();
+  }, [refresh]);
+
+  const handleChannels = () => {
     fetchAllChannels().then(data => {
       setChannels(data.data);
       setLoading(false);
-    })
-  }, []);
+    });
+  }
+
 
   return (
     <CardBase isShown={showChannelConfig} setIsShown={setShowChannelConfig}>
-    <Portal isOpen={isOpenChannel} setIsOpen={setIsOpenChannel}>
-      <label>
-        Adicionar novo canal de recepção
-      </label>
-      <FormNewChannel />
-    </Portal>
+      <Portal isOpen={isOpenChannel} setIsOpen={setIsOpenChannel}>
+        <label>
+          Adicionar novo canal de recepção
+        </label>
+        <FormNewChannel />
+      </Portal>
       <Container>
         <div className="config-task-top">
           <div className="label">
@@ -100,7 +121,7 @@ export default function ChannelConfig() {
                 </Box>
               )}
             <div className="config-list">
-              {channels.map((channel) => (
+              {channels?.map((channel) => (
                 <Item key={channel.id} channel={channel} />
               ))}
             </div>

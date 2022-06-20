@@ -38,7 +38,7 @@ async function fetcher(url) {
 export default function FormUpdateUser() {
   const { data: userLogged } = useSWR("/api/userLogged", fetcher, { revalidateOnMount: true, refreshInterval: 1000});
   const { enqueueSnackbar } = useSnackbar();
-  const { actionDone, setActionDone, setIsOpenUpdateUser } = useGlobal();
+  const { refresh, setRefresh, setIsOpenUpdateUser } = useGlobal();
   const [passwordVisibility, setPasswordVisibility] = useState(false);
   const [preview, setPreview] = useState();
 
@@ -87,8 +87,8 @@ export default function FormUpdateUser() {
       })
         .then(({ data }) => {
           setSubmitting(false);
-          setActionDone(!actionDone);
           setIsOpenUpdateUser(false);
+          setRefresh(!refresh);
           enqueueSnackbar(data.message, {
             variant: "success",
           });

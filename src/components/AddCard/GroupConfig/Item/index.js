@@ -11,14 +11,14 @@ import { Container } from "./styles";
 export default function Item({ group }) {
   const { enqueueSnackbar } = useSnackbar();
   const [isOpenGroup, setIsOpenGroup] = useState(false);
-  const { actionDone, setActionDone } = useGlobal();
+  const { refresh, setRefresh } = useGlobal();
   const handleOpen = () => {
     setIsOpenGroup(true);}
 
   const handleDelete = (id) => {
-    deleteGroup(id, 3)
+    deleteGroup(id)
       .then(({ message }) => {
-        setActionDone(!actionDone);
+        setRefresh(!refresh);
         enqueueSnackbar(message, {
           variant: "success",
         });

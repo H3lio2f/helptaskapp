@@ -13,13 +13,13 @@ import { useGlobal } from "../../../../utils/contexts/global";
 export default function Item({ channel }) {
   const { enqueueSnackbar } = useSnackbar();
   const [isOpenChannel, setIsOpenChannel] = useState(false);
-  const { actionDone, setActionDone } = useGlobal();
+  const { refresh, setRefresh } = useGlobal();
   const handleOpen = () => {
     setIsOpenChannel(true); }
 
   const handleDelete = (id) => {
     deleteChannel(id)
-      .then(({ message }) => {setActionDone(!actionDone);
+      .then(({ message }) => {setRefresh(!refresh);
         enqueueSnackbar(message, {
           variant: "success",
         });

@@ -35,6 +35,7 @@ export const GlobalProvider = ({ children }) => {
   const [showAttribueted, setShowAttribueted] = useState(false);
   const [user, setUser] = useState({});
   const [users, setUsers] = useState([]);
+  const [channels, setChannels] = useState([]);
   const [tasks, setTasks] = useState([]);
   const [clients, setClients] = useState([]);
   const [status, setStatus] = useState([]);
@@ -100,6 +101,7 @@ export const GlobalProvider = ({ children }) => {
         groups, setGroups,
         types, setTypes,
         clients, setClients,
+        channels, setChannels,
         showUpdateTask, setShowUpdateTask,
         showUpdateClient, setShowUpdateClient,
         showHistoricTask, setShowHistoricTask,

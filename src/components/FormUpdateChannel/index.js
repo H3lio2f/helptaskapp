@@ -11,7 +11,7 @@ import { updateChannel } from "../../utils/persistData";
 
 export default function FormUpdateChannel({ channel }) {
   const { enqueueSnackbar } = useSnackbar();
-  const { actionDone, setActionDone, setIsOpenChannel, setRefresh, refresh } = useGlobal();
+  const { setIsOpenChannel, setRefresh, refresh } = useGlobal();
 
   const formik = useFormik({
     enableReinitialize: true,
@@ -39,7 +39,6 @@ export default function FormUpdateChannel({ channel }) {
           setSubmitting(false);
           setIsOpenChannel(false);
           setRefresh(!refresh);
-          setActionDone(!actionDone);
           enqueueSnackbar(data.message, {
             variant: "success",
           });

@@ -3,6 +3,7 @@ import { useSnackbar } from "notistack";
 import Swal from "sweetalert2";
 import { Container } from "./styles";
 import Portal from '../../../Portal/Portal';
+import { useGlobal } from "../../../../utils/contexts/global";
 import FormUpdateType from '../../../FormUpdateType';
 import {useState} from 'react';
 import { deleteType } from "../../../../utils/persistData";
@@ -10,13 +11,15 @@ import { deleteType } from "../../../../utils/persistData";
 export default function Item({ type }) {
   const { enqueueSnackbar } = useSnackbar();
   const [isOpenChannel, setIsOpenChannel] = useState(false);
+    const { refresh, setRefresh } = useGlobal();
   const handleOpen = () => {
     setIsOpenChannel(true);
   }
 
   const handleDelete = (id) => {
     deleteType(id)
-      .then(({ message }) => {setActionDone(!actionDone);
+      .then(({ message }) => {
+        setRefresh(!refresh);
         enqueueSnackbar(message, {
           variant: "success",
         });

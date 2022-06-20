@@ -8,36 +8,51 @@ import Portal from '../../Portal/Portal';
 import CardBase from "../CardBase";
 import Item from './Item';
 import { Container } from "./styles";
-import useSWR from 'swr';
+import Pusher from 'pusher-js';
 
-async function fetcher(url) {
-  const res = await fetch(url);
-  return res.json();
-}
+const pusherConfig = {
+  cluster: 'mt1',
+  wsHost: '127.0.0.1',
+  wsPort: '6001',
+  encrypted:false,
+  enabledTransports: ['ws'],
+  forceTLS: false
+};
 
-export default function GroupConfig({ all }) {
-  //const { data: groups, error } = useSWR("/api/groups", fetcher, { revalidateOnMount: true});
-
-  const { showGroupConfig, setShowGroupConfig, actionDone, isOpenGroup, setIsOpenGroup } = useGlobal();
+export default function GroupConfig() {
+  const { showGroupConfig, setShowGroupConfig, refresh, isOpenGroup, setIsOpenGroup } = useGlobal();
   const [loading, setLoading] = useState(true);
   const [groups, setGroups] = useState([]);
+  
   const handlePortalGroup = () => {
     setIsOpenGroup(true);
   }
 
-  useEffect(() => {
-    fetchAllGroups().then(data => {
-      setGroups(data.data);
+  const handleWebsocket = () => {
+    Pusher.logToConsole = true
+    const pusher = new Pusher('ABCDEFG', pusherConfig);
+
+    const channel = pusher.subscribe('groups');
+    channel.bind('all-groups', data => {
+      setGroups(data.groups);
+      setLoading(false);
     });
-    setLoading(false);
-  }, [actionDone]);
+  }
 
   useEffect(() => {
-    fetchAllGroups().then(data => {
-      setGroups(data.data);
-    });
-    setLoading(false);
+      handleWebsocket();
   }, []);
+
+  useEffect(() => {
+    handleGroups();
+  }, [refresh]);
+
+  const handleGroups = () => {
+    fetchAllGroups().then(data => {
+    setGroups(data.data);
+    setLoading(false);
+    });
+  }
 
   return (
     <CardBase isShown={showGroupConfig} setIsShown={setShowGroupConfig}>
