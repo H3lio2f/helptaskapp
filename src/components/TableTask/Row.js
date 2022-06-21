@@ -11,15 +11,17 @@ import { useRouter } from 'next/router';
 import { useSnackbar } from "notistack";
 import Swal from "sweetalert2";
 import * as React from 'react';
-import {useMemo} from 'react';
+import {useState, useEffect, useMemo} from 'react';
 import Select from "react-select";
+import { pusherConfig, pusher } from "../../helpers/websocket";
 import { useGlobal } from "../../utils/contexts/global";
 import useSWR from 'swr';
 import {
   changeTaskStatus,
   forwardTask,
   turnTaskActive,
-  turnTaskInactive
+  turnTaskInactive,
+  fetchAllUsers
 } from "../../utils/persistData";
 import {
   fetchUserLogged
@@ -96,7 +98,7 @@ async function fetcher(url) {
 export default function Row({ row, labelId }) {
   const { data: users } = useSWR("/api/users", fetcher, { revalidateOnMount: true});
   const { data: status } = useSWR("/api/status", fetcher, { revalidateOnMount: true});
-  const { data: tasks } = useSWR(`/api/tasks`, fetcher, { revalidateOnMount: true, revalidateOnInterval: 1000});
+  //const { data: tasks } = useSWR(`/api/tasks`, fetcher, { revalidateOnMount: true, revalidateOnInterval: 1000});
   const { data: userLogged } = useSWR("/api/userLogged", fetcher, { revalidateOnInterval: 1000});
  
   const router = useRouter();
@@ -114,7 +116,7 @@ export default function Row({ row, labelId }) {
   const [user, setUser] = React.useState("");
   const [loading, setLoading] = React.useState(false);
 
-  const late = useMemo( () =>tasks?.data.filter(task => task.id === row.id), [tasks]);
+  //const late = useMemo( () =>tasks?.data.filter(task => task.id === row.id), [tasks]);
  
   /*Menu Option */
   const [anchorEl, setAnchorEl] = React.useState(null);
@@ -134,18 +136,35 @@ export default function Row({ row, labelId }) {
     setAnchorElStatus(event.currentTarget);
   };
 
-  React.useEffect(() => {
+  const fetchUsers = async () => {
     let newSet = new Set();
-    users?.data.map((user) => {
-      if (userAuthenticated?.id === user.id) {
-        newSet.add({ label: "(EU)", value: user.id });
-      } else {
-        newSet.add({ label: user.name, value: user.id });
-      }
+    const channel = pusher.subscribe('users');
+    channel.bind('all-users', data => {
+      data.users.map((user) => {
+        if (userLogged?.user.id === user.id) {
+          newSet.add({ label: "(Eu mesmo)", value: userLogged?.user.id });
+        } else {
+          newSet.add({ label: user.name, value: user.id });
+        }
+      });
+      setOptionsUsers([...newSet]);
     });
-    setOptionsUsers([...newSet]);
+  }
 
-  }, [users]);
+  useEffect(() => {
+    fetchUsers();
+  }, []);
+
+  useEffect(() => {
+    handleUsers();
+  }, [refresh]);
+
+  const handleUsers = () => {
+    fetchAllUsers().then(data => {
+      fetchUsers();
+    });
+  }
+
 
     const handleInactive = (id) => {
       turnTaskInactive(id)
@@ -272,30 +291,30 @@ export default function Row({ row, labelId }) {
       </Portal>
     <TableRow
         tabIndex={-1}
-        key={row?.name}
+        key={row.name}
         style={{ cursor: "pointer"}}
     >
-        <TableCell style={row?.remain_percent == 100 ? { width: "5px", background: "transparent", borderLeft: "4px solid var(--error)"} : {}} >
+        <TableCell style={row.remain_percent == 100 ? { width: "5px", background: "transparent", borderLeft: "4px solid var(--error)"} : {}} >
         </TableCell>
         <TableCell
         component="th"
         id={labelId}
         scope="row"
         padding="none"
-        >{row?.name}
+        >{row.name}
         </TableCell>
         <TableCell align="left" style={{ color: "var(--primary)"}}>
-            <Link href={`clients/${row?.client.id}`}>
-               {row?.client.name}
-            </Link>
+            {/* <Link href={`clients/${row.client.id}`}>
+               {row.client.name}
+            </Link> */}
         </TableCell>
-        <TableCell align="left">{moment(row?.dueDate).format("DD/MM/YYYY")}</TableCell>
-        <TableCell align="left">{row?.type.name}</TableCell>
-        <TableCell align="left">{row?.user ? userLogged?.user.id === row?.user.id ? "(Eu)" : row?.user_name : 'sem atribuição'}</TableCell>
+        <TableCell align="left">{moment(row.dueDate).format("DD/MM/YYYY")}</TableCell>
+        <TableCell align="left">{row.type_name}</TableCell>
+        <TableCell align="left">{row.user ? userLogged?.user.id === row.user.id ? "(Eu)" : row.user_name : 'sem atribuição'}</TableCell>
         <TableCell align="left">
         <>
-          <Button onClick={handleClickStatus} size="small" variant="outlined" style={{textTransform: 'lowercase', color: `${row?.statusColor}`, borderColor: `${row?.statusColor}`, width: "120px"}}>
-              { row?.status.name}
+          <Button onClick={handleClickStatus} size="small" variant="outlined" style={{textTransform: 'lowercase', color: `${row.statusColor}`, borderColor: `${row.statusColor}`, width: "120px"}}>
+              { row.status_name}
           </Button>
           <StyledMenu
             anchorEl={anchorElStatus}
@@ -356,14 +375,14 @@ export default function Row({ row, labelId }) {
         </TableCell>
 
         <TableCell align="right">
-        {row?.active === 1 && (
+        {row.active === 1 && (
           [
-          <Link href={`tasks/${row?.id}`} passHref>
-            <Button onClick={() => router.push(`tasks/${row?.id}`)} style={{textTransform: 'capitalize', width: "125px"}} variant="outlined" size="small">
-              {row?.replies.length > 0 ? 
+          <Link href={`tasks/${row.id}`} passHref>
+            <Button onClick={() => router.push(`tasks/${row.id}`)} style={{textTransform: 'capitalize', width: "125px"}} variant="outlined" size="small">
+              {row.replies.length > 0 ? 
                   [
                     <ReplyAllOutlinedIcon size="small"  />,
-                    <Typography ml={2} variant="h7">Ler({row?.replies.length})</Typography>
+                    <Typography ml={2} variant="h7">Ler({row.replies.length})</Typography>
                   ]
                 : 
                   [
@@ -378,7 +397,7 @@ export default function Row({ row, labelId }) {
               style={(userLogged?.user.role === "admin" || userLogged?.user.role === "mannager") ? {textTransform: 'none', marginLeft: "15px"} : {display: "none"}}
               size="small"
               variant="text"
-              onClick={() => handleOpenForward(row?.id)}
+              onClick={() => handleOpenForward(row.id)}
             >
             Atribuir
             </Button>
@@ -402,7 +421,7 @@ export default function Row({ row, labelId }) {
             </Tooltip>
         ): (
 
-            <Link href={`/tasks/${row?.id}`} underline="none" shallow style={(userLogged?.user.role === "admin" || userLogged?.user.role === "mannager")  ? {}: {display: "none"}}>
+            <Link href={`/tasks/${row.id}`} underline="none" shallow style={(userLogged?.user.role === "admin" || userLogged?.user.role === "mannager")  ? {}: {display: "none"}}>
               <a style={{ marginLeft: "30px"}}>
                 <Button
                   size="small"
@@ -449,9 +468,9 @@ export default function Row({ row, labelId }) {
             transformOrigin={{ horizontal: 'right', vertical: 'top' }}
             anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
         >
-            {row?.active === 1 &&
+            {row.active === 1 &&
               [
-              <Link href={`/tasks/${row?.id}`} underline="none" shallow>
+              <Link href={`/tasks/${row.id}`} underline="none" shallow>
                 <a>
                 <MenuItem disableRipple>
                     <VisibilityIcon />
@@ -461,21 +480,21 @@ export default function Row({ row, labelId }) {
               </Link>
               ]
             }
-            {row?.active === 1 ? (
-              <MenuItem onClick={() => handleInactive(row?.id)} disableRipple style={(userLogged?.user.role === "admin" || userLogged?.user.role === "mannager") ? {}: {display: "none"}}>
+            {row.active === 1 ? (
+              <MenuItem onClick={() => handleInactive(row.id)} disableRipple style={(userLogged?.user.role === "admin" || userLogged?.user.role === "mannager") ? {}: {display: "none"}}>
                 <BrowserNotSupportedIcon />
                   Tornar Inactivo
               </MenuItem>
             ) : (
-              <MenuItem onClick={() => handleActive(row?.id)} disableRipple style={(userLogged?.user.role === "admin" || userLogged?.user.role === "mannager")  ? {}: {display: "none"}}>
+              <MenuItem onClick={() => handleActive(row.id)} disableRipple style={(userLogged?.user.role === "admin" || userLogged?.user.role === "mannager")  ? {}: {display: "none"}}>
                 <BrowserNotSupportedIcon />
                 Tornar Activa
               </MenuItem>
             )}
-            {row?.active === 1 &&
+            {row.active === 1 &&
               [
               <Divider sx={{ my: 0.5 }} />,
-              <MenuItem onClick={() => handleOpenForward(row?.id)} disableRipple style={(userLogged?.user.role === "admin" || userLogged?.user.role === "mannager") ? {}: {display: "none"}}>
+              <MenuItem onClick={() => handleOpenForward(row.id)} disableRipple style={(userLogged?.user.role === "admin" || userLogged?.user.role === "mannager") ? {}: {display: "none"}}>
                 <CompareArrowsIcon />
                 Atribuir
               </MenuItem>

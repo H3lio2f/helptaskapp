@@ -8,8 +8,14 @@ import dynamic from 'next/dynamic';
 import * as yup from "yup";
 import { Container } from "../../styles/addCard";
 import { useGlobal } from "../../utils/contexts/global";
+import { pusherConfig, pusher } from "../../helpers/websocket";
 import {
-  fetchAreasOfGroup
+  fetchAreasOfGroup,
+  fetchAllGroups,
+  fetchAllChannels,
+  fetchAllTypes,
+  fetchAllUsers,
+  fetchAllClients
 } from "../../utils/fetchData";
 import useSWR from 'swr';
 
@@ -50,14 +56,13 @@ async function fetcher(url) {
 }
 
 export default function FormNewTask({ client }) {
-  const { data: groups } = useSWR("/api/groups", fetcher, { revalidateOnInterval: 1000});
-  const { data: status } = useSWR("/api/status", fetcher, { revalidateOnInterval: 1000});
-  const { data: users } = useSWR("/api/users", fetcher, { revalidateOnInterval: 1000});
-  const { data: channels } = useSWR("/api/channels", fetcher, { revalidateOnInterval: 1000});
-  const { data: types } = useSWR("/api/types", fetcher, { revalidateOnInterval: 1000});
-  const { data: clients } = useSWR("/api/clients", fetcher, { revalidateOnInterval: 1000});
   const { data: userLogged } = useSWR("/api/userLogged", fetcher, { revalidateOnMount: true});
 
+  const [groups, setGroups] = useState([]);
+  const [channels, setChannels] = useState([]);
+  const [types, setTypes] = useState([]);
+  const [users, setUsers] = useState([]);
+  const [clients, setClients] = useState([]);
 
   const router = useRouter();
   const { enqueueSnackbar } = useSnackbar();
@@ -66,6 +71,7 @@ export default function FormNewTask({ client }) {
   const [tommorrowDay, setTommorrowDay] = useState("");
   const [today, setToday] = useState("");
   const [groupId, setGroupId] = useState();
+  const [files, setFiles] = useState();
 
   const [optionsClients, setOptionsClients] = useState([]);
   const [optionsUsers, setOptionsUsers] = useState([]);
@@ -75,8 +81,7 @@ export default function FormNewTask({ client }) {
   const [optionsAreaOfGroups, setOptionsAreaOfGroups] = useState([]);
   const [optionsTypes, setOptionsTypes] = useState([]);
 
-  const [files, setFiles] = useState();
-
+  
   const handleAreasOfGroup = useCallback(
     (id) => {
       setLoading(true);
@@ -89,90 +94,144 @@ export default function FormNewTask({ client }) {
         setLoading(false);
       });
     },
-    [actionDone, refresh]
+    [refresh]
   );
 
   const fetchGroups = async () => {
     let newSet = new Set();
-    groups?.data.map((group) => {
-      newSet.add({ label: group.name, value: group.id });
+    const channel = pusher.subscribe('groups');
+    channel.bind('all-groups', data => {
+      data.groups.map((group) => {
+        newSet.add({ label: group.name, value: group.id });
+      });
+      setGroups(data.groups);
+      setOptionsGroups([...newSet]);
+      setLoading(false);
     });
-    setOptionsGroups([...newSet]);
-    setLoading(false);
   }
 
   useEffect(() => {
     fetchGroups();
-  }, [groups])
+  }, []);
 
-  const fetchStatus = async () => {
-    setLoading(true);
-    let newSet = new Set();
-    status?.data.map((statu) => {
-      if(statu.id !== 5){
-        newSet.add({ label: statu.name, value: statu.id });
-      }
+  useEffect(() => {
+    handleGroups();
+  }, [refresh]);
+
+  const handleGroups = () => {
+    fetchAllGroups().then(data => {
+      fetchGroups();
     });
-    setOptionsStatus([...newSet]);
-    setLoading(false);
+  }
+
+  const fetchUsers = async () => {
+    let newSet = new Set();
+    const channel = pusher.subscribe('users');
+    channel.bind('all-users', data => {
+      data.users.map((user) => {
+        if (userLogged?.user.id === user.id) {
+          newSet.add({ label: "(Eu mesmo)", value: userLogged?.user.id });
+        } else {
+          newSet.add({ label: user.name, value: user.id });
+        }
+      });
+      setOptionsUsers([...newSet]);
+    });
   }
 
   useEffect(() => {
-    fetchStatus();
-  }, [status])
+    fetchUsers();
+  }, []);
 
   useEffect(() => {
-    let newSet = new Set();
-    users?.data.map((user) => {
-      if (userLogged?.user.id === user.id) {
-        newSet.add({ label: "(Eu mesmo)", value: userLogged?.user.id });
-      } else {
-        newSet.add({ label: user.name, value: user.id });
-      }
+    handleUsers();
+  }, [refresh]);
+
+  const handleUsers = () => {
+    fetchAllUsers().then(data => {
+      fetchUsers();
     });
-    setOptionsUsers([...newSet]);
-  }, [users]);
+  }
+
 
   const fetchChannels = async () => {
-    setLoading(true);
     let newSet = new Set();
-    channels?.data.map((channel) => {
-      newSet.add({ label: channel.name, value: channel.id });
+    const channel = pusher.subscribe('channels');
+    channel.bind('all-channels', data => {
+      data.channels.map((channel) => {
+        newSet.add({ label: channel.name, value: channel.id });
+      });
+      setOptionsChannels([...newSet]);
+      setLoading(false);
     });
-    setOptionsChannels([...newSet]);
-    setLoading(false);
   }
   useEffect(() => {
-    fetchChannels();
-  }, [channels])
+      fetchChannels();
+  }, []);
+
+  useEffect(() => {
+      handleChannels();
+  }, [refresh]);
+
+  const handleChannels = () => {
+    fetchAllChannels().then(data => {
+      fetchChannels();
+      setLoading(false);
+    });
+  }
 
   const fetchClients = async () => {
-    setLoading(true);
     let newSet = new Set();
-    clients?.data.map((client) => {
-      newSet.add({ label: client.name, value: client.id });
+    const channel = pusher.subscribe('clients');
+    channel.bind('all-clients', data => {
+      data.clients.data.map((client) => {
+        newSet.add({ label: client.name, value: client.id });
+      });
+      setOptionsClients([...newSet]);
+      setLoading(false);
     });
-    setOptionsClients([...newSet]);
-    setLoading(false);
   }
 
   useEffect(() => {
     fetchClients();
-  }, [clients])
+  }, []);
+
+  useEffect(() => {
+    handleClients();
+  }, [refresh]);
+
+  const handleClients = () => {
+    fetchAllClients().then(data => {
+    fetchClients();
+    });
+  }
+
 
   const fetchTypes = async () => {
-    setLoading(true);
     let newSet = new Set();
-    types?.data.map((type) => {
-      newSet.add({ label: type.name, value: type.id });
+    const channel = pusher.subscribe('types');
+    channel.bind('all-types', data => {
+      data.types.map((type) => {
+        newSet.add({ label: type.name, value: type.id });
+      });
+      setOptionsTypes([...newSet]);
+      setLoading(false);
     });
-    setOptionsTypes([...newSet]);
-    setLoading(false);
   }
 
   useEffect(() => {
     fetchTypes();
-  }, [types])
+  }, []);
+
+  useEffect(() => {
+    handleTypes();
+  }, [refresh]);
+
+  const handleTypes = () => {
+    fetchAllTypes().then(data => {
+      fetchTypes();
+    });
+  }
   
   useEffect(() => {
     let today = new Date();
@@ -192,7 +251,7 @@ export default function FormNewTask({ client }) {
       type_id: "",
       group_id: "",
       area_id: "",
-      status_id: 4,
+      status_id: 3,
       dueDate: tommorrowDay,
       channel_id: "",
       agent_id: "",
@@ -630,66 +689,28 @@ export default function FormNewTask({ client }) {
           )}
         </div>
 
-      <div className="form-control">
-          <div className="label-control">
-          <div className="label">
-            <label htmlFor="channel">Estado da tarefa</label>
-            <div className="tooltip" datatooltip="Estado da tarefa">
-              <ToolTipIcon />
+        <div className="form-control">
+            <div className="label-control">
+            <div className="label">
+              <label htmlFor="subject">Prazo</label>
+              <div className="tooltip" datatooltip="Tempo estimado para conclusão da tarefa">
+                <ToolTipIcon />
+              </div>
+              </div>
             </div>
-            </div>
-          </div>
-          <Select
-            styles={customStyles}
-            classNamePrefix="select"
-            placeholder="Em que estado se encontra esta tarefa?"
-            placeholher="ssss"
-            isClearable
-            isSearchable
-            id="status_id"
-            instanceId="status_id"
-            options={optionsStatus}
-            isLoading={loading}
-            isDisabled={!formik.values.user_id}
-            noOptionsMessage={() => 'Nenhum estado para as tarefas!'}
-            onChange={(option) => {
-              if (option) {
-                formik.setFieldValue("status_id", option.value);
-              } else {
-                formik.setFieldValue("status_id", "");
-              }
-            }}
-          />
-          {formik.errors.status_id && formik.touched.status_id && (
-            <p className="error">{formik.errors.status_id}</p>
-          )}
-        </div>
-      </div>
-
-
-      <div className="form-control-divided">
-      <div className="form-control">
-          <div className="label-control">
-          <div className="label">
-            <label htmlFor="subject">Prazo</label>
-            <div className="tooltip" datatooltip="Tempo estimado para conclusão da tarefa">
-              <ToolTipIcon />
-            </div>
-            </div>
-          </div>
-          <input
-            className={formik.errors.dueDate ? "subject red-border" : "subject "}
-            id="dueDate"
-            type="datetime-local"
-            min={today}
-            name="dueDate"
-            value={formik.values.dueDate}
-            onChange={formik.handleChange}
-            onBlur={formik.handleBlur}
-          />
-          {formik.errors.dueDate && formik.touched.dueDate && (
-            <p className="error">{formik.errors.dueDate}</p>
-          )}
+            <input
+              className={formik.errors.dueDate ? "subject red-border" : "subject "}
+              id="dueDate"
+              type="datetime-local"
+              min={today}
+              name="dueDate"
+              value={formik.values.dueDate}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+            />
+            {formik.errors.dueDate && formik.touched.dueDate && (
+              <p className="error">{formik.errors.dueDate}</p>
+            )}
         </div>
       </div>
 

@@ -3,36 +3,24 @@ import { useEffect, useState } from 'react';
 import { Container as List } from "../../../styles/addCard";
 import { useGlobal } from "../../../utils/contexts/global";
 import { fetchAllChannels } from "../../../utils/fetchData";
+import { pusherConfig, pusher } from "../../../helpers/websocket";
 import FormNewChannel from '../../FormNewChannel';
 import Portal from '../../Portal/Portal';
 import CardBase from "../CardBase";
 import Item from './Item';
 import { Container } from "./styles";
-import Pusher from 'pusher-js';
 
-const pusherConfig = {
-  cluster: 'mt1',
-  wsHost: '127.0.0.1',
-  wsPort: '6001',
-  encrypted:false,
-  enabledTransports: ['ws'],
-  forceTLS: false
-};
 
 export default function ChannelConfig() {
   const { showChannelConfig, setShowChannelConfig, refresh, actionDone, isOpenChannel, setIsOpenChannel } = useGlobal();
   const [channels, setChannels] = useState([]);
   const [loading, setLoading] = useState(true);
-
-
+ 
   const handlePortalChannel = () => {
     setIsOpenChannel(true);
   }
 
   const handleWebsocket = () => {
-    Pusher.logToConsole = true
-    const pusher = new Pusher('ABCDEFG', pusherConfig);
-
     const channel = pusher.subscribe('channels');
     channel.bind('all-channels', data => {
       setChannels(data.channels);
@@ -50,7 +38,7 @@ export default function ChannelConfig() {
 
   const handleChannels = () => {
     fetchAllChannels().then(data => {
-      setChannels(data.data);
+      handleWebsocket();
       setLoading(false);
     });
   }

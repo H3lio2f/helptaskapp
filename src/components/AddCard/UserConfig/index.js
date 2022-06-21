@@ -4,19 +4,10 @@ import { useEffect, useState } from "react";
 import { Container as List } from "../../../styles/addCard";
 import { useGlobal } from "../../../utils/contexts/global";
 import { fetchAllUsers } from "../../../utils/fetchData";
+import { pusherConfig, pusher } from "../../../helpers/websocket";
 import CardBase from "../CardBase";
 import Item from "./Item";
 import { Container } from "./styles";
-import Pusher from 'pusher-js';
-
-const pusherConfig = {
-  cluster: 'mt1',
-  wsHost: '127.0.0.1',
-  wsPort: '6001',
-  encrypted:false,
-  enabledTransports: ['ws'],
-  forceTLS: false
-};
 
 const FormNewUser = dynamic(() => import("../../FormNewUser"));
 const Portal = dynamic(() => import("../../Portal/Portal"));
@@ -37,12 +28,8 @@ export default function UserConfig() {
   };
 
   const handleWebsocket = () => {
-    Pusher.logToConsole = true
-    const pusher = new Pusher('ABCDEFG', pusherConfig);
-
     const channel = pusher.subscribe('users');
     channel.bind('all-users', data => {
-      console.log(data.users);
       setUsers(data.users);
       setLoading(false);
     });
@@ -58,8 +45,7 @@ export default function UserConfig() {
 
   const handleUsers = () => {
     fetchAllUsers().then(data => {
-    setUsers(data.data);
-    setLoading(false);
+      handleWebsocket();
     });
   }
 

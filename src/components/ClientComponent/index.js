@@ -7,6 +7,7 @@ import Layout from "../Layout";
 import SectionTitle from "../SectionTitle";
 import { Container } from "../../styles/pages/client";
 import { useGlobal } from "../../utils/contexts/global";
+import { pusherConfig, pusher } from "../../helpers/websocket";
 import {fetchAllClients } from "../../utils/fetchData";
 import TableClient from "../TableClient";
 import useSWR from 'swr';
@@ -22,12 +23,13 @@ export default function Clients({ clients }) {
   const { setShowNewClient, refresh } = useGlobal();
   const [allClients, setAllClients] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
+  const [loading, setLoading] = useState(true);
 
   const fetchClients = async () => {
     if (!searchQuery) {
       setAllClients(clients);
     } else {
-      const dataFiltered = clients.filter((client) => client.name.toLowerCase().includes(searchQuery.toLowerCase()) || client.reference.toLowerCase().includes(searchQuery.toLowerCase()) || client.country.toLowerCase().includes(searchQuery.toLowerCase()) || client.email1.toLowerCase().includes(searchQuery.toLowerCase()) || client.phone1.toLowerCase().includes(searchQuery.toLowerCase()));
+      const dataFiltered = allClients.filter((client) => client.name.toLowerCase().includes(searchQuery.toLowerCase()) || client.reference.toLowerCase().includes(searchQuery.toLowerCase()) || client.country.toLowerCase().includes(searchQuery.toLowerCase()) || client.email1.toLowerCase().includes(searchQuery.toLowerCase()) || client.phone1.toLowerCase().includes(searchQuery.toLowerCase()));
       setAllClients(dataFiltered);
     }
   }
@@ -36,16 +38,22 @@ export default function Clients({ clients }) {
     fetchClients();
   }, [searchQuery])
 
+  const handleWebsocket = () => {
+    const channel = pusher.subscribe('clients');
+    channel.bind('all-clients', data => {
+      setAllClients(data.clients.data);
+      setLoading(false);
+    });
+  }
+
   useEffect(() => {
     fetchAllClients().then(data => {
-      setAllClients(data.data);
+      handleWebsocket();
     });
   },[refresh]);
 
   useEffect(() => {
-    fetchAllClients().then(data => {
-      setAllClients(data.data);
-    });
+    handleWebsocket();
   },[]);
 
 
@@ -54,7 +62,7 @@ export default function Clients({ clients }) {
       if (!searchQuery) {
         setAllClients(clients);
       } else {
-        const dataFiltered = clients.filter((client) => client.name.toLowerCase().includes(searchQuery.toLowerCase()) || client.reference.toLowerCase().includes(searchQuery.toLowerCase()) || client.country.toLowerCase().includes(searchQuery.toLowerCase()) || client.email1.toLowerCase().includes(searchQuery.toLowerCase()) || client.phone1.toLowerCase().includes(searchQuery.toLowerCase()));
+        const dataFiltered = allClients.filter((client) => client.name.toLowerCase().includes(searchQuery.toLowerCase()) || client.reference.toLowerCase().includes(searchQuery.toLowerCase()) || client.country.toLowerCase().includes(searchQuery.toLowerCase()) || client.email1.toLowerCase().includes(searchQuery.toLowerCase()) || client.phone1.toLowerCase().includes(searchQuery.toLowerCase()));
         setAllClients(dataFiltered);
       }
     }

@@ -9,6 +9,7 @@ import { ButtonContainer } from "../Buttons/save";
 import PhoneInput from "react-phone-input-2";
 import pt from 'react-phone-input-2/lang/pt.json';
 import { updateClient } from "./../../utils/persistData";
+import { fetchAllClients } from "./../../utils/fetchData";
 
 export default function FormUpdateClient({ client }) {
 
@@ -72,13 +73,13 @@ export default function FormUpdateClient({ client }) {
         phone2,
         active,
       }).then(({ data }) => {
+          setRefresh(!refresh);
           setSubmitting(false);
           setShowUpdateClient(false);
-          setRefresh(!refresh);
-          setActionDone(!actionDone);
           enqueueSnackbar(data.message, {
             variant: "success",
           });
+          fetchAllClients().then(data => {});
         }).catch(( {response} ) => {
           setSubmitting(false);
           setActionDone(!actionDone);

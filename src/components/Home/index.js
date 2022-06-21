@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useMemo } from "react";
 import { Container } from "../../styles/pages/home";
 import { useGlobal } from "../../utils/contexts/global";
+import { pusherConfig, pusher } from "../../helpers/websocket";
 import { fetchAllTasks } from "../../utils/fetchData";
 import dynamic from 'next/dynamic'
 import ButtonAdd from "../Buttons/add";
@@ -20,23 +21,23 @@ async function fetcher(url) {
 
 export default function Home({ tasks }) {
   const { data: userLogged } = useSWR("/api/userLogged", fetcher, { revalidateOnMount: true});
-  const { data: tasksAll } = useSWR("/api/tasks", fetcher, { revalidateOnInterval: 1});
   const { refresh, showAttribueted } = useGlobal();
   const [allTasks, setAllTasks] = useState([]);
   const [checked, setChecked] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [toggleFilterBy, setToogleFilterBy] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   const fetchTasks = async () => {
     if (!searchQuery) {
       if(checked === true) {
         setAllTasks(tasks);
       }else{
-        const filterActive = tasks.filter((task) => task.active === 1);
+        const filterActive = allTasks.filter((task) => task.active === 1);
         setAllTasks(filterActive);
       }
     } else {
-      const dataFiltered = tasks.filter((task) => task.name.toLowerCase().includes(searchQuery.toLowerCase()) || task.status_control.toLowerCase().includes(searchQuery.toLowerCase())  || task.client_name.toLowerCase().includes(searchQuery.toLowerCase()) || task.type_name.toLowerCase().includes(searchQuery.toLowerCase()) || task.user_name.toLowerCase().includes(searchQuery.toLowerCase()) || task.status_name.toLowerCase().includes(searchQuery.toLowerCase()) || task.dueDate.includes(moment(searchQuery).format('DD/MM/YYYY')));
+      const dataFiltered = allTasks.filter((task) => task.name.toLowerCase().includes(searchQuery.toLowerCase()) || task.status_control.toLowerCase().includes(searchQuery.toLowerCase())  || task.client_name.toLowerCase().includes(searchQuery.toLowerCase()) || task.type_name.toLowerCase().includes(searchQuery.toLowerCase()) || task.user_name.toLowerCase().includes(searchQuery.toLowerCase()) || task.status_name.toLowerCase().includes(searchQuery.toLowerCase()) || task.dueDate.includes(moment(searchQuery).format('DD/MM/YYYY')));
       if(checked === true) {
         setAllTasks(dataFiltered);
       }else{
@@ -53,16 +54,23 @@ export default function Home({ tasks }) {
     fetchTasks();
   }, [searchQuery, toggleFilterBy])
 
-  useEffect(() => {
-    setAllTasks(tasksAll?.data);
-  },[tasksAll]);
+  const handleWebsocket = () => {
+    const channel = pusher.subscribe('tasks');
+    channel.bind('all-tasks', data => {
+      setAllTasks(data.tasks.data);
+      setLoading(false);
+    });
+  }
 
-  /* 
   useEffect(() => {
     fetchAllTasks().then(data => {
-      setAllTasks(data.data);
+      handleWebsocket();
     });
-  },[]); */
+  },[refresh]);
+
+  useEffect(() => {
+    handleWebsocket();
+  },[]);
 
   const handleKeyDown = async(e) => {
     if (e.keyCode === 13) {
@@ -70,11 +78,11 @@ export default function Home({ tasks }) {
         if(checked === true) {
           setAllTasks(tasks);
         }else{
-          const filterActive = tasks.filter((task) => task.active == 1);
+          const filterActive = allTasks.filter((task) => task.active == 1);
           setAllTasks(filterActive);
         }
       } else {
-        const dataFiltered = tasks.filter((task) => task.name.toLowerCase().includes(searchQuery.toLowerCase()) || task.client_name.toLowerCase().includes(searchQuery.toLowerCase()) || task.type_name.toLowerCase().includes(searchQuery.toLowerCase()) || task.user_name.toLowerCase().includes(searchQuery.toLowerCase()) || task.status_name.toLowerCase().includes(searchQuery.toLowerCase()) || task.dueDate.includes(moment(searchQuery).format('DD/MM/YYYY')));
+        const dataFiltered = allTasks.filter((task) => task.name.toLowerCase().includes(searchQuery.toLowerCase()) || task.client_name.toLowerCase().includes(searchQuery.toLowerCase()) || task.type_name.toLowerCase().includes(searchQuery.toLowerCase()) || task.user_name.toLowerCase().includes(searchQuery.toLowerCase()) || task.status_name.toLowerCase().includes(searchQuery.toLowerCase()) || task.dueDate.includes(moment(searchQuery).format('DD/MM/YYYY')));
         if(checked === true) {
           setAllTasks(dataFiltered);
         }else{

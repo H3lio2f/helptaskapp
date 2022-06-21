@@ -51,9 +51,9 @@ export default function FormNewChannel() {
             setChannels([...channels, singleChannel.channel]);
           });
           console.log("CHANNEL: ", channels); */
+          setRefresh(!refresh);
           setSubmitting(false);
           setIsOpenChannel(false);
-          setRefresh(!refresh);
           enqueueSnackbar(data.message, {
             variant: "success",
           });

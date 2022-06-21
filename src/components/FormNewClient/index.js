@@ -86,6 +86,7 @@ export default function FormNewClient() {
           });
         })
         .catch(({ response }) => {
+          console.log(response);
           setSubmitting(false);
           if (response.status === 422) {
             console.log(response);

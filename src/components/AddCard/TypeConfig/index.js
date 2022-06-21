@@ -3,21 +3,12 @@ import { useEffect, useState } from 'react';
 import { Container as List } from "../../../styles/addCard";
 import { useGlobal } from "../../../utils/contexts/global";
 import { fetchAllTypes } from "../../../utils/fetchData";
+import { pusherConfig, pusher } from "../../../helpers/websocket";
 import FormNewType from '../../FormNewType';
 import Portal from '../../Portal/Portal';
 import CardBase from "../CardBase";
 import Item from './Item';
 import { Container } from "./styles";
-import Pusher from 'pusher-js';
-
-const pusherConfig = {
-  cluster: 'mt1',
-  wsHost: '127.0.0.1',
-  wsPort: '6001',
-  encrypted:false,
-  enabledTransports: ['ws'],
-  forceTLS: false
-};
 
 export default function TypeConfig() {
   const { showTypeConfig, setShowTypeConfig, refresh, isOpenType, setIsOpenType } = useGlobal();
@@ -29,9 +20,6 @@ export default function TypeConfig() {
   }
 
   const handleWebsocket = () => {
-    Pusher.logToConsole = true
-    const pusher = new Pusher('ABCDEFG', pusherConfig);
-
     const channel = pusher.subscribe('types');
     channel.bind('all-types', data => {
       setTypes(data.types);
@@ -49,8 +37,7 @@ export default function TypeConfig() {
 
   const handleTypes = () => {
     fetchAllTypes().then(data => {
-    setTypes(data.data);
-    setLoading(false);
+      handleWebsocket();
     });
   }
 

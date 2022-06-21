@@ -19,7 +19,8 @@ export default function Item({ channel }) {
 
   const handleDelete = (id) => {
     deleteChannel(id)
-      .then(({ message }) => {setRefresh(!refresh);
+      .then(({ message }) => {
+        setRefresh(!refresh);
         enqueueSnackbar(message, {
           variant: "success",
         });

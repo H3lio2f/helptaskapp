@@ -1,24 +1,41 @@
 import Head from "next/head";
 import dynamic from 'next/dynamic';
-import useSWR from 'swr';
-import { useMemo} from 'react';
+import React, { useState, useEffect} from 'react';
+import { useGlobal } from "../utils/contexts/global";
+import { fetchAllTasks } from "../utils/fetchData";
+import { pusherConfig, pusher } from "../helpers/websocket";
 
 const HomeComponent = dynamic(() => import("../components/Home"));
 const Loader = dynamic(() => import("../components/LoadingSpinner"));
 const Error = dynamic(() => import("../components/Error"));
 
-async function fetcher(url) {
-    const res = await fetch(url);
-    return res.json();
-}
-
-export default function Home({ tasks}) {
-  const { data, error } = useSWR("/api/tasks", fetcher);
+export default function Home() {
+  const { refresh } = useGlobal();
+  const [tasks, setTasks] = useState([]);
+  const [loading, setLoading] = useState(true);
   
-  if(error) return <Error />;
+  const handleWebsocket = () => {
+    const channel = pusher.subscribe('tasks');
+    channel.bind('all-tasks', data => {
+      setTasks(data.tasks.data);
+      setLoading(false);
+    });
+  }
 
-  
-  //const allTasks = useMemo( () =>data?.data, [data]);
+  useEffect(() => {
+    handleWebsocket();
+  }, []);
+
+  useEffect(() => {
+    handleTasks();
+  }, [refresh]);
+
+  const handleTasks = () => {
+    fetchAllTasks().then(data => {
+    handleWebsocket();
+    });
+  }
+
 
   return (
     <>
@@ -27,19 +44,9 @@ export default function Home({ tasks}) {
         <meta name="description" content="Helptask - Página Incial" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      {!data ? (
-        <Loader />
-      ):(
-      <HomeComponent tasks={data.data} />
-      )} 
+      {loading && ( <Loader />)}
+      <HomeComponent tasks={tasks} />
+      
     </>
   );
-}
-
-export async function getStaticProps(context) {
-  return {
-    props: {
-      tasks: []
-    }, // will be passed to the page component as props
-  }
 }

@@ -4,16 +4,7 @@ import dynamic from 'next/dynamic'
 import useSWR from 'swr';
 import { useGlobal } from "../../utils/contexts/global";
 import { fetchAllClients } from "../../utils/fetchData";
-import Pusher from 'pusher-js';
-
-const pusherConfig = {
-  cluster: 'mt1',
-  wsHost: '127.0.0.1',
-  wsPort: '6001',
-  encrypted:false,
-  enabledTransports: ['ws'],
-  forceTLS: false
-};
+import { pusherConfig, pusher } from "../../helpers/websocket";
 
 const ClientComponent = dynamic(() => import("../../components/ClientComponent"));
 const Loader = dynamic(() => import("../../components/LoadingSpinner"));
@@ -30,12 +21,9 @@ export default function Clients() {
   const [loading, setLoading] = useState(true);
 
   const handleWebsocket = () => {
-    Pusher.logToConsole = true
-    const pusher = new Pusher('ABCDEFG', pusherConfig);
-
     const channel = pusher.subscribe('clients');
     channel.bind('all-clients', data => {
-      setClients(data.clients);
+      setClients(data.clients.data);
       setLoading(false);
     });
   }
@@ -45,13 +33,12 @@ export default function Clients() {
   }, []);
 
   useEffect(() => {
-    handleTypes();
+    handleClients();
   }, [refresh]);
 
-  const handleTypes = () => {
+  const handleClients = () => {
     fetchAllClients().then(data => {
-    setClients(data.data);
-    setLoading(false);
+    handleWebsocket();
     });
   }
 
@@ -62,8 +49,8 @@ export default function Clients() {
         <meta name="description" content="Helptask - Nossos clientes" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
+      {loading && ( <Loader />)}
       <ClientComponent clients={clients} />
-      
     </>
   );
 }

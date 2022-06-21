@@ -1,10 +1,12 @@
 import Link from "next/link";
 import dynamic from 'next/dynamic';
 import {destroyCookie } from "nookies";
-import { useState,  useMemo } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useAuth } from "../../utils/contexts/auth";
 import { Container, BouncyDiv } from "./styles";
 import { useRouter } from 'next/router';
+import { fetchAllTasks } from "../../utils/fetchData";
+import { pusherConfig, pusher } from "../../helpers/websocket";
 import { useGlobal } from "../../utils/contexts/global";
 
 const FormUpdateUser = dynamic(() => import("../FormUpdateUser"));
@@ -17,11 +19,14 @@ async function fetcher(url) {
   return res.json();
 }
 export default function TopBar() {
+  const router = useRouter();
   const { data: userLogged } = useSWR("/api/userLogged", fetcher, { revalidateOnMount: true, refreshInterval: 1000});
-  const { data: tasks } = useSWR("/api/tasks", fetcher, { revalidateOnMount: true, refreshInterval: 1000}); const router = useRouter();
-  const { showAttribueted, setShowAttribueted, isOpenUpdateUser, setIsOpenUpdateUser } = useGlobal();
+  //const { data: tasks } = useSWR("/api/tasks", fetcher, { revalidateOnMount: true, refreshInterval: 1000}); const router = useRouter();
+  const { showAttribueted, setShowAttribueted, isOpenUpdateUser, refresh, setIsOpenUpdateUser } = useGlobal();
   const [isOpen, setIsOpen] = useState(false);
   const [isOpenNoty, setIsOpenNoty] = useState(false);
+  const [tasks, setTasks] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   const handleOpenUpdatePerfil = () => {
     setIsOpen(false);
@@ -53,7 +58,29 @@ export default function TopBar() {
     setIsOpenNoty(false);
   }
 
-  const late = useMemo( () =>tasks?.data.filter(task => task.status_control === "waiting"), [tasks]);
+  const handleWebsocket = () => {
+    const channel = pusher.subscribe('tasks');
+    channel.bind('all-tasks', data => {
+      setTasks(data.tasks.data);
+      setLoading(false);
+    });
+  }
+
+  useEffect(() => {
+    handleWebsocket();
+  }, []);
+
+  useEffect(() => {
+    handleTasks();
+  }, [refresh]);
+
+  const handleTasks = () => {
+    fetchAllTasks().then(data => {
+    handleWebsocket();
+    });
+  }
+
+  const late = useMemo( () =>tasks.filter(task => task.status_control === "waiting"), [refresh]);
 
   return (
     <>
